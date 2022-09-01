@@ -41,7 +41,7 @@ class FiniteAutomata:
         try:
             return self.transition_map[(origin, symbol)]
         except KeyError:
-            return -1
+            return DEAD_STATE
 
     def _create_transition_map(self, transitions):
         """
