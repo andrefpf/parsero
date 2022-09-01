@@ -15,7 +15,6 @@ class FiniteAutomata:
 
         for symbol in string:
             current_state = self.compute(current_state, symbol)
-
             yield current_state
             if current_state is DEAD_STATE:
                 break

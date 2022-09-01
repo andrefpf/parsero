@@ -6,7 +6,6 @@ def test_even_chars():
     """
     L = {w | w bellows to {a, b}* and w is even}
     """
-    pass
 
     states = [State("q0", True), State("q1", False)]
 
