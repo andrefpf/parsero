@@ -5,13 +5,20 @@ description = ""
 authors = ["André Fernandes <fpf.andre@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.7"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.2"
 black = "^22.6.0"
 isort = "^5.10.1"
+pytest = "^7.1.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length=100
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
