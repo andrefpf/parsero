@@ -12,6 +12,7 @@ class FiniteAutomata:
         Iterates over a string yielding the current state of the automata.
         """
         current_state = self.initial_state
+        yield current_state
 
         for symbol in string:
             current_state = self.compute(current_state, symbol)
@@ -24,7 +25,6 @@ class FiniteAutomata:
         Checks if the string bellows to the automata language.
         """
 
-        last_state = self.initial_state
         for state in self.travel(string):
             last_state = state
 

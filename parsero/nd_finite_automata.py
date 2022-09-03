@@ -1,3 +1,6 @@
+from functools import cache
+
+
 class NDFiniteAutomata:
     def __init__(self, states=None, initial_state=0, transitions=None):
         self.states = states
@@ -6,19 +9,25 @@ class NDFiniteAutomata:
 
     def travel(self, string):
         """
-        Iterates over a string yielding the current state of the automata.
+        Iterates over a string yielding the current states of the automata.
         """
-        current_states = {self.initial_state}
+        current_states = self.epsilon_closure(self.initial_state)
+        yield current_states
 
         for symbol in string:
-            current_states = self.compute(current_states, symbol)
+            next_states = set()
+            for i in self.compute(current_states, symbol):
+                next_states |= self.epsilon_closure(i)
+            current_states = next_states
+
             yield current_states
+
             if not current_states:
                 break
 
     def compute(self, origins, symbol):
         """
-        Executes a single step of computation from a origin state through a symbol, then returns the next state.
+        Executes a single step of computation from origin states through a symbol, then returns the next states.
         """
 
         target = set()
@@ -33,19 +42,38 @@ class NDFiniteAutomata:
         """
         Checks if the string bellows to the automata language.
         """
-
-        last_states = {self.initial_state}
         for states in self.travel(string):
             last_states = states
-        
+
         for i in last_states:
             if self.states[i].is_final:
                 return True
         return False
 
+    @cache
+    def epsilon_closure(self, state):
+        """
+        This is a simple DFS algorithm to get all states reachable by epsilon transitions.
+        """
+
+        visited = [False for _ in self.states]
+        stack = [state]
+        closure = {state}
+
+        visited[state] = True
+
+        while stack:
+            s = stack.pop(0)
+            for n in self.compute({s}, "&"):
+                if not visited[n]:
+                    stack.append(n)
+                    visited[n] = True
+            closure.add(s)
+        return closure
+
     def _create_transition_map(self, transitions):
         """
-        Turns a list of transitions in the format [(origin, symbol, state), ..., (origin, symbol, state)] into a dict
+        Turns a list of transitions in the format [(origin, symbol, states), ..., (origin, symbol, states)] into a dict
         """
 
         transition_map = dict()
