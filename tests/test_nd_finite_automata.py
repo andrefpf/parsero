@@ -30,13 +30,14 @@ def test_even_chars():
     for string, answer in template:
         assert automata.evaluate(string) == answer
 
+
 def test_ends_with_bb():
     """
     L = {w | w bellows to {a, b}* and w end with ...bb}
     """
 
     states = [
-        State("Default", False), 
+        State("Default", False),
         State("FirstB", False),
         State("SecondB", True),
     ]
@@ -49,13 +50,13 @@ def test_ends_with_bb():
     ]
 
     template = [
-        ('aaa', False),
-        ('aaab', False),
-        ('aaabb', True),
-        ('bbbbb', True),
-        ('abba', False),
-        ('abbab', False),
-        ('abbabb', True),
+        ("aaa", False),
+        ("aaab", False),
+        ("aaabb", True),
+        ("bbbbb", True),
+        ("abba", False),
+        ("abbab", False),
+        ("abbabb", True),
         ("", False),
         ("aaacaabb", False),
     ]

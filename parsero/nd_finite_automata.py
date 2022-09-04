@@ -37,7 +37,7 @@ class NDFiniteAutomata:
         last_states = {self.initial_state}
         for states in self.travel(string):
             last_states = states
-        
+
         for i in last_states:
             if self.states[i].is_final:
                 return True
