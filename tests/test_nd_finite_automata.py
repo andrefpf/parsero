@@ -1,20 +1,14 @@
-from parsero.nd_finite_automata import NDFiniteAutomata
-from parsero.state import State
+from parsero.example_machines.ndfa_machines import (
+    ndfa_abc_sequence,
+    ndfa_ends_with_bb,
+    ndfa_even_chars,
+)
 
 
 def test_even_chars():
     """
     L = {w | w bellows to {a, b}* and w is even}
     """
-
-    states = [State("Even", True), State("Odd", False)]
-
-    transitions = [
-        (0, "a", 1),
-        (0, "b", 1),
-        (1, "a", 0),
-        (1, "b", 0),
-    ]
 
     template = [
         ("aa", True),
@@ -25,7 +19,7 @@ def test_even_chars():
         ("c", False),
     ]
 
-    automata = NDFiniteAutomata(states=states, transitions=transitions)
+    automata = ndfa_even_chars()
 
     for string, answer in template:
         assert automata.evaluate(string) == answer
@@ -35,19 +29,6 @@ def test_ends_with_bb():
     """
     L = {w | w bellows to {a, b}* and w end with ...bb}
     """
-
-    states = [
-        State("Default", False),
-        State("FirstB", False),
-        State("SecondB", True),
-    ]
-
-    transitions = [
-        (0, "a", 0),
-        (0, "b", {0, 1}),
-        (1, "b", 2),
-        (2, "b", 2),
-    ]
 
     template = [
         ("aaa", False),
@@ -61,7 +42,29 @@ def test_ends_with_bb():
         ("aaacaabb", False),
     ]
 
-    automata = NDFiniteAutomata(states=states, transitions=transitions)
+    automata = ndfa_ends_with_bb()
+
+    for string, answer in template:
+        assert automata.evaluate(string) == answer
+
+
+def test_abc_sequence():
+    template = [
+        ("", True),
+        ("a", True),
+        ("b", True),
+        ("c", True),
+        ("aa", True),
+        ("ab", True),
+        ("bc", True),
+        ("abc", True),
+        ("bca", False),
+        ("aba", False),
+        ("cba", False),
+        ("ccb", False),
+    ]
+
+    automata = ndfa_abc_sequence()
 
     for string, answer in template:
         assert automata.evaluate(string) == answer
