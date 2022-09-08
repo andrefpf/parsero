@@ -5,10 +5,21 @@ Parsero is a lexical and syntactic analyzer made from scratch.
 
 The dependecies of this project are managed with poetry. Learn about it in https://python-poetry.org/.
 
-**On the first run install the project:**
+**First, install the dependecies:**
 
-    poetry install
+    make install
 
-**Then you can run it:**
+**Run it:**
 
-    poetry run python parsero
+    make
+
+### Developer Tools
+
+**Check code health:**
+
+    make format
+
+**Execute tests:**
+
+    make test
+
