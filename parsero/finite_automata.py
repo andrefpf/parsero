@@ -33,6 +33,28 @@ class FiniteAutomata:
         else:
             return self.states[last_state].is_final
 
+    def match(self, string):
+        """
+        Returns a number that corresponds to the length of the longest prefix recognized by the automata.
+
+        If the automata recognizes the language 
+        L = {w | w bellows to {abor} starts with a and ends with b}
+
+        and your test string is "abobora", this function will return 4, corresponding to the suffix "abob".
+        """
+
+        length = 0
+        last_recognized_state = DEAD_STATE
+
+        for i, state in enumerate(self.travel(string)):
+            if state == DEAD_STATE:
+                break
+
+            if self.states[state].is_final:
+                length = i
+
+        return length
+
     def compute(self, origin, symbol):
         """
         Executes a single step of computation from a origin state through a symbol, then returns the next state.
