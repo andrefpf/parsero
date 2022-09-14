@@ -37,7 +37,7 @@ class FiniteAutomata:
         """
         Returns a number that corresponds to the length of the longest prefix recognized by the automata.
 
-        If the automata recognizes the language 
+        If the automata recognizes the language
         L = {w | w bellows to {abor} starts with a and ends with b}
 
         and your test string is "abobora", this function will return 4, corresponding to the suffix "abob".

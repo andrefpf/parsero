@@ -1,4 +1,7 @@
-from parsero.machines.fa_machines import fa_even_chars, fa_starts_with_a_ends_with_b
+from parsero.machines.fa_machines import (
+    fa_even_chars,
+    fa_starts_with_a_ends_with_b,
+)
 
 
 def test_even_chars():
@@ -59,4 +62,3 @@ def test_match():
     prefix = automata.match("ab")
     # whole word
     assert prefix == 2
-    
