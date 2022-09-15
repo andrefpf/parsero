@@ -14,7 +14,7 @@ def test_abc_123():
         ("def", True),
     ]
 
-    automata = compile_regex("(a|b)*")
+    automata = compile_regex("a?(a|b)+ab*c")
 
     # for string, answer in template:
     #     assert automata.evaluate(string) == answer

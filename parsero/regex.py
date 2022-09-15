@@ -66,7 +66,7 @@ transitions = [
 alphanumericals = FiniteAutomata(states=states, transitions=transitions)
 
 
-def _find_closing_bracket(string : str) -> int:
+def _extract_expression(string : str) -> str:
     stack = []
     last_closing_bracket = 0
     for i, char in enumerate(string):
@@ -83,48 +83,84 @@ def _find_closing_bracket(string : str) -> int:
 
     if stack:
         raise ValueError("Brackets not matching")
+    
+    return string[1:last_closing_bracket]
 
-    return i
+def debug_infix(op, a, b):
+    if (not a) and (not b):
+        return ''
+
+    if not a:
+        return str(b)
+
+    elif not b:
+        return str(a)
+    
+    else:
+        return f'{op}({a}, {b})'
+
+def debug_postfix(op, a):
+    if not a:
+        return ''
+    
+    return f'{op}({a})'
+
 
 def compile_regex(string : str) -> NDFiniteAutomata:
-    or_operation = False
-    # automata = NDFiniteAutomata()
+    # expression_automata = NDFiniteAutomata()
+    # infix_automata = NDFiniteAutomata()
+    # postfix_automata = NDFiniteAutomata()
 
-    # remove later
-    expression = 'empty'
+    postfix_scope = ""
+    infix_scope = ""
+    expression_scope = ""
+    ignore_list = ")]"
     
     iterator = enumerate(string)
     for i, char in iterator:
-        # read operators
+        if char in ignore_list:
+            continue
+
         if char == '*':
-            expression = f"({expression})*" 
-            # automata = automata.closure()
-            continue
+            # postfix_automata = postfix_automata.closure()
+            postfix_scope = debug_postfix('closure', postfix_scope)
 
-        if char == '|':
-            or_operation = True
-            continue
+        elif char == '+':
+            # postfix_automata = postfix_automata.positive_closure()
+            postfix_scope = debug_postfix('+closure', postfix_scope)
 
-        # create automata from subexpressions
-        if alphanumericals.evaluate(char):
-            substring = char
-            # consume(iterator, word_size-1)
-            # current_automata = _concatenation_automata(substring)
+        elif char == '?':
+            # postfix_automata = postfix_automata.any()
+            postfix_scope = debug_postfix('any', postfix_scope)
+        
+        elif alphanumericals.evaluate(char):
+            # infix_automata = infix_automata + postfix_automata
+            infix_scope = debug_infix('cat', infix_scope, postfix_scope)
+            postfix_scope = char
         
         elif char == '(':
-            expression_size = _find_closing_bracket(string[i:])
-            substring = string[i + 1 : i + expression_size]
-            consume(iterator, expression_size)
-            current_automata = compile_regex(substring)
+            infix_scope = debug_infix('cat', infix_scope, postfix_scope)
+            postfix_scope = _extract_expression(string[i:])
+            # infix_automata = infix_automata + postfix_automata
+            postfix_automata = compile_regex(postfix_scope)
+            consume(iterator, len(postfix_scope) + 1)
+        
+        elif char == '|':
+            # infix_automata = infix_automata + postfix_automata
+            # expression_automata = expression_automata + infix_automata
+            infix_scope = debug_infix('cat', infix_scope, postfix_scope)
+            expression_scope = debug_infix('or', expression_scope, infix_scope)
+            infix_scope = ""
+            postfix_scope = ""
 
         else:
-            raise ValueError(f"Unknown symbol {string[i]}")
+            raise ValueError(f"Unknown symbol {char}")
 
-        # apply operators
-        if or_operation:
-            expression = f'({expression} | {substring})'
-        else:
-            expression = f'({expression} + {substring})'
-    
-    print(expression)
-    # return automata
+    # put together the remaining
+    # infix_automata = infix_automata + postfix_automata
+    # expression_automata = expression_automata + infix_automata
+    infix_scope = debug_infix('cat', infix_scope, postfix_scope)
+    expression_scope = debug_infix('or', expression_scope, infix_scope)
+
+    print(expression_scope)
+    # return expression_automata
