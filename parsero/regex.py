@@ -76,12 +76,15 @@ def _extract_expression(string : str) -> str:
             opening = stack.pop()
             last_closing_bracket = i
             assert opening == '('
+            if not stack:
+                break
         elif char == ']':
             opening = stack.pop()
             last_closing_bracket = i
             assert opening == '['
-
-    if stack:
+            if not stack:
+                break
+    else:
         raise ValueError("Brackets not matching")
     
     return string[1:last_closing_bracket]
@@ -124,6 +127,7 @@ def compile_regex(string : str) -> NDFiniteAutomata:
         if char == '*':
             # postfix_automata = postfix_automata.closure()
             postfix_scope = debug_postfix('closure', postfix_scope)
+            continue
 
         elif char == '+':
             # postfix_automata = postfix_automata.positive_closure()
