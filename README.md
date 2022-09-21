@@ -15,7 +15,7 @@ The dependecies of this project are managed with poetry. Learn about it in https
 
 ### Developer Tools
 
-**Check code health:**
+**Fix your code formating:**
 
     make format
 
