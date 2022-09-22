@@ -3,6 +3,11 @@ from finite_automata import FiniteAutomata
 from nd_finite_automata import NDFiniteAutomata
 
 def file_to_automata(path_to_file):
+    """
+    Reads file from the specified path_to_file and returns
+    the corresponding D/ND Finite Automata.
+    """
+
     is_deterministic = True
     states = []
     initial_state = 0
