@@ -1,4 +1,4 @@
-from parsero.regex.regex_tree import _extract_brackets, create_regex_tree
+from parsero.regex.regex_tree import _extract_brackets, create_regex_tree, anotate_tree
 
 
 def test_extract_brackets():
@@ -18,3 +18,11 @@ def test_regex_tree():
     assert tree.right.left.symbol == "|"
     assert tree.right.left.left.symbol == "a"
     assert tree.right.left.right.symbol == "b"
+
+
+def test_firstpos_lastpos():
+    tree = create_regex_tree("(a|b)*(&|ab)(ab)*(&|a)")
+    tree = anotate_tree(tree)
+    # print(tree)
+    print("firstpos", tree.firstpos)
+    print("lastpos", tree.lastpos)

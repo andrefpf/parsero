@@ -53,6 +53,15 @@ def _concat(node_a: RegexNode, node_b: RegexNode) -> RegexNode:
 
 
 def _extract_brackets(expression: str) -> str:
+    """
+    Given an expression starting with some opening bracket ("(", "[", "{")
+    finds where the expression is closed and returns the content inside it.
+
+    EXAMPLE:
+    >> _extract_brackets("(get [this] part) ignore this")
+    get [this] part
+    """
+
     brackets_pair = {
         "(": ")",
         "[": "]",
@@ -99,7 +108,7 @@ def create_regex_tree(expression: str) -> RegexNode:
             consume(length, iterator)
             lookahead = expression[i + length + 1] if (i + length + 1) < len(expression) else ""
 
-        elif char in "abcd":  # TODO: char is word/digit
+        elif char in "abcd&":  # TODO: char is word/digit
             subtree = RegexNode(char)
             lookahead = expression[i + 1] if (i + 1) < len(expression) else ""
 
@@ -108,7 +117,7 @@ def create_regex_tree(expression: str) -> RegexNode:
 
         if lookahead == "*":
             subtree = _closure(subtree)
-            consume(length, iterator)
+            consume(1, iterator)
 
         if join:
             tree = _union(tree, subtree)
@@ -118,3 +127,58 @@ def create_regex_tree(expression: str) -> RegexNode:
 
     return tree
 
+
+def anotate_tree(tree):
+    tree = _union(tree, RegexNode("#"))
+    _anotate_subtree(tree, 0)
+    return tree
+
+
+def _anotate_subtree(subtree, index):
+    """
+    Recursive function to calculate firstpos and lastpos for all subtrees.
+    """
+    is_leaf = (subtree.left is None) and (subtree.right is None)
+
+    if is_leaf and subtree.symbol == '&':
+        subtree.nulable = True
+        return index
+
+    if is_leaf and subtree.symbol != '&':
+        subtree.firstpos = {index}
+        subtree.lastpos = {index}
+        subtree.nulable = False
+        return index + 1
+
+    if subtree.symbol == '|':
+        index = _anotate_subtree(subtree.left, index)
+        index = _anotate_subtree(subtree.right, index)
+        subtree.firstpos = subtree.left.firstpos | subtree.right.firstpos
+        subtree.lastpos = subtree.left.lastpos | subtree.right.lastpos
+        subtree.nulable = subtree.left.nulable or subtree.right.nulable
+        return index
+    
+    if subtree.symbol == '':
+        index = _anotate_subtree(subtree.left, index)
+        index = _anotate_subtree(subtree.right, index)
+
+        if subtree.left.nulable:
+            subtree.firstpos = subtree.left.firstpos | subtree.right.firstpos
+        else:
+            subtree.firstpos = subtree.left.firstpos
+
+        if subtree.right.nulable:
+            subtree.lastpos = subtree.left.lastpos | subtree.right.lastpos
+        else:
+            subtree.lastpos = subtree.right.lastpos
+
+        subtree.nulable = subtree.left.nulable and subtree.right.nulable
+        return index
+    
+    if subtree.symbol == '*':
+        # closure only has left children
+        index = _anotate_subtree(subtree.left, index)
+        subtree.nulable = True
+        subtree.firstpos = subtree.left.firstpos
+        subtree.lastpos = subtree.left.lastpos
+        return index
