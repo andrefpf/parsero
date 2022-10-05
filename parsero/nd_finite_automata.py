@@ -83,3 +83,7 @@ class NDFiniteAutomata:
             else:
                 transition_map[(origin, symbol)] = set(target)
         return transition_map
+
+    # TODO:Use a lib to print it like a table
+    # def __repr__(self):
+    #   print("SUS table")

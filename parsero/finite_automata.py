@@ -73,3 +73,7 @@ class FiniteAutomata:
         for origin, symbol, target in transitions:
             transition_map[(origin, symbol)] = target
         return transition_map
+
+    # TODO:Use a lib to print it like a table
+    # def __repr__(self):
+    #   print("SUS table")
