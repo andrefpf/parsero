@@ -8,6 +8,7 @@ from parsero.regex.regex_tree import (
     calculate_followpos,
     create_regex_tree,
 )
+from parsero.regex.compile_regex import compile_regex
 
 
 def test_extract_brackets():
@@ -45,3 +46,7 @@ def test_firstpos_lastpos_followpos():
     assert followpos[5] == {4, 6, 7}
     assert followpos[6] == {7}
     assert followpos[7] == set()
+
+
+def test_automata_creation():
+    automata = compile_regex("(a|b)*(&|ab)(ab)*(&|a)")

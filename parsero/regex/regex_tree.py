@@ -279,3 +279,18 @@ def _recursive_anotate_tree(tree: ReNode, index: int) -> int:
         tree.firstpos = tree.child.firstpos
         tree.lastpos = tree.child.lastpos
         return index
+
+
+def get_leafs(tree):
+    leafs = []
+    if isinstance(tree, (ReUnionNode, ReConcatNode)):
+        leafs += get_leafs(tree.left)
+        leafs += get_leafs(tree.right)
+
+    elif isinstance(tree, ReClosureNode):
+        leafs += get_leafs(tree.child)
+    
+    elif isinstance(tree, ReSymbolNode):
+        leafs = [tree]
+    
+    return leafs
