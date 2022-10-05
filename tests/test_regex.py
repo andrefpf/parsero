@@ -1,4 +1,8 @@
 from parsero.regex.regex_tree import (
+    ReClosureNode,
+    ReConcatNode,
+    ReSymbolNode,
+    ReUnionNode,
     _extract_brackets,
     anotate_tree,
     calculate_followpos,
@@ -15,20 +19,15 @@ def test_extract_brackets():
 def test_regex_tree():
     tree = create_regex_tree("(ab)(a|b)*c")
 
-    assert tree.symbol == "CONCATENATION"
-    assert tree.right.symbol == "#"
+    template = ReConcatNode(
+        ReConcatNode(
+            ReConcatNode(ReSymbolNode("a"), ReSymbolNode("b")),
+            ReClosureNode(ReUnionNode(ReSymbolNode("a"), ReSymbolNode("b"))),
+        ),
+        ReSymbolNode("c"),
+    )
 
-    assert tree.left.symbol == "CONCATENATION"
-    assert tree.left.right.symbol == "c"
-
-    assert tree.left.left.left.symbol == "CONCATENATION"
-    assert tree.left.left.left.left.symbol == "a"
-    assert tree.left.left.left.right.symbol == "b"
-
-    assert tree.left.left.right.symbol == "CLOSURE"
-    assert tree.left.left.right.left.symbol == "UNION"
-    assert tree.left.left.right.left.left.symbol == "a"
-    assert tree.left.left.right.left.right.symbol == "b"
+    assert tree == template
 
 
 def test_firstpos_lastpos_followpos():

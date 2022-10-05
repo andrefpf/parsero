@@ -5,110 +5,119 @@ from typing import Optional
 from parsero.utils import consume
 
 
-class RegexNode:
+class ReNode:
     """
-    Syntax tree of a regex operation.
+    Base class for regex syntatic tree nodes.
+
+    Operations with higher priority than the node itself must be overloaded.
     """
 
-    def __init__(self, symbol):
-        self.symbol = symbol
-
-        self.left = None
-        self.right = None
-        self.father = None
-
+    def __init__(self):
         self.firstpos = set()
         self.lastpos = set()
         self.nullable = False
+        self.root = False
 
-    def set_left(self, node):
-        self.left = node
-        if node is not None:
-            node.father = self
-        return self
+    def join(self, other):
+        self.root = other.root = False
+        return ReUnionNode(self, other)
 
-    def set_right(self, node):
-        self.right = node
-        if node is not None:
-            node.father = self
-        return self
+    def concatenate(self, other):
+        self.root = other.root = False
+        return ReConcatNode(self, other)
+
+    def closure(self):
+        self.root = False
+        return ReClosureNode(self)
+
+    def __iadd__(self, other):
+        return self.concatenate(other)
+
+    def __ior__(self, other):
+        return self.join(other)
+
+
+class ReUnionNode(ReNode):
+    def __init__(self, left, right):
+        super().__init__()
+        self.left = left
+        self.right = right
+
+    def concatenate(self, other):
+        self.root = other.root = False
+        if self.root:
+            self.root = False
+            return ReConcatNode(self, other)
+        else:
+            self.right = ReConcatNode(self.right, other)
+            return self
+
+    def closure(self):
+        if self.root:
+            self.root = False
+            return ReClosureNode(self)
+        else:
+            self.right = ReClosureNode(self.right)
+            return self
 
     def __repr__(self):
-        # TODO: Use a lib to print a nice tree.
-        return f"<symbol={self.symbol}>"
+        return f"({self.left} | {self.right})"
+
+    def __eq__(self, other):
+        return (
+            (type(self) == type(other))
+            and (self.left == other.left)
+            and (self.right == other.right)
+        )
 
 
-def _closure(node: RegexNode) -> RegexNode:
-    """
-    Add a Kleene Closure node, following the priority of the operators.
-    """
+class ReConcatNode(ReNode):
+    def __init__(self, left, right):
+        super().__init__()
+        self.left = left
+        self.right = right
 
-    if (node.right is not None) and (node.right.symbol == "#"):
-        node.right = None
-        node.symbol = "CLOSURE"
-        return node
-    elif (node.symbol == "CONCATENATION") or (node.symbol == "UNION"):
-        tmp = RegexNode("CLOSURE")
-        tmp.set_left(node.right)
-        node.set_right(tmp)
-        return node
-    else:
-        root = RegexNode("CLOSURE")
-        root.set_left(node)
-        return root
+    def closure(self):
+        if self.root:
+            self.root = False
+            return ReClosureNode(self)
+        else:
+            self.right = ReClosureNode(self.right)
+            return self
 
+    def __repr__(self):
+        return f"({self.left} + {self.right})"
 
-def _join(node_a: RegexNode, node_b: RegexNode) -> RegexNode:
-    """
-    Joins two nodes, following the priority of the operators.
-    """
-
-    if node_a is None:
-        return node_b
-    elif node_b is None:
-        return node_a
-
-    if (node_a.right is not None) and (node_a.right.symbol == "#"):
-        node_a.symbol = "UNION"
-        node_a.set_right(node_b)
-    else:
-        root = RegexNode("UNION")
-        root.set_left(node_a)
-        root.set_right(node_b)
-
-    return root
+    def __eq__(self, other):
+        return (
+            (type(self) == type(other))
+            and (self.left == other.left)
+            and (self.right == other.right)
+        )
 
 
-def _concat(node_a: RegexNode, node_b: RegexNode) -> RegexNode:
-    """
-    Concatenates two nodes, following the priority of the operators.
-    """
-    if node_a is None:
-        return node_b
-    elif node_b is None:
-        return node_a
+class ReClosureNode(ReNode):
+    def __init__(self, child):
+        super().__init__()
+        self.child = child
 
-    # we dont care if the next symbol is a group
-    if (node_b.right is not None) and (node_b.right.symbol == "#"):
-        node_b = node_b.left
+    def __repr__(self):
+        return f"{self.child}*"
 
-    if node_a.symbol == "UNION":
-        tmp = RegexNode("CONCATENATION")
-        tmp.set_left(node_a.right)
-        tmp.set_right(node_b)
-        node_a.set_right(tmp)
-        return node_a
+    def __eq__(self, other):
+        return (type(self) == type(other)) and (self.child == other.child)
 
-    elif (node_a.right is not None) and (node_a.right.symbol == "#"):
-        node_a.symbol = "CONCATENATION"
-        node_a.set_right(node_b)
-        return node_a
 
-    else:
-        root = RegexNode("CONCATENATION")
-        root.set_left(node_a)
-        root.set_right(node_b)
-        return root
+class ReSymbolNode(ReNode):
+    def __init__(self, char):
+        super().__init__()
+        self.char = char
+
+    def __repr__(self):
+        return self.char
+
+    def __eq__(self, other):
+        return (type(self) == type(other)) and (self.char == other.char)
 
 
 def _extract_brackets(expression: str) -> str:
@@ -150,7 +159,7 @@ def _extract_brackets(expression: str) -> str:
     raise ValueError("Brackets not matching")
 
 
-def create_regex_tree(expression: str) -> RegexNode:
+def create_regex_tree(expression: str) -> ReNode:
     """
     Iterates over a regex expression creating a valid syntax tree for it.
     """
@@ -163,7 +172,7 @@ def create_regex_tree(expression: str) -> RegexNode:
             join = True  # joins when the second argument appears
             continue
         elif char == "*":
-            tree = _closure(tree)
+            tree = tree.closure()
             continue
 
         if char in "([{":
@@ -172,96 +181,101 @@ def create_regex_tree(expression: str) -> RegexNode:
             length = len(subexpression) + 1
             consume(length, iterator)
         elif char in "abcd&":  # TODO: char is word/digit
-            subtree = RegexNode(char)
+            subtree = ReSymbolNode(char)
         else:
             raise ValueError(f'Unknown symbol "{char}"')
 
+        if tree is None:
+            tree = subtree
+            continue
+
         # If we have a subtree, we can do some operations
         if join:
-            tree = _join(tree, subtree)
+            tree |= subtree
             join = False
         else:
-            tree = _concat(tree, subtree)
+            tree += subtree
 
-    root = RegexNode("CONCATENATION")  # Start of tree symbol
-    root.set_left(tree)
-    root.set_right(RegexNode("#"))
-    return root
+    tree.root = True
+    return tree
 
 
-def anotate_tree(tree: RegexNode) -> RegexNode:
+def anotate_tree(tree: ReNode) -> ReNode:
+    tree = ReConcatNode(tree, ReSymbolNode("#"))
     _recursive_anotate_tree(tree, 0)
     return tree
 
 
-def calculate_followpos(tree: RegexNode) -> defaultdict[int, set]:
+def calculate_followpos(tree: ReNode) -> defaultdict[int, set]:
     followpos = defaultdict(set)
     _recursive_followpos(tree, followpos)
     return followpos
 
 
-def _recursive_followpos(tree: RegexNode, followpos: defaultdict[int, set]):
+def _recursive_followpos(tree: ReNode, followpos: defaultdict[int, set]):
     if tree is None:
         return
 
-    if tree.symbol == "CLOSURE":
+    if isinstance(tree, ReClosureNode):
         for i in tree.lastpos:
             for j in tree.firstpos:
                 followpos[i].add(j)
+        _recursive_followpos(tree.child, followpos)
 
-    elif tree.symbol == "CONCATENATION":
+    elif isinstance(tree, ReConcatNode):
         for i in tree.left.lastpos:
             for j in tree.right.firstpos:
                 followpos[i].add(j)
+        _recursive_followpos(tree.left, followpos)
+        _recursive_followpos(tree.right, followpos)
 
-    _recursive_followpos(tree.left, followpos)
-    _recursive_followpos(tree.right, followpos)
+    elif isinstance(tree, ReUnionNode):
+        _recursive_followpos(tree.left, followpos)
+        _recursive_followpos(tree.right, followpos)
 
 
-def _recursive_anotate_tree(subtree: RegexNode, index: int) -> int:
+def _recursive_anotate_tree(tree: ReNode, index: int) -> int:
     """
-    Recursive function to calculate firstpos and lastpos for all subtrees.
+    Recursive function to calculate firstpos and lastpos for all trees.
     """
-    is_leaf = (subtree.left is None) and (subtree.right is None)
-
-    if is_leaf and subtree.symbol == "&":
-        subtree.nullable = True
-        return index
-
-    if is_leaf and subtree.symbol != "&":
-        subtree.firstpos = {index}
-        subtree.lastpos = {index}
-        subtree.nullable = False
-        return index + 1
-
-    if subtree.symbol == "UNION":
-        index = _recursive_anotate_tree(subtree.left, index)
-        index = _recursive_anotate_tree(subtree.right, index)
-        subtree.firstpos = subtree.left.firstpos | subtree.right.firstpos
-        subtree.lastpos = subtree.left.lastpos | subtree.right.lastpos
-        subtree.nullable = subtree.left.nullable or subtree.right.nullable
-        return index
-
-    if subtree.symbol == "CONCATENATION":
-        index = _recursive_anotate_tree(subtree.left, index)
-        index = _recursive_anotate_tree(subtree.right, index)
-
-        if subtree.left.nullable:
-            subtree.firstpos = subtree.left.firstpos | subtree.right.firstpos
+    if isinstance(tree, ReSymbolNode):
+        if tree.char == "&":
+            tree.nullable = True
+            return index
         else:
-            subtree.firstpos = subtree.left.firstpos
+            tree.firstpos = {index}
+            tree.lastpos = {index}
+            tree.nullable = False
+            return index + 1
 
-        if subtree.right.nullable:
-            subtree.lastpos = subtree.left.lastpos | subtree.right.lastpos
-        else:
-            subtree.lastpos = subtree.right.lastpos
-
-        subtree.nullable = subtree.left.nullable and subtree.right.nullable
+    if isinstance(tree, ReUnionNode):
+        index = _recursive_anotate_tree(tree.left, index)
+        index = _recursive_anotate_tree(tree.right, index)
+        tree.firstpos = tree.left.firstpos | tree.right.firstpos
+        tree.lastpos = tree.left.lastpos | tree.right.lastpos
+        tree.nullable = tree.left.nullable or tree.right.nullable
         return index
 
-    if subtree.symbol == "CLOSURE":
-        index = _recursive_anotate_tree(subtree.left, index)
-        subtree.nullable = True
-        subtree.firstpos = subtree.left.firstpos
-        subtree.lastpos = subtree.left.lastpos
+    if isinstance(tree, ReConcatNode):
+        index = _recursive_anotate_tree(tree.left, index)
+        index = _recursive_anotate_tree(tree.right, index)
+
+        if tree.left.nullable:
+            tree.firstpos = tree.left.firstpos | tree.right.firstpos
+        else:
+            tree.firstpos = tree.left.firstpos
+
+        if tree.right.nullable:
+            tree.lastpos = tree.left.lastpos | tree.right.lastpos
+        else:
+            tree.lastpos = tree.right.lastpos
+
+        tree.nullable = tree.left.nullable and tree.right.nullable
+        return index
+
+    if isinstance(tree, ReClosureNode):
+        index = _recursive_anotate_tree(tree.child, index)
+        tree.nullable = True
+        tree.firstpos = tree.child.firstpos
+        tree.lastpos = tree.child.lastpos
         return index
