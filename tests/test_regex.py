@@ -1,4 +1,4 @@
-from parsero.regex.compile_regex import compile_regex, compile_multiple_regex
+from parsero.regex.compile_regex import compile_multiple_regex, compile_regex
 from parsero.regex.regex_tree import (
     ReClosureNode,
     ReConcatNode,
@@ -67,9 +67,9 @@ def test_automata_creation():
     for string, answer in template:
         assert automata.evaluate(string) == answer
 
+
 def test_multiple_regex():
-    teste = \
-"""
+    teste = """
 def-reg1: ER1
 def-reg2: ER2
 def-regn: ERn

@@ -40,7 +40,29 @@ def _get_automata_parameters(*, first_tagset, final_leaf_tag, alphabet, followpo
     return states, transitions
 
 
+def _simplify_regex(expression: str) -> str:
+    blank = " "
+    digits = "0|1|2|3|4|5|6|7|8|9"
+    lower_case = "a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|x|w|y|z"
+    upper_case = "A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|X|W|Y|Z"
+    replacement = {
+        ".": f"({digits}|{lower_case}|{upper_case}|{blank})",
+        "\\s": f"({blank})",
+        "\\d": f"({digits})",
+        "\\w": f"({lower_case}|{upper_case})",
+        "[0-9]": f"({digits})",
+        "[a-z]": f"({lower_case})",
+        "[A-Z]": f"({upper_case})",
+        "[a-Z]": f"({lower_case}|{upper_case})",
+        "[a-zA-Z]": f"({lower_case}|{upper_case})",
+    }
+    for _id, _exp in replacement.items():
+        expression = expression.replace(_id, _exp)
+    return expression
+
+
 def compile_regex(expression: str) -> FiniteAutomata:
+    expression = _simplify_regex(expression)
     tree = create_regex_tree(expression)
     tree = anotate_tree(tree)
     followpos = calculate_followpos(tree)
@@ -64,9 +86,7 @@ def compile_regex(expression: str) -> FiniteAutomata:
 
 
 def compile_multiple_regex(expressions: str):
-    cached_expressions = {
-        
-    }
+    cached_expressions = {}
 
     for line in expressions.splitlines():
         line = line.strip()
@@ -80,8 +100,8 @@ def compile_multiple_regex(expressions: str):
         for _id, _exp in cached_expressions:
             expression = expression.replace(_id, _exp)
 
-
         print(f"id='{identifier}', regex='{expression}'")
+
 
 def regex_from_file(path):
     pass
