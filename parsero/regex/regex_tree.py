@@ -227,31 +227,31 @@ def _recursive_followpos(tree: ReNode, followpos: defaultdict[int, set]):
         _recursive_followpos(tree.right, followpos)
 
 
-def _recursive_anotate_tree(tree: ReNode, index: int) -> int:
+def _recursive_anotate_tree(tree: ReNode, tag: int) -> int:
     """
     Recursive function to calculate firstpos and lastpos for all trees.
     """
     if isinstance(tree, ReSymbolNode):
         if tree.char == "&":
             tree.nullable = True
-            return index
+            return tag
         else:
-            tree.firstpos = {index}
-            tree.lastpos = {index}
+            tree.firstpos = {tag}
+            tree.lastpos = {tag}
             tree.nullable = False
-            return index + 1
+            return tag + 1
 
     if isinstance(tree, ReUnionNode):
-        index = _recursive_anotate_tree(tree.left, index)
-        index = _recursive_anotate_tree(tree.right, index)
+        tag = _recursive_anotate_tree(tree.left, tag)
+        tag = _recursive_anotate_tree(tree.right, tag)
         tree.firstpos = tree.left.firstpos | tree.right.firstpos
         tree.lastpos = tree.left.lastpos | tree.right.lastpos
         tree.nullable = tree.left.nullable or tree.right.nullable
-        return index
+        return tag
 
     if isinstance(tree, ReConcatNode):
-        index = _recursive_anotate_tree(tree.left, index)
-        index = _recursive_anotate_tree(tree.right, index)
+        tag = _recursive_anotate_tree(tree.left, tag)
+        tag = _recursive_anotate_tree(tree.right, tag)
 
         if tree.left.nullable:
             tree.firstpos = tree.left.firstpos | tree.right.firstpos
@@ -264,14 +264,14 @@ def _recursive_anotate_tree(tree: ReNode, index: int) -> int:
             tree.lastpos = tree.right.lastpos
 
         tree.nullable = tree.left.nullable and tree.right.nullable
-        return index
+        return tag
 
     if isinstance(tree, ReClosureNode):
-        index = _recursive_anotate_tree(tree.child, index)
+        tag = _recursive_anotate_tree(tree.child, tag)
         tree.nullable = True
         tree.firstpos = tree.child.firstpos
         tree.lastpos = tree.child.lastpos
-        return index
+        return tag
 
 
 def get_leafs(tree):

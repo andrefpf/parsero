@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, deque
 from itertools import count
 
 from parsero.finite_automata import FiniteAutomata
@@ -11,40 +11,53 @@ from parsero.regex.regex_tree import (
 from parsero.state import State
 
 
+def _get_automata_parameters(*, first_tagset, final_leaf_tag, alphabet, followpos, symbol_tags):
+    states = []
+    transitions = []
+
+    tagset_to_index = defaultdict(count().__next__)  # gives a new index for new elements
+    tagset_queue = deque()
+    tagset_queue.appendleft(first_tagset)
+
+    while tagset_queue:
+        tagset = tagset_queue.pop()
+
+        i = tagset_to_index[tagset]
+        is_final = final_leaf_tag in tagset
+        states.append(State(f"q{i}", is_final))
+
+        for symbol in alphabet:
+            u = frozenset()
+            for i in tagset & symbol_tags[symbol]:
+                u |= followpos[i]
+
+            if u not in tagset_to_index:
+                tagset_queue.appendleft(u)
+
+            transition = (tagset_to_index[tagset], symbol, tagset_to_index[u])
+            transitions.append(transition)
+
+    return states, transitions
+
+
 def compile_regex(expression: str) -> FiniteAutomata:
     tree = create_regex_tree(expression)
     tree = anotate_tree(tree)
     followpos = calculate_followpos(tree)
+    leafs = get_leafs(tree)
 
-    # dá pra melhorar
-    alphabet = ""
-    leaf_indexes = defaultdict(set)
-    for leaf in get_leafs(tree):
-        leaf_indexes[leaf.char] |= leaf.firstpos
-        alphabet += leaf.char
+    alphabet = "".join([leaf.char for leaf in leafs])
 
-    incrementer = count().__next__
-    state_index = defaultdict(incrementer)
+    symbol_tags = defaultdict(set)
+    for leaf in leafs:
+        symbol_tags[leaf.char] |= leaf.firstpos
 
-    tmp_states = [frozenset(tree.firstpos)]
-    transitions = []
-
-    while tmp_states:
-        current_state = tmp_states.pop()
-        for symbol in alphabet:
-            u = frozenset()
-            for i in current_state.intersection(leaf_indexes[symbol]):
-                u |= followpos[i]
-            if u not in state_index:
-                tmp_states.append(u)
-            transition = (state_index[current_state], symbol, state_index[u])
-            transitions.append(transition)
-
-    states = [State(f"q{i}", False) for i in range(len(state_index))]
-
-    final_leaf_index = tuple(tree.right.firstpos)[0]
-    for k, v in state_index.items():
-        if final_leaf_index in k:
-            states[v].is_final = True
+    states, transitions = _get_automata_parameters(
+        first_tagset=frozenset(tree.firstpos),
+        final_leaf_tag=tuple(tree.right.firstpos)[0],
+        alphabet=alphabet,
+        followpos=followpos,
+        symbol_tags=symbol_tags,
+    )
 
     return FiniteAutomata(states=states, initial_state=0, transitions=transitions)
