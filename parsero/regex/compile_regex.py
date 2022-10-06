@@ -61,7 +61,7 @@ def _simplify_regex(expression: str) -> str:
     return expression
 
 
-def compile_regex(expression: str) -> FiniteAutomata:
+def compile_(expression: str) -> FiniteAutomata:
     expression = _simplify_regex(expression)
     tree = create_regex_tree(expression)
 
@@ -105,13 +105,13 @@ def compile_multiple_regex(expressions: str):
     automatas = dict()
 
     for _id, _exp in dismantled_expressions.items():
-        automata = compile_regex(_exp)
+        automata = compile_(_exp)
         automatas[_id] = automata
 
     return automatas
 
 
-def regex_from_file(path):
+def from_file(path):
     with open(path, "r") as file:
         data = file.read()
     return compile_multiple_regex(data)

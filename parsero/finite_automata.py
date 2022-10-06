@@ -7,7 +7,7 @@ class FiniteAutomata:
         self.transition_map = self._create_transition_map(transitions)
         self.initial_state = initial_state
 
-    def travel(self, string):
+    def iterate(self, string):
         """
         Iterates over a string yielding the current state of the automata.
         """
@@ -25,7 +25,7 @@ class FiniteAutomata:
         Checks if the string bellows to the automata language.
         """
 
-        for state in self.travel(string):
+        for state in self.iterate(string):
             last_state = state
 
         if last_state == DEAD_STATE:
@@ -46,7 +46,7 @@ class FiniteAutomata:
         length = 0
         last_recognized_state = DEAD_STATE
 
-        for i, state in enumerate(self.travel(string)):
+        for i, state in enumerate(self.iterate(string)):
             if state == DEAD_STATE:
                 break
 

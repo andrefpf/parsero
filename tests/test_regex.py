@@ -1,75 +1,41 @@
-from parsero.regex.compile_regex import compile_regex, regex_from_file
-from parsero.regex.regex_tree import (
-    ReClosureNode,
-    ReConcatNode,
-    ReSymbolNode,
-    ReUnionNode,
-    _extract_brackets,
-    anotate_tree,
-    calculate_followpos,
-    create_regex_tree,
-)
+from parsero import regex
 
 
-def test_extract_brackets():
-    expression = "(hello [world (!)] finish here) ignore this"
-    extracted = _extract_brackets(expression)
-    assert extracted == "hello [world (!)] finish here"
+def test_compile():
+    automata = regex.compile_(r"a(a|b)*a|b(a|b)*b|a|b")
 
-
-def test_regex_tree():
-    tree = create_regex_tree("(ab)(a|b)*c")
-
-    template = ReConcatNode(
-        ReConcatNode(
-            ReConcatNode(ReSymbolNode("a"), ReSymbolNode("b")),
-            ReClosureNode(ReUnionNode(ReSymbolNode("a"), ReSymbolNode("b"))),
-        ),
-        ReSymbolNode("c"),
-    )
-
-    assert tree == template
-
-
-def test_firstpos_lastpos_followpos():
-    tree = create_regex_tree("(a|b)*(&|ab)(ab)*(&|a)")
-    tree = anotate_tree(tree)
-    followpos = calculate_followpos(tree)
-
-    assert tree.firstpos == {0, 1, 2, 4, 6, 7}
-    assert tree.lastpos == {7}
-    assert followpos[0] == {0, 1, 2, 4, 6, 7}
-    assert followpos[1] == {0, 1, 2, 4, 6, 7}
-    assert followpos[2] == {3}
-    assert followpos[3] == {4, 6, 7}
-    assert followpos[4] == {5}
-    assert followpos[5] == {4, 6, 7}
-    assert followpos[6] == {7}
-    assert followpos[7] == set()
-
-
-def test_automata_creation():
-    automata = compile_regex("a(a|b)*a|b(a|b)*b|a|b")
-
-    template = [
-        ("a", True),
-        ("b", True),
-        ("aa", True),
-        ("bb", True),
-        ("aabbababbbbabababa", True),
-        ("baabbababbbbababab", True),
-        ("ab", False),
-        ("ba", False),
-        ("abababababab", False),
-        ("bababababa", False),
+    valid = [
+        "a",
+        "b",
+        "aa",
+        "bb",
+        "aabbababbbbabababa",
+        "baabbababbbbababab",
     ]
 
-    for string, answer in template:
-        assert automata.evaluate(string) == answer
+    invalid = [
+        "ab",
+        "ba",
+        "abababababab",
+        "bababababa",
+    ]
+
+    for string in valid:
+        assert automata.evaluate(string)
+
+    for string in invalid:
+        assert not automata.evaluate(string)
+
+
+def test_match():
+    code = "s0m3 w0rds_th4t 4re p0ss1ble variables"
+    size = regex.match(r"(\s|\w(\w|\d|_)*)*", code)
+    assert size == 16
+    assert code[:size] == "s0m3 w0rds_th4t "
 
 
 def test_file_regex():
-    automatas = regex_from_file("parsero/machines/example_1.regex")
+    automatas = regex.from_file("parsero/machines/example_1.regex")
 
     assert automatas["digit"].evaluate("2")
     assert automatas["digit"].evaluate("5")

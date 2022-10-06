@@ -1,5 +1,6 @@
 EPSILON = "&"
 BLANK = " "
+SYMBOLS = "!@#$%_-+=,.:;/"
 DIGITS = "0123456789"
 LOWER_CASE = "abcdefghijklmnopqrstuvxwyz"
 UPPER_CASE = "ABCDEFGHIJKLMNOPQRSTUVXWYZ"
