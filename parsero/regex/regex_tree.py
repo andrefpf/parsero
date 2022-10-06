@@ -16,18 +16,15 @@ class ReNode:
         self.firstpos = set()
         self.lastpos = set()
         self.nullable = False
-        self.root = False
+        self.grouped = False
 
     def join(self, other):
-        self.root = other.root = False
         return ReUnionNode(self, other)
 
     def concatenate(self, other):
-        self.root = other.root = False
         return ReConcatNode(self, other)
 
     def closure(self):
-        self.root = False
         return ReClosureNode(self)
 
     def __iadd__(self, other):
@@ -44,20 +41,17 @@ class ReUnionNode(ReNode):
         self.right = right
 
     def concatenate(self, other):
-        self.root = other.root = False
-        if self.root:
-            self.root = False
+        if self.grouped:
             return ReConcatNode(self, other)
         else:
             self.right = ReConcatNode(self.right, other)
             return self
 
     def closure(self):
-        if self.root:
-            self.root = False
+        if self.grouped:
             return ReClosureNode(self)
         else:
-            self.right = ReClosureNode(self.right)
+            self.right = self.right.closure()
             return self
 
     def __repr__(self):
@@ -78,8 +72,7 @@ class ReConcatNode(ReNode):
         self.right = right
 
     def closure(self):
-        if self.root:
-            self.root = False
+        if self.grouped:
             return ReClosureNode(self)
         else:
             self.right = ReClosureNode(self.right)
@@ -196,7 +189,7 @@ def create_regex_tree(expression: str) -> ReNode:
         else:
             tree += subtree
 
-    tree.root = True
+    tree.grouped = True
     return tree
 
 
@@ -289,8 +282,8 @@ def get_leafs(tree):
 
     elif isinstance(tree, ReClosureNode):
         leafs += get_leafs(tree.child)
-    
+
     elif isinstance(tree, ReSymbolNode):
         leafs = [tree]
-    
+
     return leafs

@@ -1,3 +1,4 @@
+from parsero.regex.compile_regex import compile_regex
 from parsero.regex.regex_tree import (
     ReClosureNode,
     ReConcatNode,
@@ -8,7 +9,6 @@ from parsero.regex.regex_tree import (
     calculate_followpos,
     create_regex_tree,
 )
-from parsero.regex.compile_regex import compile_regex
 
 
 def test_extract_brackets():
@@ -49,4 +49,20 @@ def test_firstpos_lastpos_followpos():
 
 
 def test_automata_creation():
-    automata = compile_regex("(a|b)*(&|ab)(ab)*(&|a)")
+    automata = compile_regex("a(a|b)*a|b(a|b)*b|a|b")
+
+    template = [
+        ("a", True),
+        ("b", True),
+        ("aa", True),
+        ("bb", True),
+        ("aabbababbbbabababa", True),
+        ("baabbababbbbababab", True),
+        ("ab", False),
+        ("ba", False),
+        ("abababababab", False),
+        ("bababababa", False),
+    ]
+
+    for string, answer in template:
+        assert automata.evaluate(string) == answer
