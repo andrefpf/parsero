@@ -64,6 +64,7 @@ def _simplify_regex(expression: str) -> str:
 def compile_regex(expression: str) -> FiniteAutomata:
     expression = _simplify_regex(expression)
     tree = create_regex_tree(expression)
+
     tree = anotate_tree(tree)
     followpos = calculate_followpos(tree)
     leafs = get_leafs(tree)
@@ -86,7 +87,7 @@ def compile_regex(expression: str) -> FiniteAutomata:
 
 
 def compile_multiple_regex(expressions: str):
-    cached_expressions = {}
+    dismantled_expressions = dict()
 
     for line in expressions.splitlines():
         line = line.strip()
@@ -97,11 +98,20 @@ def compile_multiple_regex(expressions: str):
         identifier = identifier.strip()
         expression = expression.strip()
 
-        for _id, _exp in cached_expressions:
+        for _id, _exp in dismantled_expressions.items():
             expression = expression.replace(_id, _exp)
+        dismantled_expressions[identifier] = expression
 
-        print(f"id='{identifier}', regex='{expression}'")
+    automatas = dict()
+
+    for _id, _exp in dismantled_expressions.items():
+        automata = compile_regex(_exp)
+        automatas[_id] = automata
+
+    return automatas
 
 
 def regex_from_file(path):
-    pass
+    with open(path, "r") as file:
+        data = file.read()
+    return compile_multiple_regex(data)

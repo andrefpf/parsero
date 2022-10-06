@@ -1,4 +1,4 @@
-from parsero.regex.compile_regex import compile_multiple_regex, compile_regex
+from parsero.regex.compile_regex import compile_regex, regex_from_file
 from parsero.regex.regex_tree import (
     ReClosureNode,
     ReConcatNode,
@@ -68,10 +68,20 @@ def test_automata_creation():
         assert automata.evaluate(string) == answer
 
 
-def test_multiple_regex():
-    teste = """
-def-reg1: ER1
-def-reg2: ER2
-def-regn: ERn
-"""
-    compile_multiple_regex(teste)
+def test_file_regex():
+    automatas = regex_from_file("parsero/machines/example_1.regex")
+
+    assert automatas["digit"].evaluate("2")
+    assert automatas["digit"].evaluate("5")
+    assert not automatas["digit"].evaluate("81")
+    assert not automatas["digit"].evaluate("a")
+
+    assert automatas["letter"].evaluate("a")
+    assert automatas["letter"].evaluate("b")
+    assert not automatas["letter"].evaluate("oi")
+    assert not automatas["letter"].evaluate("5")
+
+    assert automatas["id"].evaluate("banana")
+    assert automatas["id"].evaluate("andrezinhogameplay2001")
+    assert not automatas["id"].evaluate("007Teste")
+    assert not automatas["id"].evaluate("200bananas")
