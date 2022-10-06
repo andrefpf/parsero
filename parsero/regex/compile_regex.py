@@ -61,3 +61,27 @@ def compile_regex(expression: str) -> FiniteAutomata:
     )
 
     return FiniteAutomata(states=states, initial_state=0, transitions=transitions)
+
+
+def compile_multiple_regex(expressions: str):
+    cached_expressions = {
+        
+    }
+
+    for line in expressions.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+
+        identifier, expression = line.split(":")
+        identifier = identifier.strip()
+        expression = expression.strip()
+
+        for _id, _exp in cached_expressions:
+            expression = expression.replace(_id, _exp)
+
+
+        print(f"id='{identifier}', regex='{expression}'")
+
+def regex_from_file(path):
+    pass
