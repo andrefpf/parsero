@@ -47,7 +47,7 @@ def test_evaluate():
 
 
 def test_file_regex():
-    automatas = regex.from_file("parsero/machines/example_1.regex")
+    automatas = regex.from_file("tests/examples/example_1.regex")
 
     assert automatas["digit"].evaluate("2")
     assert automatas["digit"].evaluate("5")
