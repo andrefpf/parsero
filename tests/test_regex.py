@@ -34,6 +34,18 @@ def test_match():
     assert code[:size] == "s0m3 w0rds_th4t "
 
 
+def test_evaluate():
+    assert not regex.evaluate("goo+gle", "ggle")
+    assert not regex.evaluate("goo+gle", "gogle")
+    assert regex.evaluate("goo+gle", "google")
+    assert regex.evaluate("goo+gle", "gooooooooooooooooooogle")
+
+    assert not regex.evaluate("sus(pect)?", "suspects")
+    assert not regex.evaluate("sus(pect)?", "su")
+    assert regex.evaluate("sus(pect)?", "suspect")
+    assert regex.evaluate("sus(pect)?", "sus")
+
+
 def test_file_regex():
     automatas = regex.from_file("parsero/machines/example_1.regex")
 

@@ -27,10 +27,10 @@ class ReNode:
 
     def closure(self):
         return ReClosureNode(self)
-    
+
     def positive_closure(self):
         return ReConcatNode(self, ReClosureNode(self))
-    
+
     def optional(self):
         """
         Function for the ? operator.
@@ -63,14 +63,14 @@ class ReUnionNode(ReNode):
         else:
             self.right = self.right.closure()
             return self
-    
+
     def positive_closure(self):
         if self.grouped:
             return ReConcatNode(self, ReClosureNode(self))
         else:
             self.right = self.right.positive_closure()
             return self
-    
+
     def optional(self):
         if self.grouped:
             return ReUnionNode(ReSymbolNode("&"), self)
@@ -101,14 +101,14 @@ class ReConcatNode(ReNode):
         else:
             self.right = ReClosureNode(self.right)
             return self
-    
+
     def positive_closure(self):
         if self.grouped:
             return ReConcatNode(self, ReClosureNode(self))
         else:
             self.right = self.right.positive_closure()
             return self
-    
+
     def optional(self):
         if self.grouped:
             return ReUnionNode(ReSymbolNode("&"), self)
