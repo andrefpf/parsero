@@ -78,6 +78,9 @@ def _simplify_regex(expression: str) -> str:
 
 
 def compile_(expression: str) -> FiniteAutomata:
+    """
+    Converts a regular expression into equivalent Finite Automata.
+    """
     expression = _simplify_regex(expression)
     tree = create_regex_tree(expression)
 
@@ -102,10 +105,10 @@ def compile_(expression: str) -> FiniteAutomata:
     return FiniteAutomata(states=states, initial_state=0, transitions=transitions)
 
 
-def compile_multiple_regex(expressions: str):
-    dismantled_expressions = dict()
+def compile_regular_definitions(definitions: str) -> dict[str, FiniteAutomata]:
+    expressions = dict()
 
-    for line in expressions.splitlines():
+    for line in definitions.splitlines():
         line = line.strip()
         if not line:
             continue
@@ -114,20 +117,20 @@ def compile_multiple_regex(expressions: str):
         identifier = identifier.strip()
         expression = expression.strip()
 
-        for _id, _exp in dismantled_expressions.items():
+        for _id, _exp in expressions.items():
             expression = expression.replace(_id, _exp)
-        dismantled_expressions[identifier] = expression
+        expressions[identifier] = expression
 
     automatas = dict()
 
-    for _id, _exp in dismantled_expressions.items():
+    for _id, _exp in expressions.items():
         automata = compile_(_exp)
         automatas[_id] = automata
 
     return automatas
 
 
-def from_file(path):
+def from_file(path: str) -> dict[str, FiniteAutomata]:
     with open(path, "r") as file:
         data = file.read()
-    return compile_multiple_regex(data)
+    return compile_regular_definitions(data)
