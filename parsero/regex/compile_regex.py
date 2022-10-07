@@ -2,6 +2,14 @@ from collections import defaultdict, deque
 from itertools import count
 
 from parsero.finite_automata import FiniteAutomata
+from parsero.regex.commons import (
+    ALPHANUMERIC,
+    BLANK,
+    DIGIT,
+    LOWER_CASE,
+    SYMBOL,
+    UPPER_CASE,
+)
 from parsero.regex.regex_tree import (
     anotate_tree,
     calculate_followpos,
@@ -41,21 +49,29 @@ def _get_automata_parameters(*, first_tagset, final_leaf_tag, alphabet, followpo
 
 
 def _simplify_regex(expression: str) -> str:
-    blank = " "
-    digits = "0|1|2|3|4|5|6|7|8|9"
-    lower_case = "a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|x|w|y|z"
-    upper_case = "A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|X|W|Y|Z"
+    """
+    Replace common symbols like \\d for its equivalent syntax (union of all numbers)
+    """
+
+    any_blank = "|".join(BLANK)
+    any_digit = "|".join(DIGIT)
+    any_lower_case = "|".join(LOWER_CASE)
+    any_upper_case = "|".join(UPPER_CASE)
+    any_alphanumeric = "|".join(ALPHANUMERIC)
+    any_symbol = "|".join(SYMBOL)
+
     replacement = {
-        ".": f"({digits}|{lower_case}|{upper_case}|{blank})",
-        "\\s": f"({blank})",
-        "\\d": f"({digits})",
-        "\\w": f"({lower_case}|{upper_case})",
-        "[0-9]": f"({digits})",
-        "[a-z]": f"({lower_case})",
-        "[A-Z]": f"({upper_case})",
-        "[a-Z]": f"({lower_case}|{upper_case})",
-        "[a-zA-Z]": f"({lower_case}|{upper_case})",
+        ".": f"({any_digit}|{any_lower_case}|{any_upper_case}|{any_blank})",
+        "\\s": f"({any_blank})",
+        "\\d": f"({any_digit})",
+        "\\w": f"({any_lower_case}|{any_upper_case})",
+        "[0-9]": f"({any_digit})",
+        "[a-z]": f"({any_lower_case})",
+        "[A-Z]": f"({any_upper_case})",
+        "[a-Z]": f"({any_lower_case}|{any_upper_case})",
+        "[a-zA-Z]": f"({any_lower_case}|{any_upper_case})",
     }
+
     for _id, _exp in replacement.items():
         expression = expression.replace(_id, _exp)
     return expression

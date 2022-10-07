@@ -2,7 +2,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Optional
 
-from parsero.regex.commons import ALPHANUMERIC, SYMBOLS, EPSILON
+from parsero.regex.commons import ALPHANUMERIC, EPSILON, SPECIAL
 from parsero.utils import consume
 
 
@@ -174,7 +174,7 @@ def create_regex_tree(expression: str) -> ReNode:
             subtree = create_regex_tree(subexpression)
             length = len(subexpression) + 1
             consume(length, iterator)
-        elif (char == EPSILON) or (char in SYMBOLS) or (char in ALPHANUMERIC):
+        elif (char == EPSILON) or (char in SPECIAL) or (char in ALPHANUMERIC):
             subtree = ReSymbolNode(char)
         else:
             raise ValueError(f'Unknown symbol "{char}"')
