@@ -27,6 +27,15 @@ class ReNode:
 
     def closure(self):
         return ReClosureNode(self)
+    
+    def positive_closure(self):
+        return ReConcatNode(self, ReClosureNode(self))
+    
+    def optional(self):
+        """
+        Function for the ? operator.
+        """
+        return ReUnionNode(ReSymbolNode("&"), self)
 
     def __iadd__(self, other):
         return self.concatenate(other)
@@ -54,6 +63,20 @@ class ReUnionNode(ReNode):
         else:
             self.right = self.right.closure()
             return self
+    
+    def positive_closure(self):
+        if self.grouped:
+            return ReConcatNode(self, ReClosureNode(self))
+        else:
+            self.right = self.right.positive_closure()
+            return self
+    
+    def optional(self):
+        if self.grouped:
+            return ReUnionNode(ReSymbolNode("&"), self)
+        else:
+            self.right = self.right.optional()
+            return self
 
     def __repr__(self):
         return f"({self.left} | {self.right})"
@@ -77,6 +100,20 @@ class ReConcatNode(ReNode):
             return ReClosureNode(self)
         else:
             self.right = ReClosureNode(self.right)
+            return self
+    
+    def positive_closure(self):
+        if self.grouped:
+            return ReConcatNode(self, ReClosureNode(self))
+        else:
+            self.right = self.right.positive_closure()
+            return self
+    
+    def optional(self):
+        if self.grouped:
+            return ReUnionNode(ReSymbolNode("&"), self)
+        else:
+            self.right = self.right.optional()
             return self
 
     def __repr__(self):
@@ -167,6 +204,12 @@ def create_regex_tree(expression: str) -> ReNode:
             continue
         elif char == "*":
             tree = tree.closure()
+            continue
+        elif char == "+":
+            tree = tree.positive_closure()
+            continue
+        elif char == "?":
+            tree = tree.optional()
             continue
 
         if char in "([{":
