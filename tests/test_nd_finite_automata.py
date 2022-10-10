@@ -2,6 +2,7 @@ from parsero.machines.ndfa_machines import (
     ndfa_abc_sequence,
     ndfa_ends_with_bb,
     ndfa_even_chars,
+    ndfa_to_determinize_no_epsilon,
 )
 
 
@@ -68,3 +69,8 @@ def test_abc_sequence():
 
     for string, answer in template:
         assert automata.evaluate(string) == answer
+
+def test_determinization():
+    automata = ndfa_to_determinize_no_epsilon()
+    automata.determinize()
+

@@ -2,9 +2,12 @@ DEAD_STATE = -1
 
 
 class FiniteAutomata:
-    def __init__(self, states=None, initial_state=0, transitions=None):
+    def __init__(self, states=None, initial_state=0, transitions=None, createMap=True):
         self.states = states
-        self.transition_map = self._create_transition_map(transitions)
+        if createMap:
+            self.transition_map = self._create_transition_map(transitions)
+        else:
+            self.transition_map = transitions
         self.initial_state = initial_state
 
     def iterate(self, string):
