@@ -1,4 +1,4 @@
-from parsero.example_machines.ndfa_machines import (
+from parsero.machines.ndfa_machines import (
     ndfa_abc_sequence,
     ndfa_ends_with_bb,
     ndfa_even_chars,

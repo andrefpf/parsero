@@ -7,7 +7,7 @@ class NDFiniteAutomata:
         self.transition_map = self._create_transition_map(transitions)
         self.initial_state = initial_state
 
-    def travel(self, string):
+    def iterate(self, string):
         """
         Iterates over a string yielding the current states of the automata.
         """
@@ -42,7 +42,7 @@ class NDFiniteAutomata:
         """
         Checks if the string bellows to the automata language.
         """
-        for states in self.travel(string):
+        for states in self.iterate(string):
             last_states = states
 
         for i in last_states:
@@ -83,3 +83,7 @@ class NDFiniteAutomata:
             else:
                 transition_map[(origin, symbol)] = set(target)
         return transition_map
+
+    # TODO:Use a lib to print it like a table
+    # def __repr__(self):
+    #   print("SUS table")

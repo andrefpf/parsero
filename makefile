@@ -1,13 +1,13 @@
 run:
-	poetry run python parsero
+	python3 -m poetry run python parsero
 
 install:
-	poetry install
+	python3 -m poetry install
 
 format:
-	poetry run black .
-	poetry run isort .
+	python3 -m poetry run black .
+	python3 -m poetry run isort .
 
 test:
-	poetry run pytest
+	python3 -m poetry run pytest
 
