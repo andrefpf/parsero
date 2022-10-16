@@ -1,7 +1,8 @@
 from functools import cache
-import copy
 from parsero.state import State
 from parsero.finite_automata import FiniteAutomata
+from parsero.regex.commons import EPSILON
+import copy
 
 class NDFiniteAutomata:
     def __init__(self, states=None, initial_state=0, transitions=None):
@@ -87,49 +88,96 @@ class NDFiniteAutomata:
         return transition_map
 
     def _try_add_det_state(self, states_pos, nd_states, det_states, nd_trasition_map, det_transition_map):
-        if len(states_pos) > 1:
-            name = ""
-            for pos in states_pos:
-                name += nd_states[pos].name + ","
-            name = name[:-1]
-            new_state = State(name, any(nd_states[pos].is_final == True for pos in states_pos))
-            if new_state not in det_states:
-                det_states.append(new_state)
+        transitions_by_symbol = {}
 
-                transitions_by_symbol = {}
-                for pos in states_pos:
-                    for key, value in self.transition_map.items():
-                        if pos in key:
-                            if key[1] in transitions_by_symbol.keys():
-                                transitions_by_symbol[key[1]].append(value)
-                            else:
-                                transitions_by_symbol[key[1]] = [value]
+        for pos in states_pos:
+            for key, value in self.transition_map.items():
+                if pos in key:
+                    if key[1] in transitions_by_symbol.keys():
+                        transitions_by_symbol[key[1]].append(value)
+                    else:
+                        transitions_by_symbol[key[1]] = [value]
 
-                for key, value in transitions_by_symbol.items():
-                    transition_target = set()
-                    for target_pos in value:
-                        for pos in target_pos:
-                            transition_target.add(pos)
-                    name_pos_list = []
-                    for val1 in value:
-                        for val2 in val1:
-                            name_pos_list.append(val2)
-                    target_index = set(name_pos_list)
-                    det_transition_map[(tuple(states_pos), key)] = target_index
-                    self._try_add_det_state(target_index, nd_states, det_states, nd_trasition_map, det_transition_map)
+        for symbol, value in transitions_by_symbol.items():
+            if symbol != EPSILON:
+                transition_target = set()
+                for target_pos in value:
+                    for pos in target_pos:
+                        transition_target.add(pos)
+                name_pos_list = []
+                for val1 in value:
+                    for val2 in val1:
+                        name_pos_list.append(val2)
+                target_pos = set(name_pos_list)
 
-    def determinize(self):
+                if len(states_pos) > 1:
+                    current = (tuple(states_pos))
+                else:
+                    current = list(states_pos)[0]
+
+                if len(target_pos) > 1:
+                    name = self._get_name_of_state_list(target_pos)
+                    target_state = State(name, any(nd_states[pos].is_final == True for pos in target_pos))
+                else:
+                    target_state = State(nd_states[list(target_pos)[0]].name, nd_states[list(target_pos)[0]].is_final)
+                if target_state not in det_states:
+                    det_states.append(target_state)
+                if (current, symbol) not in det_transition_map:
+                    det_transition_map[(current, symbol)] = target_pos
+                    self._try_add_det_state(target_pos, nd_states, det_states, nd_trasition_map, det_transition_map)
+
+        #
+        # for key, value in transitions_by_symbol.items():
+        #     self._try_add_det_state(target_pos, nd_states, det_states, nd_trasition_map, det_transition_map)
+
+        # for key, value in transitions_by_symbol.items():
+        #     if key != EPSILON:
+        #         transition_target = set()
+        #         for target_pos in value:
+        #             for pos in target_pos:
+        #                 transition_target.add(pos)
+        #         name_pos_list = []
+        #         for val1 in value:
+        #             for val2 in val1:
+        #                 name_pos_list.append(val2)
+        #         target_index = set(name_pos_list)
+        #
+        #         det_transition_map[(current, key)] = target_index
+        #         self._try_add_det_state(target_index, nd_states, det_states, nd_trasition_map, det_transition_map)
+
+    def _get_name_of_state_list(self, state_list):
+        name = ""
+        for pos in state_list:
+            name += self.states[pos].name + ","
+        return name[:-1]
+
+    def determinize(self) -> FiniteAutomata:
         det_states = copy.deepcopy(self.states)
-        det_transition_map = copy.deepcopy(self.transition_map)
+        det_transition_map = dict()
 
-        for i in range(len(self.states)):
-            value = self.epsilon_closure(i)
-            self._try_add_det_state(value, self.states, det_states, self.transition_map, det_transition_map)
+        if self.epsilon_closure(self.initial_state) == {self.initial_state}:
+            initial_state = self.initial_state
+            self._try_add_det_state(self.epsilon_closure(self.initial_state), self.states, det_states, self.transition_map, det_transition_map)
 
-        for key, value in self.transition_map.items():
-            self._try_add_det_state(value, self.states, det_states, self.transition_map, det_transition_map)
+        else:
+            initial_closure = list(self.epsilon_closure(self.initial_state))
+            name = self._get_name_of_state_list(initial_closure)
+            det_states.append(State(name, any(self.states[pos].is_final == True for pos in initial_closure)))
+            initial_state = len(det_states) - 1
+            self._try_add_det_state(initial_closure, self.states, det_states, self.transition_map, det_transition_map)
 
-        return FiniteAutomata(det_states, 0, det_transition_map, False)
+        # for key, value in self.transition_map.items():
+        #     if (len(value)) == 1:
+        #         state = self.states[list(value)[0]]
+        #         if state not in det_states:
+        #             det_states.append(state)
+
+
+        # if self.states[initial_state] not in det_states:
+        #     det_states.append(self.states[self.initial_state])
+
+        return FiniteAutomata(det_states, initial_state, det_transition_map, False)
+
     # TODO:Use a lib to print it like a table
     # def __repr__(self):
     #   print("SUS table")

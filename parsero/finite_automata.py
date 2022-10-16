@@ -73,8 +73,15 @@ class FiniteAutomata:
         """
 
         transition_map = dict()
-        for origin, symbol, target in transitions:
-            transition_map[(origin, symbol)] = target
+        for origin1, symbol, target in transitions:
+            if isinstance(origin1, set):
+                origin = (tuple(origin1))
+            else:
+                origin = origin1
+            if isinstance(target, int):
+                transition_map[(origin, symbol)] = {target}
+            else:
+                transition_map[(origin, symbol)] = target
         return transition_map
 
     # TODO:Use a lib to print it like a table
