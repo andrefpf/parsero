@@ -79,8 +79,8 @@ def automata_to_file(automata, path_to_file):
         symbol = transition[1]
         target = target
 
-        if type(target) == tuple:
-            target = '-'.join(target)
+        if type(target) == set:
+            target = '-'.join(str(x) for x in target)
         else:
             target = str(target)
 
