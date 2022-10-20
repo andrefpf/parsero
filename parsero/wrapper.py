@@ -12,39 +12,39 @@ def file_to_automata(path_to_file):
     is_deterministic = True
     states = []
     initial_state = 0
+    alphabet = []
     transitions = []
 
-    file = open(path_to_file, "r")
+    with open(path_to_file, "r") as file:
+        number_states = int(file.readline())
+        initial_state = int(file.readline())
+        final_states = [int(x) for x in file.readline().split(",")]
 
-    number_states = int(file.readline())
-    initial_state = int(file.readline())
-    final_states = [int(x) for x in file.readline().split(",")]
+        for i in range(number_states):
+            is_final = False
+            if i in final_states:
+                is_final = True
 
-    for i in range(number_states):
-        is_final = False
-        if i in final_states:
-            is_final = True
+            states.append(State(str(i), is_final))
 
-        states.append(State(str(i), is_final))
+        alphabet = file.readline().replace("\n", "").split(",")
 
-    alphabet = file.readline().replace("\n", "").split(",")
-
-    if "&" in alphabet:
-        is_deterministic = False
-
-    while line := file.readline():
-        transition_parts = line.split(",")
-        transition_parts[0] = int(transition_parts[0])
-        transition_parts[2] = transition_parts[2].replace("\n", "")
-
-        if "-" in transition_parts[2]:
+        if "&" in alphabet:
             is_deterministic = False
-            transition_parts[2] = transition_parts[2].split("-")
-            transition_parts[2] = tuple([int(x) for x in transition_parts[2]])
-        else:
-            transition_parts[2] = int(transition_parts[2])
 
-        transitions.append(tuple(transition_parts))
+        while line := file.readline():
+            transition_parts = line.split(",")
+            transition_parts[0] = int(transition_parts[0])
+            transition_parts[2] = transition_parts[2].replace("\n", "")
+
+            if "-" in transition_parts[2]:
+                is_deterministic = False
+                transition_parts[2] = transition_parts[2].split("-")
+                transition_parts[2] = tuple([int(x) for x in transition_parts[2]])
+            else:
+                transition_parts[2] = int(transition_parts[2])
+
+            transitions.append(tuple(transition_parts))
 
     if is_deterministic:
         return FiniteAutomata(states, initial_state, alphabet, transitions)
@@ -100,5 +100,3 @@ def automata_to_file(automata, path_to_file):
 
             if transitions:
                 file.write("\n")
-
-        file.close()
