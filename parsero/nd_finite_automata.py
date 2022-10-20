@@ -1,8 +1,10 @@
+import copy
 from functools import cache
-from parsero.state import State
+
 from parsero.finite_automata import FiniteAutomata
 from parsero.regex.commons import EPSILON
-import copy
+from parsero.state import State
+
 
 class NDFiniteAutomata:
     def __init__(self, states=None, initial_state=0, transitions=None):
@@ -87,7 +89,9 @@ class NDFiniteAutomata:
                 transition_map[(origin, symbol)] = set(target)
         return transition_map
 
-    def _try_add_det_state(self, states_pos, nd_states, det_states, nd_trasition_map, det_transition_map):
+    def _try_add_det_state(
+        self, states_pos, nd_states, det_states, nd_trasition_map, det_transition_map
+    ):
         transitions_by_symbol = {}
 
         for pos in states_pos:
@@ -115,7 +119,7 @@ class NDFiniteAutomata:
                 target_pos = set(name_pos_list)
 
                 if len(states_pos) > 1:
-                    current = (tuple(states_pos))
+                    current = tuple(states_pos)
                 else:
                     current = list(states_pos)[0]
 
@@ -123,12 +127,16 @@ class NDFiniteAutomata:
                     name = self._get_name_of_state_list(target_pos, nd_states)
                     target_state = State(name, any(nd_states[pos].is_final for pos in target_pos))
                 else:
-                    target_state = State(nd_states[list(target_pos)[0]].name, nd_states[list(target_pos)[0]].is_final)
+                    target_state = State(
+                        nd_states[list(target_pos)[0]].name, nd_states[list(target_pos)[0]].is_final
+                    )
                 if target_state not in det_states:
                     det_states.append(target_state)
                 if (current, symbol) not in det_transition_map:
                     det_transition_map[(current, symbol)] = target_pos
-                    self._try_add_det_state(target_pos, nd_states, det_states, nd_trasition_map, det_transition_map)
+                    self._try_add_det_state(
+                        target_pos, nd_states, det_states, nd_trasition_map, det_transition_map
+                    )
 
     def _get_name_of_state_list(self, state_list, states):
         name = ""
@@ -141,11 +149,20 @@ class NDFiniteAutomata:
         det_transition_map = dict()
 
         state_set = self.epsilon_closure(self.initial_state)
-        det_states.append(State(self._get_name_of_state_list(list(state_set), self.states),
-                                any(self.states[pos].is_final for pos in state_set)))
+        det_states.append(
+            State(
+                self._get_name_of_state_list(list(state_set), self.states),
+                any(self.states[pos].is_final for pos in state_set),
+            )
+        )
 
-        self._try_add_det_state(self.epsilon_closure(self.initial_state), self.states, det_states, self.transition_map,
-                                det_transition_map)
+        self._try_add_det_state(
+            self.epsilon_closure(self.initial_state),
+            self.states,
+            det_states,
+            self.transition_map,
+            det_transition_map,
+        )
 
         return FiniteAutomata(det_states, self.initial_state, det_transition_map, False)
 

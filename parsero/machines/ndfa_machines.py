@@ -1,6 +1,7 @@
 from parsero.nd_finite_automata import NDFiniteAutomata
-from parsero.state import State
 from parsero.regex.commons import EPSILON
+from parsero.state import State
+
 
 def ndfa_even_chars():
     """
@@ -64,18 +65,14 @@ def ndfa_abc_sequence():
 
     return NDFiniteAutomata(states=states, transitions=transitions)
 
+
 def ndfa_to_determinize_no_epsilon():
     """
     Example 1-1
     https://moodle.ufsc.br/pluginfile.php/5664168/mod_resource/content/6/Resolvidas_Deteminização.pdf
     """
 
-    states = [
-        State("p", False),
-        State("q", True),
-        State("r", False),
-        State("s", True)
-    ]
+    states = [State("p", False), State("q", True), State("r", False), State("s", True)]
 
     transitions = [
         (0, "0", {1, 3}),
@@ -84,10 +81,11 @@ def ndfa_to_determinize_no_epsilon():
         (1, "1", {1, 2}),
         (2, "0", 3),
         (2, "1", 0),
-        (3, "1", 0)
+        (3, "1", 0),
     ]
 
     return NDFiniteAutomata(states=states, transitions=transitions)
+
 
 def ndfa_to_determinize_epsilon():
     """

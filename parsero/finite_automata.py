@@ -83,7 +83,7 @@ class FiniteAutomata:
         transition_map = dict()
         for origin1, symbol, target in transitions:
             if isinstance(origin1, set):
-                origin = (tuple(origin1))
+                origin = tuple(origin1)
             else:
                 origin = origin1
             if isinstance(target, int):
