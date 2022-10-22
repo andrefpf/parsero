@@ -1,7 +1,13 @@
+from parsero.machines.fa_machines import (
+    fa_determinized_epsilon,
+    fa_determinized_no_epsilon,
+)
 from parsero.machines.ndfa_machines import (
     ndfa_abc_sequence,
     ndfa_ends_with_bb,
     ndfa_even_chars,
+    ndfa_to_determinize_epsilon,
+    ndfa_to_determinize_no_epsilon,
 )
 
 
@@ -68,3 +74,18 @@ def test_abc_sequence():
 
     for string, answer in template:
         assert automata.evaluate(string) == answer
+
+
+def test_determinization_no_epsilon():
+    nd_automata = ndfa_to_determinize_no_epsilon()
+    determinized_automata = nd_automata.determinize()
+    model = fa_determinized_no_epsilon()
+    assert determinized_automata.transition_map == model.transition_map
+    assert len(determinized_automata.states) == len(model.states)  # good enough
+
+
+def test_determinization_epsilon():
+    nd_automata = ndfa_to_determinize_epsilon()
+    determinized_automata = nd_automata.determinize()
+    model = fa_determinized_epsilon()
+    assert determinized_automata.transition_map == model.transition_map
