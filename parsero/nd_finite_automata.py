@@ -1,5 +1,6 @@
 import copy
 from functools import cache
+from tabulate import tabulate
 
 from parsero.finite_automata import FiniteAutomata
 from parsero.regex.commons import EPSILON
@@ -166,6 +167,31 @@ class NDFiniteAutomata:
 
         return FiniteAutomata(det_states, self.initial_state, det_transition_map, False)
 
-    # TODO:Use a lib to print it like a table
-    # def __repr__(self):
-    #   print("SUS table")
+    def __repr__(self):
+        alphabet = list({symbol for _, symbol in self.transition_map.keys()})
+        alphabet.sort()
+
+        # use self.alphabet instead
+        headers = ["STATES/SYMBOLS"] + alphabet
+        data = []
+
+        for i, state in enumerate(self.states):
+            name = state.name
+
+            if state.is_final:
+                name = "*" + name
+            
+            if i == self.initial_state:
+                name = "→" + name
+            
+            line = [name]
+            for symbol in alphabet:
+                targets = self.transition_map.get((i,symbol))
+                if targets is not None:
+                    names = {self.states[i].name for i in targets}
+                    line.append(str(names))
+                else:
+                    line.append("")
+            data.append(line)
+
+        return tabulate(data, headers=headers, tablefmt="fancy_grid")

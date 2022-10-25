@@ -1,3 +1,5 @@
+from tabulate import tabulate
+
 DEAD_STATE = -1
 
 
@@ -92,6 +94,30 @@ class FiniteAutomata:
                 transition_map[(origin, symbol)] = target
         return transition_map
 
-    # TODO:Use a lib to print it like a table
-    # def __repr__(self):
-    #   print("SUS table")
+    def __repr__(self):
+        alphabet = list({symbol for _, symbol in self.transition_map.keys()})
+        alphabet.sort()
+
+        # use self.alphabet instead
+        headers = ["STATES/SYMBOLS"] + alphabet
+        data = []
+
+        for i, state in enumerate(self.states):
+            name = state.name
+
+            if state.is_final:
+                name = "*" + name
+            
+            if i == self.initial_state:
+                name = "→" + name
+            
+            line = [name]
+            for symbol in alphabet:
+                target = self.states[next(iter(self.transition_map[(i,symbol)]))]
+                if target is not None:
+                    line.append(target.name)
+                else:
+                    line.append("")
+            data.append(line)
+
+        return tabulate(data, headers=headers, tablefmt="fancy_grid")

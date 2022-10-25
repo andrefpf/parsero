@@ -77,7 +77,7 @@ def _simplify_regex(expression: str) -> str:
     return expression
 
 
-def compile_(expression: str) -> FiniteAutomata:
+def compiles(expression: str) -> FiniteAutomata:
     """
     Converts a regular expression into equivalent Finite Automata.
     """
@@ -88,7 +88,7 @@ def compile_(expression: str) -> FiniteAutomata:
     followpos = calculate_followpos(tree)
     leafs = get_leafs(tree)
 
-    alphabet = "".join([leaf.char for leaf in leafs])
+    alphabet = "".join([leaf.char for leaf in leafs if leaf.char != "#"])
 
     symbol_tags = defaultdict(set)
     for leaf in leafs:
@@ -124,7 +124,7 @@ def compile_regular_definitions(definitions: str) -> dict[str, FiniteAutomata]:
     automatas = dict()
 
     for _id, _exp in expressions.items():
-        automata = compile_(_exp)
+        automata = compiles(_exp)
         automatas[_id] = automata
 
     return automatas
