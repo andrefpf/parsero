@@ -94,7 +94,7 @@ class FiniteAutomata:
                 transition_map[(origin, symbol)] = target
         return transition_map
 
-    def __repr__(self):
+    def __str__(self):
         alphabet = list({symbol for _, symbol in self.transition_map.keys()})
         alphabet.sort()
 
@@ -107,13 +107,13 @@ class FiniteAutomata:
 
             if state.is_final:
                 name = "*" + name
-            
+
             if i == self.initial_state:
                 name = "→" + name
-            
+
             line = [name]
             for symbol in alphabet:
-                target = self.states[next(iter(self.transition_map[(i,symbol)]))]
+                target = self.states[next(iter(self.transition_map[(i, symbol)]))]
                 if target is not None:
                     line.append(target.name)
                 else:

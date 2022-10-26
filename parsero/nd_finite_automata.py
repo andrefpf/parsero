@@ -1,5 +1,6 @@
 import copy
 from functools import cache
+
 from tabulate import tabulate
 
 from parsero.finite_automata import FiniteAutomata
@@ -167,7 +168,7 @@ class NDFiniteAutomata:
 
         return FiniteAutomata(det_states, self.initial_state, det_transition_map, False)
 
-    def __repr__(self):
+    def __str__(self):
         alphabet = list({symbol for _, symbol in self.transition_map.keys()})
         alphabet.sort()
 
@@ -180,13 +181,13 @@ class NDFiniteAutomata:
 
             if state.is_final:
                 name = "*" + name
-            
+
             if i == self.initial_state:
                 name = "→" + name
-            
+
             line = [name]
             for symbol in alphabet:
-                targets = self.transition_map.get((i,symbol))
+                targets = self.transition_map.get((i, symbol))
                 if targets is not None:
                     names = {self.states[i].name for i in targets}
                     line.append(str(names))

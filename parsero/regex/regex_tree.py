@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 from treelib import Tree
+
 from parsero.regex.commons import ALPHANUMERIC, EPSILON, SPECIAL
 from parsero.utils import consume
 
