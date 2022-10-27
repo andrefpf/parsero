@@ -3,7 +3,7 @@ from parsero.token import Token
 
 class TokenList:
     def __init__(self):
-        tl = []
+        self.tl = []
 
     def insert(self, token):
-        tl.append(token)
+        self.tl.append(token)
