@@ -2,7 +2,6 @@ from dataclasses import dataclass
 
 
 @dataclass
-class State:
+class Token:
     name: str
-    is_final: bool
-    tag: str = ''
+    attribute: str = ''
