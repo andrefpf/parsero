@@ -1,4 +1,3 @@
-from parsero.wrapper import file_to_automata
 from parsero.machines.fa_machines import (
     fa_determinized_epsilon,
     fa_determinized_no_epsilon,
@@ -10,6 +9,7 @@ from parsero.machines.ndfa_machines import (
     ndfa_to_determinize_epsilon,
     ndfa_to_determinize_no_epsilon,
 )
+from parsero.wrapper import file_to_automata
 
 
 def test_even_chars():

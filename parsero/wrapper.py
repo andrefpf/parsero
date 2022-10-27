@@ -27,7 +27,7 @@ def file_to_automata(path_to_file):
 
             states.append(State(str(i), is_final))
 
-        alphabet = file.readline().replace("\n", "").split(",")
+        alphabet = file.readline().strip().split(",")
 
         if "&" in alphabet:
             is_deterministic = False
@@ -35,7 +35,7 @@ def file_to_automata(path_to_file):
         while line := file.readline():
             transition_parts = line.split(",")
             transition_parts[0] = int(transition_parts[0])
-            transition_parts[2] = transition_parts[2].replace("\n", "")
+            transition_parts[2] = transition_parts[2].strip()
 
             if "-" in transition_parts[2]:
                 is_deterministic = False

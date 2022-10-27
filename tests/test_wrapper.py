@@ -5,10 +5,10 @@ def test_finite_automata_read():
     path_to_file = "tests/examples/even_chars.fa"
 
     transitions = [
-        (0, "a", 1),
-        (0, "b", 1),
-        (1, "a", 0),
-        (1, "b", 0),
+        (0, "a", {1}),
+        (0, "b", {1}),
+        (1, "a", {0}),
+        (1, "b", {0}),
     ]
 
     automata = file_to_automata(path_to_file)

@@ -165,7 +165,9 @@ class NDFiniteAutomata:
             det_transition_map,
         )
 
-        return FiniteAutomata(det_states, self.initial_state, det_transition_map, False)
+        alphabet = list(filter(lambda a: a != "&", self.alphabet))
+
+        return FiniteAutomata(det_states, self.initial_state, alphabet, det_transition_map, False)
 
     # TODO:Use a lib to print it like a table
     # def __repr__(self):
