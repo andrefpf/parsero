@@ -9,6 +9,7 @@ from parsero.machines.ndfa_machines import (
     ndfa_to_determinize_epsilon,
     ndfa_to_determinize_no_epsilon,
 )
+from parsero.wrapper import file_to_automata
 
 
 def test_even_chars():
@@ -25,7 +26,7 @@ def test_even_chars():
         ("c", False),
     ]
 
-    automata = ndfa_even_chars()
+    automata = file_to_automata("tests/examples/even_chars.ndfa")
 
     for string, answer in template:
         assert automata.evaluate(string) == answer
@@ -48,7 +49,7 @@ def test_ends_with_bb():
         ("aaacaabb", False),
     ]
 
-    automata = ndfa_ends_with_bb()
+    automata = file_to_automata("tests/examples/ends_with_bb.ndfa")
 
     for string, answer in template:
         assert automata.evaluate(string) == answer
@@ -70,7 +71,7 @@ def test_abc_sequence():
         ("ccb", False),
     ]
 
-    automata = ndfa_abc_sequence()
+    automata = file_to_automata("tests/examples/abc.ndfa")
 
     for string, answer in template:
         assert automata.evaluate(string) == answer

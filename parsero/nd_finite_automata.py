@@ -9,8 +9,9 @@ from parsero.state import State
 
 
 class NDFiniteAutomata:
-    def __init__(self, states=None, initial_state=0, transitions=None):
+    def __init__(self, states=None, initial_state=0, alphabet=[], transitions=None):
         self.states = states
+        self.alphabet = alphabet
         self.transition_map = self._create_transition_map(transitions)
         self.initial_state = initial_state
 
@@ -166,7 +167,9 @@ class NDFiniteAutomata:
             det_transition_map,
         )
 
-        return FiniteAutomata(det_states, self.initial_state, det_transition_map, False)
+        alphabet = list(filter(lambda a: a != "&", self.alphabet))
+
+        return FiniteAutomata(det_states, self.initial_state, alphabet, det_transition_map, False)
 
     def __str__(self):
         alphabet = list({symbol for _, symbol in self.transition_map.keys()})

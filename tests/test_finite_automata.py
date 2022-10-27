@@ -1,7 +1,4 @@
-from parsero.machines.fa_machines import (
-    fa_even_chars,
-    fa_starts_with_a_ends_with_b,
-)
+from parsero.wrapper import file_to_automata
 
 
 def test_even_chars():
@@ -18,7 +15,7 @@ def test_even_chars():
         ("c", False),
     ]
 
-    automata = fa_even_chars()
+    automata = file_to_automata("tests/examples/even_chars.fa")
 
     for string, answer in template:
         assert automata.evaluate(string) == answer
@@ -38,14 +35,14 @@ def test_starts_with_a_ends_with_b():
         ("ab", True),
     ]
 
-    automata = fa_starts_with_a_ends_with_b()
+    automata = file_to_automata("tests/examples/starts_a_ends_b.fa")
 
     for string, answer in template:
         assert automata.evaluate(string) == answer
 
 
 def test_match():
-    automata = fa_starts_with_a_ends_with_b()
+    automata = file_to_automata("tests/examples/starts_a_ends_b.fa")
 
     prefix = automata.match("abobora")
     # abob
