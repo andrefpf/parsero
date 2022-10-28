@@ -165,9 +165,25 @@ class NDFiniteAutomata:
             det_transition_map,
         )
 
+        final_transition_map = dict()
+
+        for (origin, symbol), target in det_transition_map.items():
+            if isinstance(origin, int):
+                origin = (origin,)
+
+            start_name = self._get_name_of_state_list(origin, self.states)
+            target_name = self._get_name_of_state_list(list(target), self.states)
+
+            for i in range(len(det_states)):
+                if det_states[i].name == start_name:
+                    start_index = i
+                if det_states[i].name == target_name:
+                    target_index = i
+            final_transition_map[(start_index, symbol)] = target_index
+
         alphabet = list(filter(lambda a: a != "&", self.alphabet))
 
-        return FiniteAutomata(det_states, self.initial_state, alphabet, det_transition_map, False)
+        return FiniteAutomata(det_states, self.initial_state, alphabet, final_transition_map, False)
 
     # TODO:Use a lib to print it like a table
     # def __repr__(self):
