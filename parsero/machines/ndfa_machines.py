@@ -21,7 +21,7 @@ def ndfa_to_determinize_no_epsilon():
         (3, "1", 0),
     ]
 
-    return NDFiniteAutomata(states=states, transitions=transitions)
+    return NDFiniteAutomata(states=states, transitions=transitions, alphabet=list("01"))
 
 
 def ndfa_to_determinize_epsilon():
@@ -44,4 +44,4 @@ def ndfa_to_determinize_epsilon():
         (1, "c", {0, 1}),
     ]
 
-    return NDFiniteAutomata(states=states, transitions=transitions)
+    return NDFiniteAutomata(states=states, transitions=transitions, alphabet=list("abc"))

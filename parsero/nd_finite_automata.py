@@ -7,11 +7,15 @@ from parsero.state import State
 
 
 class NDFiniteAutomata:
-    def __init__(self, states=None, initial_state=0, alphabet=[], transitions=None):
+    def __init__(self, states, transitions, alphabet, initial_state=0):
         self.states = states
         self.alphabet = alphabet
         self.transition_map = self._create_transition_map(transitions)
         self.initial_state = initial_state
+
+    @classmethod
+    def empty(cls):
+        return cls(states=[], transitions=[], alphabet=[], initial_state=-1)
 
     def iterate(self, string):
         """
@@ -182,8 +186,9 @@ class NDFiniteAutomata:
             final_transition_map[(start_index, symbol)] = target_index
 
         alphabet = list(filter(lambda a: a != "&", self.alphabet))
-
-        return FiniteAutomata(det_states, self.initial_state, alphabet, final_transition_map, False)
+        automata = FiniteAutomata(det_states, [], alphabet, self.initial_state)
+        automata.transition_map = final_transition_map
+        return automata
 
     # TODO:Use a lib to print it like a table
     # def __repr__(self):

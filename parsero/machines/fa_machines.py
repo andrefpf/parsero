@@ -41,7 +41,7 @@ def fa_determinized_no_epsilon():
         (8, "1", 7),
     ]
 
-    return FiniteAutomata(states=states, transitions=transitions)
+    return FiniteAutomata(states=states, transitions=transitions, alphabet=list("01"))
 
 
 def fa_determinized_epsilon():
@@ -64,4 +64,4 @@ def fa_determinized_epsilon():
         (2, "c", 2),
     ]
 
-    return FiniteAutomata(states=states, transitions=transitions)
+    return FiniteAutomata(states=states, transitions=transitions, alphabet=list("01"))
