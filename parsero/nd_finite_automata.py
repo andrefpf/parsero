@@ -22,7 +22,10 @@ class NDFiniteAutomata:
         Iterates over a string yielding the current states of the automata.
         """
         current_states = self.epsilon_closure(self.initial_state)
-        yield current_states
+
+        if not current_states:
+            yield current_states
+            return
 
         for symbol in string:
             next_states = set()
@@ -65,6 +68,9 @@ class NDFiniteAutomata:
         """
         This is a simple DFS algorithm to get all states reachable by epsilon transitions.
         """
+
+        if state == -1:
+            return {}
 
         visited = [False for _ in self.states]
         stack = [state]
