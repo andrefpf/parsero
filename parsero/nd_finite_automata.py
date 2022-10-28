@@ -21,10 +21,11 @@ class NDFiniteAutomata:
         """
         Iterates over a string yielding the current states of the automata.
         """
+
         current_states = self.epsilon_closure(self.initial_state)
+        yield current_states
 
         if not current_states:
-            yield current_states
             return
 
         for symbol in string:
