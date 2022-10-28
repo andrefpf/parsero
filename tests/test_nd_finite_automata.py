@@ -123,7 +123,7 @@ def test_abc_sequence_determinized():
         assert not automata.evaluate(string)
 
 
-# Acredito que estes testes estejam corretos, mas é difícil de 
+# Acredito que estes testes estejam corretos, mas é difícil de
 # comparar autômatos e é difícil saber a ordem exata em que eles foram determinizados.
 # Uma opção que temos é só testar se os 3 autômatos reconhecem o mesmo conjunto de palavras.
 def test_determinization_no_epsilon():
