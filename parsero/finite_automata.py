@@ -2,16 +2,15 @@ DEAD_STATE = -1
 
 
 class FiniteAutomata:
-    def __init__(
-        self, states=None, initial_state=0, alphabet=[], transitions=None, create_map=True
-    ):
+    def __init__(self, states, transitions, alphabet, initial_state=0):
         self.states = states
         self.initial_state = initial_state
         self.alphabet = alphabet
-        if create_map:
-            self.transition_map = self._create_transition_map(transitions)
-        else:
-            self.transition_map = transitions
+        self.transition_map = self._create_transition_map(transitions)
+
+    @classmethod
+    def empty(cls):
+        return cls(states=[], transitions=[], alphabet=[], initial_state=-1)
 
     def iterate(self, string):
         """
@@ -19,6 +18,8 @@ class FiniteAutomata:
         """
         current_state = self.initial_state
         yield current_state
+        if current_state is DEAD_STATE:
+            return
 
         for symbol in string:
             current_state = self.compute(current_state, symbol)
@@ -40,10 +41,7 @@ class FiniteAutomata:
             return self.is_state_final(last_state)
 
     def is_state_final(self, state):
-        if isinstance(state, set):
-            return self.states[(next(iter(state)))].is_final
-        else:
-            return self.states[state].is_final
+        return self.states[state].is_final
 
     def match(self, string):
         """
@@ -71,10 +69,7 @@ class FiniteAutomata:
         Executes a single step of computation from a origin state through a symbol, then returns the next state.
         """
         try:
-            if isinstance(origin, set):
-                return self.transition_map[(next(iter(origin)), symbol)]
-            else:
-                return self.transition_map[(origin, symbol)]
+            return self.transition_map[(origin, symbol)]
         except KeyError:
             return DEAD_STATE
 
@@ -84,15 +79,8 @@ class FiniteAutomata:
         """
 
         transition_map = dict()
-        for origin1, symbol, target in transitions:
-            if isinstance(origin1, set):
-                origin = tuple(origin1)
-            else:
-                origin = origin1
-            if isinstance(target, int):
-                transition_map[(origin, symbol)] = {target}
-            else:
-                transition_map[(origin, symbol)] = target
+        for origin, symbol, target in transitions:
+            transition_map[(origin, symbol)] = target
         return transition_map
 
     # TODO:Use a lib to print it like a table

@@ -7,18 +7,26 @@ from parsero.state import State
 
 
 class NDFiniteAutomata:
-    def __init__(self, states=None, initial_state=0, alphabet=[], transitions=None):
+    def __init__(self, states, transitions, alphabet, initial_state=0):
         self.states = states
         self.alphabet = alphabet
         self.transition_map = self._create_transition_map(transitions)
         self.initial_state = initial_state
 
+    @classmethod
+    def empty(cls):
+        return cls(states=[], transitions=[], alphabet=[], initial_state=-1)
+
     def iterate(self, string):
         """
         Iterates over a string yielding the current states of the automata.
         """
+
         current_states = self.epsilon_closure(self.initial_state)
         yield current_states
+
+        if not current_states:
+            return
 
         for symbol in string:
             next_states = set()
@@ -61,6 +69,9 @@ class NDFiniteAutomata:
         """
         This is a simple DFS algorithm to get all states reachable by epsilon transitions.
         """
+
+        if state == -1:
+            return {}
 
         visited = [False for _ in self.states]
         stack = [state]
@@ -165,9 +176,26 @@ class NDFiniteAutomata:
             det_transition_map,
         )
 
-        alphabet = list(filter(lambda a: a != "&", self.alphabet))
+        final_transition_map = dict()
 
-        return FiniteAutomata(det_states, self.initial_state, alphabet, det_transition_map, False)
+        for (origin, symbol), target in det_transition_map.items():
+            if isinstance(origin, int):
+                origin = (origin,)
+
+            start_name = self._get_name_of_state_list(origin, self.states)
+            target_name = self._get_name_of_state_list(list(target), self.states)
+
+            for i in range(len(det_states)):
+                if det_states[i].name == start_name:
+                    start_index = i
+                if det_states[i].name == target_name:
+                    target_index = i
+            final_transition_map[(start_index, symbol)] = target_index
+
+        alphabet = list(filter(lambda a: a != "&", self.alphabet))
+        automata = FiniteAutomata(det_states, [], alphabet, self.initial_state)
+        automata.transition_map = final_transition_map
+        return automata
 
     # TODO:Use a lib to print it like a table
     # def __repr__(self):

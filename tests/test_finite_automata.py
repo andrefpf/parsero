@@ -6,19 +6,25 @@ def test_even_chars():
     L = {w | w bellows to {a, b}* and w is even}
     """
 
-    template = [
-        ("aa", True),
-        ("aaa", False),
-        ("ab", True),
-        ("aba", False),
-        ("", True),
-        ("c", False),
+    valid = [
+        "",
+        "aa",
+        "ab",
+    ]
+
+    invalid = [
+        "aaa",
+        "aba",
+        "c",
     ]
 
     automata = file_to_automata("tests/examples/even_chars.fa")
 
-    for string, answer in template:
-        assert automata.evaluate(string) == answer
+    for string in valid:
+        assert automata.evaluate(string)
+
+    for string in invalid:
+        assert not automata.evaluate(string)
 
 
 def test_starts_with_a_ends_with_b():
@@ -26,19 +32,25 @@ def test_starts_with_a_ends_with_b():
     L = {w | w bellows to {a, b, o, r} starts with a and ends with b}
     """
 
-    template = [
-        ("a", False),
-        ("b", False),
-        ("ba", False),
-        ("abobora", False),
-        ("abob", True),
-        ("ab", True),
+    valid = [
+        "abob",
+        "ab",
+    ]
+
+    invalid = [
+        "a",
+        "b",
+        "ba",
+        "abobora",
     ]
 
     automata = file_to_automata("tests/examples/starts_a_ends_b.fa")
 
-    for string, answer in template:
-        assert automata.evaluate(string) == answer
+    for string in valid:
+        assert automata.evaluate(string)
+
+    for string in invalid:
+        assert not automata.evaluate(string)
 
 
 def test_match():
