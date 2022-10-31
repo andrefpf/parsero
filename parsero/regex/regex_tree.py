@@ -20,6 +20,9 @@ class ReNode:
         self.lastpos = set()
         self.nullable = False
         self.grouped = False
+    
+    def children(self):
+        return []
 
     def join(self, other):
         return ReUnionNode(self, other)
@@ -39,6 +42,40 @@ class ReNode:
         """
         return ReUnionNode(ReSymbolNode("&"), self)
 
+    def _tree_str(self):
+        def representation(node):
+            if isinstance(node, ReUnionNode):
+                return "or"
+            elif isinstance(node, ReConcatNode):
+                return "."
+            elif isinstance(node, ReSymbolNode):
+                return node.char
+            elif isinstance(node, ReClosureNode):
+                return "*"
+            else:
+                return ""
+
+        tree = Tree()
+        stack = [self]
+
+        tree.create_node(representation(self), hash(self))
+        while stack:
+            node = stack.pop()
+            for child in node.children():
+                tree.create_node(representation(child), hash(child), parent=hash(node))
+                stack.append(child)
+
+        return tree
+    
+    def __hash__(self):
+        return id(self)
+    
+    def __eq__(self, other):
+        return type(self) == type(other) and self.children() == other.children()
+
+    def __str__(self):
+        return str(self._tree_str())
+
     def __iadd__(self, other):
         return self.concatenate(other)
 
@@ -51,6 +88,9 @@ class ReUnionNode(ReNode):
         super().__init__()
         self.left = left
         self.right = right
+
+    def children(self):
+        return [self.left, self.right]
 
     def concatenate(self, other):
         if self.grouped:
@@ -83,19 +123,15 @@ class ReUnionNode(ReNode):
     def __repr__(self):
         return f"({self.left} | {self.right})"
 
-    def __eq__(self, other):
-        return (
-            (type(self) == type(other))
-            and (self.left == other.left)
-            and (self.right == other.right)
-        )
-
 
 class ReConcatNode(ReNode):
     def __init__(self, left, right):
         super().__init__()
         self.left = left
         self.right = right
+
+    def children(self):
+        return [self.left, self.right]
 
     def closure(self):
         if self.grouped:
@@ -121,24 +157,17 @@ class ReConcatNode(ReNode):
     def __repr__(self):
         return f"({self.left} + {self.right})"
 
-    def __eq__(self, other):
-        return (
-            (type(self) == type(other))
-            and (self.left == other.left)
-            and (self.right == other.right)
-        )
-
 
 class ReClosureNode(ReNode):
     def __init__(self, child):
         super().__init__()
         self.child = child
 
+    def children(self):
+        return [self.child]
+
     def __repr__(self):
         return f"{self.child}*"
-
-    def __eq__(self, other):
-        return (type(self) == type(other)) and (self.child == other.child)
 
 
 class ReSymbolNode(ReNode):
@@ -148,6 +177,9 @@ class ReSymbolNode(ReNode):
 
     def __repr__(self):
         return self.char
+    
+    def __hash__(self):
+        return id(self)
 
     def __eq__(self, other):
         return (type(self) == type(other)) and (self.char == other.char)
