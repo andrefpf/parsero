@@ -1,2 +1,5 @@
 __pycache__/
+tests/output/
 .idea/
+
+!tests/output/.gitkeep

@@ -1,7 +1,4 @@
-from parsero.machines.fa_machines import (
-    fa_even_chars,
-    fa_starts_with_a_ends_with_b,
-)
+from parsero.wrapper import file_to_automata
 
 
 def test_even_chars():
@@ -9,19 +6,25 @@ def test_even_chars():
     L = {w | w bellows to {a, b}* and w is even}
     """
 
-    template = [
-        ("aa", True),
-        ("aaa", False),
-        ("ab", True),
-        ("aba", False),
-        ("", True),
-        ("c", False),
+    valid = [
+        "",
+        "aa",
+        "ab",
     ]
 
-    automata = fa_even_chars()
+    invalid = [
+        "aaa",
+        "aba",
+        "c",
+    ]
 
-    for string, answer in template:
-        assert automata.evaluate(string) == answer
+    automata = file_to_automata("tests/examples/even_chars.fa")
+
+    for string in valid:
+        assert automata.evaluate(string)
+
+    for string in invalid:
+        assert not automata.evaluate(string)
 
 
 def test_starts_with_a_ends_with_b():
@@ -29,23 +32,29 @@ def test_starts_with_a_ends_with_b():
     L = {w | w bellows to {a, b, o, r} starts with a and ends with b}
     """
 
-    template = [
-        ("a", False),
-        ("b", False),
-        ("ba", False),
-        ("abobora", False),
-        ("abob", True),
-        ("ab", True),
+    valid = [
+        "abob",
+        "ab",
     ]
 
-    automata = fa_starts_with_a_ends_with_b()
+    invalid = [
+        "a",
+        "b",
+        "ba",
+        "abobora",
+    ]
 
-    for string, answer in template:
-        assert automata.evaluate(string) == answer
+    automata = file_to_automata("tests/examples/starts_a_ends_b.fa")
+
+    for string in valid:
+        assert automata.evaluate(string)
+
+    for string in invalid:
+        assert not automata.evaluate(string)
 
 
 def test_match():
-    automata = fa_starts_with_a_ends_with_b()
+    automata = file_to_automata("tests/examples/starts_a_ends_b.fa")
 
     prefix = automata.match("abobora")
     # abob

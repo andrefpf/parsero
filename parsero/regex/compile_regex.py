@@ -103,7 +103,9 @@ def compiles(expression: str) -> FiniteAutomata:
         symbol_tags=symbol_tags,
     )
 
-    return FiniteAutomata(states=states, initial_state=0, transitions=transitions)
+    return FiniteAutomata(
+        states=states, transitions=transitions, alphabet=alphabet, initial_state=0
+    )
 
 
 def compile_regular_definitions(definitions: str) -> dict[str, FiniteAutomata]:
