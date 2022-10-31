@@ -1,3 +1,6 @@
+from copy import deepcopy
+from parsero import automata
+
 DEAD_STATE = -1
 
 
@@ -72,6 +75,28 @@ class FiniteAutomata:
             return self.transition_map[(origin, symbol)]
         except KeyError:
             return DEAD_STATE
+    
+    def union(self, other):
+        united_alphabet = list(set(self.alphabet + other.alphabet + ["&"]))  # dumb way to remove repetitions
+        united_states = [State("q0", False)] + deepcopy(self.states) + deepcopy(other.states)
+        united_transitions = []
+
+        # shift indexes for first and second list of states
+        sh0 = 1
+        sh1 = sh0 + len(self.states)
+
+        for (origin, symbol), target in self.transition_map.items():
+            transition = (origin + sh0, symbol, target + sh0)
+            united_transitions.append(transition)
+
+        for (origin, symbol), target in other.transition_map.items():
+            transition = (origin + sh1, symbol, target + sh1)
+            united_transitions.append(transition)
+
+        initial_transition = (0, "&", (self.initial_state + sh0, other.initial_state + sh1))
+        united_transitions.append(initial_transition)
+        
+        return automata.NDFiniteAutomata(united_states, united_transitions, united_alphabet, initial_state=0)
 
     def _create_transition_map(self, transitions):
         """
@@ -82,6 +107,9 @@ class FiniteAutomata:
         for origin, symbol, target in transitions:
             transition_map[(origin, symbol)] = target
         return transition_map
+    
+    def __or__(self, other):
+        return self.union(other)
 
     # TODO:Use a lib to print it like a table
     # def __repr__(self):

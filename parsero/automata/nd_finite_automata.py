@@ -1,7 +1,7 @@
 import copy
 from functools import cache
 
-from parsero.automata import FiniteAutomata
+from parsero import automata
 from parsero.automata.state import State
 from parsero.regex.commons import EPSILON
 
@@ -63,6 +63,31 @@ class NDFiniteAutomata:
             if self.states[i].is_final:
                 return True
         return False
+
+    def union(self, other):
+        united_alphabet = list(set(self.alphabet + other.alphabet + ["&"]))  # dumb way to remove repetitions
+        united_states = [State("q0", False)] + deepcopy(self.states) + deepcopy(other.states)
+        united_transitions = []
+
+        # shift indexes for first and second list of states
+        sh0 = 1
+        sh1 = sh0 + len(self.states)
+
+        for (origin, symbol), targets in self.transition_map.items():
+            shifted_targets = [target + sh0 for target in targets]
+            transition = (origin + sh0, symbol, shifted_targets)
+            united_transitions.append(transition)
+
+        for (origin, symbol), targets in other.transition_map.items():
+            shifted_targets = [target + sh1 for target in targets]
+            transition = (origin + sh1, symbol, shifted_targets)
+            united_transitions.append(transition)
+
+        initial_transition = (0, "&", (self.initial_state + sh0, other.initial_state + sh1))
+        united_transitions.append(initial_transition)
+        
+        return NDFiniteAutomata(united_states, united_transitions, united_alphabet, initial_state=0)
+
 
     @cache
     def epsilon_closure(self, state):
@@ -156,7 +181,7 @@ class NDFiniteAutomata:
             name += states[pos].name + ","
         return name[:-1]
 
-    def determinize(self) -> FiniteAutomata:
+    def determinize(self) -> automata.FiniteAutomata:
         det_states = []
         det_transition_map = dict()
 
@@ -193,9 +218,9 @@ class NDFiniteAutomata:
             final_transition_map[(start_index, symbol)] = target_index
 
         alphabet = list(filter(lambda a: a != "&", self.alphabet))
-        automata = FiniteAutomata(det_states, [], alphabet, self.initial_state)
-        automata.transition_map = final_transition_map
-        return automata
+        machine = automata.FiniteAutomata(det_states, [], alphabet, self.initial_state)
+        machine.transition_map = final_transition_map
+        return machine
 
     # TODO:Use a lib to print it like a table
     # def __repr__(self):

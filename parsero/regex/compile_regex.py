@@ -128,6 +128,9 @@ def compile_regular_definitions(definitions: str) -> dict[str, FiniteAutomata]:
     for _id, _exp in expressions.items():
         automata = compile_(_exp)
         automatas[_id] = automata
+        for state in automata.states:
+            if state.is_final:
+                state.tag = _id
 
     return automatas
 
