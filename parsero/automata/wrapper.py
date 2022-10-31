@@ -46,9 +46,9 @@ def file_to_automata(path_to_file):
             transitions.append(tuple(transition_parts))
 
     if is_deterministic:
-        return FiniteAutomata(states, initial_state, alphabet, transitions)
+        return FiniteAutomata(states, transitions, alphabet, initial_state)
     else:
-        return NDFiniteAutomata(states, initial_state, alphabet, transitions)
+        return NDFiniteAutomata(states, transitions, alphabet, initial_state)
 
 
 def automata_to_file(automata, path_to_file):
