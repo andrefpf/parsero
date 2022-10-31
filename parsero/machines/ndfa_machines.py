@@ -1,6 +1,6 @@
 from parsero.automata import NDFiniteAutomata
-from parsero.regex.commons import EPSILON
 from parsero.automata.state import State
+from parsero.regex.commons import EPSILON
 
 
 def ndfa_even_chars():

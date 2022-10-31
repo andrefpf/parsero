@@ -2,6 +2,7 @@ from collections import defaultdict, deque
 from itertools import count
 
 from parsero.automata import FiniteAutomata
+from parsero.automata.state import State
 from parsero.regex.commons import (
     ALPHANUMERIC,
     BLANK,
@@ -16,7 +17,6 @@ from parsero.regex.regex_tree import (
     create_regex_tree,
     get_leafs,
 )
-from parsero.automata.state import State
 
 
 def _get_automata_parameters(*, first_tagset, final_leaf_tag, alphabet, followpos, symbol_tags):
