@@ -1,5 +1,5 @@
-from parsero.finite_automata import FiniteAutomata
-from parsero.state import State
+from parsero.automata import FiniteAutomata
+from parsero.automata.state import State
 
 
 def digit():

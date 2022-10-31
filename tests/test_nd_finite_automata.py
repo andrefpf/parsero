@@ -9,7 +9,7 @@ from parsero.machines.ndfa_machines import (
     ndfa_to_determinize_epsilon,
     ndfa_to_determinize_no_epsilon,
 )
-from parsero.wrapper import file_to_automata
+from parsero.automata import file_to_automata
 
 
 def test_even_chars():

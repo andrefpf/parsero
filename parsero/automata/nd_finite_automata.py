@@ -1,9 +1,9 @@
 import copy
 from functools import cache
 
-from parsero.finite_automata import FiniteAutomata
+from parsero.automata import FiniteAutomata
 from parsero.regex.commons import EPSILON
-from parsero.state import State
+from parsero.automata.state import State
 
 
 class NDFiniteAutomata:

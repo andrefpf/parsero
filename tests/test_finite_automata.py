@@ -1,4 +1,4 @@
-from parsero.wrapper import file_to_automata
+from parsero.automata import file_to_automata
 
 
 def test_even_chars():

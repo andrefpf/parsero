@@ -1,4 +1,4 @@
-from parsero.wrapper import *
+from parsero.automata import *
 
 
 def test_finite_automata_read():

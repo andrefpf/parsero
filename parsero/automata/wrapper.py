@@ -1,6 +1,5 @@
-from parsero.finite_automata import FiniteAutomata
-from parsero.nd_finite_automata import NDFiniteAutomata
-from parsero.state import State
+from parsero.automata import FiniteAutomata, NDFiniteAutomata
+from parsero.automata.state import State
 
 
 def file_to_automata(path_to_file):
