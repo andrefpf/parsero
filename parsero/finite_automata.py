@@ -86,27 +86,25 @@ class FiniteAutomata:
         return transition_map
 
     def __str__(self):
-        alphabet = list({symbol for _, symbol in self.transition_map.keys()})
-        alphabet.sort()
-
-        # use self.alphabet instead
-        headers = ["STATES/SYMBOLS"] + alphabet
+        headers = ["Q/Σ"] + self.alphabet
         data = []
 
         for i, state in enumerate(self.states):
-            name = state.name
+            name = '"' + state.name + '"'
 
             if state.is_final:
-                name = "*" + name
+                name = "* " + name
 
             if i == self.initial_state:
-                name = "→" + name
+                name = "→ " + name
 
             line = [name]
-            for symbol in alphabet:
-                target = self.states[next(iter(self.transition_map[(i, symbol)]))]
-                if target is not None:
-                    line.append(target.name)
+            for symbol in self.alphabet:
+                index = self.transition_map.get((i, symbol))
+                if index is not None:
+                    target = self.states[index]
+                    state_name = '"' + str(target.name) + '"' # name in quotes
+                    line.append(state_name)
                 else:
                     line.append("")
             data.append(line)

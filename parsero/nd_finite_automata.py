@@ -200,24 +200,20 @@ class NDFiniteAutomata:
         return automata
 
     def __str__(self):
-        alphabet = list({symbol for _, symbol in self.transition_map.keys()})
-        alphabet.sort()
-
-        # use self.alphabet instead
-        headers = ["STATES/SYMBOLS"] + alphabet
+        headers = ["Q/Σ"] + self.alphabet
         data = []
 
         for i, state in enumerate(self.states):
-            name = state.name
+            name = '"' + state.name + '"'
 
             if state.is_final:
-                name = "*" + name
+                name = "* " + name
 
             if i == self.initial_state:
-                name = "→" + name
+                name = "→ " + name
 
             line = [name]
-            for symbol in alphabet:
+            for symbol in self.alphabet:
                 targets = self.transition_map.get((i, symbol))
                 if targets is not None:
                     names = {self.states[i].name for i in targets}
