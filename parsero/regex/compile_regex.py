@@ -135,7 +135,7 @@ def compile_regular_definitions(definitions: str) -> dict[str, FiniteAutomata]:
             raise SyntacticError.from_data(definitions, msg, line=i, col=col)
 
         col = is_identifier.match(identifier)
-        if col <= len(identifier):
+        if col < len(identifier):
             msg = "Invalid identifier."
             raise SyntacticError.from_data(definitions, msg, line=i, col=(col + 1))
 
