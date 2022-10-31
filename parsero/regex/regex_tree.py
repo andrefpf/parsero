@@ -20,7 +20,7 @@ class ReNode:
         self.lastpos = set()
         self.nullable = False
         self.grouped = False
-    
+
     def children(self):
         return []
 
@@ -66,10 +66,10 @@ class ReNode:
                 stack.append(child)
 
         return tree
-    
+
     def __hash__(self):
         return id(self)
-    
+
     def __eq__(self, other):
         return type(self) == type(other) and self.children() == other.children()
 
@@ -177,7 +177,7 @@ class ReSymbolNode(ReNode):
 
     def __repr__(self):
         return self.char
-    
+
     def __hash__(self):
         return id(self)
 

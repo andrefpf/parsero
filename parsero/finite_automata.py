@@ -103,7 +103,7 @@ class FiniteAutomata:
                 index = self.transition_map.get((i, symbol))
                 if index is not None:
                     target = self.states[index]
-                    state_name = '"' + str(target.name) + '"' # name in quotes
+                    state_name = '"' + str(target.name) + '"'  # name in quotes
                     line.append(state_name)
                 else:
                     line.append("")
