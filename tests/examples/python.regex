@@ -4,3 +4,13 @@ in:in
 try:try
 except:except
 return:return
+
+comma: ,
+colon: :
+single_quote: '
+double_quote: "
+triple_quote: """
+
+digit: [0-9]
+letter: [a-zA-Z]
+id: letter(letter|digit)*

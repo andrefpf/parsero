@@ -245,8 +245,13 @@ def create_regex_tree(expression: str) -> ReNode:
         elif char == "?":
             tree = tree.optional()
             continue
+            
+        print(char)
 
-        if char in "([{":
+        if char == "\\":
+            _, next_char = next(iterator)
+            subtree = ReSymbolNode(next_char)
+        elif char in "([{":
             subexpression = _extract_brackets(expression[i:])
             subtree = create_regex_tree(subexpression)
             length = len(subexpression) + 1

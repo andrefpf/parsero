@@ -82,8 +82,13 @@ class FiniteAutomata:
     
     def union(self, other):
         united_alphabet = self.alphabet + other.alphabet + ["&"]
+        united_alphabet = list(set(united_alphabet))
         united_states = [State("q0", False)] + deepcopy(self.states) + deepcopy(other.states)
         united_transitions = []
+
+        # rename states
+        for i, state in enumerate(united_states):
+            state.name = f"q{i}"
 
         # shift indexes for first and second list of states
         sh0 = 1

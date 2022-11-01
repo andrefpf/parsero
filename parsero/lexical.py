@@ -8,6 +8,7 @@ from parsero.utils import consume
 class LexicalAnalyzer:
     def __init__(self, regular_definitions_path):
         self.machine: FiniteAutomata
+        self.special_machine: FiniteAutomata
         self.special_words: list
         self._generate_automata(regular_definitions_path)
     
@@ -25,23 +26,52 @@ class LexicalAnalyzer:
 
         for i in iterator:
             remaining = string[i:]
-            lexeme, state_index = self.machine.match(remaining)
-            spaces, _ = find_spaces.match(remaining)
 
-            if state_index > 0:
+            special_word, _ = self.special_machine.match(remaining)
+            if special_word:
+                consume(len(special_word), iterator)
+                yield special_word, special_word
+                continue
+            
+            lexeme, state_index = self.machine.match(remaining)
+            if lexeme:
+                consume(len(lexeme) - 1, iterator)
                 tag = self.machine.states[state_index].tag
                 yield tag, lexeme  # use Token class
-                consume(len(lexeme) - 1, iterator)
-            elif spaces:
+                continue
+
+            spaces, _ = find_spaces.match(remaining)
+            if spaces:
                 consume(len(spaces) - 1, iterator)
-            else:
-                print(f'Caractere desconhecido "{string[i]}"')
+                continue
+            
+            # se nada der certo
+            print(f'\tCaractere desconhecido "{string[i]}"')
 
     def _generate_automata(self, regular_definitions_path):
         with open(regular_definitions_path) as file:
             machines, special_words = self._read_regular_definitions(file.read())
-        nd_automata = reduce(or_, machines)
-        self.machine = nd_automata.determinize()
+        
+        special_machines = []
+        for word in special_words:
+            machine = regex.compiles(word)
+            for state in machine.states:
+                if state.is_final:
+                    state.tag = word
+            special_machines.append(machine)
+
+        if machines:
+            nd_automata = reduce(or_, machines)
+            self.machine = nd_automata.determinize()
+        else:
+            self.machine = FiniteAutomata.empty()
+
+        if special_machines:
+            nd_special_automata = reduce(or_, special_machines)
+            self.special_machine = nd_special_automata.determinize()
+        else:
+            self.special_machine = FiniteAutomata.empty()
+
         self.special_words = special_words
 
     def _read_regular_definitions(self, definitions):
@@ -54,7 +84,7 @@ class LexicalAnalyzer:
             if not line:
                 continue
 
-            identifier, expression = line.split(":")
+            identifier, expression = line.split(":", 1)  # use only first occurence
             identifier = identifier.strip()
             expression = expression.strip()
 
