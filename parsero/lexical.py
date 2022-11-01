@@ -20,7 +20,7 @@ class LexicalAnalyzer:
             print(i)
         
     def make_tokens(self, string):
-        find_spaces = regex.compile_(r"\s+")
+        find_spaces = regex.compiles(r"\s+")
         iterator = iter(range(len(string)))
 
         for i in iterator:
@@ -67,7 +67,7 @@ class LexicalAnalyzer:
             expressions[identifier] = expression
 
         for _id, _exp in expressions.items():
-            machine = regex.compile_(_exp)
+            machine = regex.compiles(_exp)
             for state in machine.states:
                 if state.is_final:
                     state.tag = _id

@@ -3,6 +3,9 @@ from functools import cache
 
 from parsero import automata
 from parsero.automata.state import State
+from tabulate import tabulate
+
+# from parsero.finite_automata import FiniteAutomata
 from parsero.regex.commons import EPSILON
 
 
@@ -254,6 +257,27 @@ class NDFiniteAutomata:
     def __or__(self, other):
         return self.union(other)
 
-    # TODO:Use a lib to print it like a table
-    # def __repr__(self):
-    #   print("SUS table")
+    def __str__(self):
+        headers = ["Q/Σ"] + self.alphabet
+        data = []
+
+        for i, state in enumerate(self.states):
+            name = '"' + state.name + '"'
+
+            if state.is_final:
+                name = "* " + name
+
+            if i == self.initial_state:
+                name = "→ " + name
+
+            line = [name]
+            for symbol in self.alphabet:
+                targets = self.transition_map.get((i, symbol))
+                if targets is not None:
+                    names = {self.states[i].name for i in targets}
+                    line.append(str(names))
+                else:
+                    line.append("")
+            data.append(line)
+
+        return tabulate(data, headers=headers, tablefmt="fancy_grid")
