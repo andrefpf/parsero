@@ -88,7 +88,7 @@ def compile_(expression: str) -> FiniteAutomata:
     followpos = calculate_followpos(tree)
     leafs = get_leafs(tree)
 
-    alphabet = "".join([leaf.char for leaf in leafs])
+    alphabet = [leaf.char for leaf in leafs]
 
     symbol_tags = defaultdict(set)
     for leaf in leafs:

@@ -1,5 +1,5 @@
 EPSILON = "&"
-BLANK = " "
+BLANK = " \n"
 SPECIAL = "!@#$%_-=,.:;/"
 DIGIT = "0123456789"
 LOWER_CASE = "abcdefghijklmnopqrstuvxwyz"

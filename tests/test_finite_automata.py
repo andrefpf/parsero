@@ -56,18 +56,14 @@ def test_starts_with_a_ends_with_b():
 def test_match():
     automata = file_to_automata("tests/examples/starts_a_ends_b.fa")
 
-    prefix = automata.match("abobora")
-    # abob
-    assert prefix == 4
+    prefix, state = automata.match("abobora")
+    assert prefix == "abob"
 
-    prefix = automata.match("abroabroaborbarbaorboabraob")
-    # whole word
-    assert prefix == 27
+    prefix, state = automata.match("abroabroaborbarbaorboabraob")
+    assert prefix == "abroabroaborbarbaorboabraob"
 
-    prefix = automata.match("none")
-    # no matches
-    assert prefix == 0
+    prefix, state = automata.match("none")
+    assert prefix == ""
 
-    prefix = automata.match("ab")
-    # whole word
-    assert prefix == 2
+    prefix, state = automata.match("ab")
+    assert prefix == "ab"

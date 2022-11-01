@@ -30,8 +30,7 @@ def test_compile():
 def test_match():
     code = "s0m3 w0rds_th4t 4re p0ss1ble variables"
     size = regex.match(r"(\s|\w(\w|\d|_)*)*", code)
-    assert size == 16
-    assert code[:size] == "s0m3 w0rds_th4t "
+    assert size == "s0m3 w0rds_th4t "
 
 
 def test_evaluate():

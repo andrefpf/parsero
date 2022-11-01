@@ -18,6 +18,7 @@ def test_ends_with_bb():
         "aaabb",
         "bbbbb",
         "abbabb",
+        "aaacaabb",
     ]
 
     invalid = [
@@ -26,7 +27,6 @@ def test_ends_with_bb():
         "aaab",
         "abba",
         "abbab",
-        "aaacaabb",
     ]
 
     automata = file_to_automata("tests/examples/ends_with_bb.ndfa")
@@ -75,6 +75,7 @@ def test_ends_with_bb_determinized():
         "aaabb",
         "bbbbb",
         "abbabb",
+        "aaacaabb",
     ]
 
     invalid = [
@@ -83,7 +84,6 @@ def test_ends_with_bb_determinized():
         "aaab",
         "abba",
         "abbab",
-        "aaacaabb",
     ]
 
     automata = file_to_automata("tests/examples/ends_with_bb.ndfa").determinize()

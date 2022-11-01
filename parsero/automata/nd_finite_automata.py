@@ -1,4 +1,4 @@
-import copy
+from copy import deepcopy
 from functools import cache
 
 from parsero import automata
@@ -65,7 +65,7 @@ class NDFiniteAutomata:
         return False
 
     def union(self, other):
-        united_alphabet = list(set(self.alphabet + other.alphabet + ["&"]))  # dumb way to remove repetitions
+        united_alphabet = self.alphabet + other.alphabet + ["&"]
         united_states = [State("q0", False)] + deepcopy(self.states) + deepcopy(other.states)
         united_transitions = []
 
@@ -78,10 +78,17 @@ class NDFiniteAutomata:
             transition = (origin + sh0, symbol, shifted_targets)
             united_transitions.append(transition)
 
-        for (origin, symbol), targets in other.transition_map.items():
-            shifted_targets = [target + sh1 for target in targets]
-            transition = (origin + sh1, symbol, shifted_targets)
-            united_transitions.append(transition)
+        # allows union with DFA
+        if isinstance(other, automata.NDFiniteAutomata):
+            for (origin, symbol), targets in other.transition_map.items():
+                shifted_targets = [target + sh1 for target in targets]
+                transition = (origin + sh1, symbol, shifted_targets)
+                united_transitions.append(transition)
+        else:
+            for (origin, symbol), target in other.transition_map.items():
+                transition = (origin + sh1, symbol, target + sh1)
+                united_transitions.append(transition)
+
 
         initial_transition = (0, "&", (self.initial_state + sh0, other.initial_state + sh1))
         united_transitions.append(initial_transition)
@@ -162,11 +169,26 @@ class NDFiniteAutomata:
 
                 if len(target_pos) > 1:
                     name = self._get_name_of_state_list(target_pos, nd_states)
-                    target_state = State(name, any(nd_states[pos].is_final for pos in target_pos))
+                    is_final = any(nd_states[pos].is_final for pos in target_pos)
+                    tag = ""
+                    for pos in target_pos:
+                        if nd_states[pos].tag:
+                            tag = nd_states[pos].tag
+                            break
+                    target_state = State(name, is_final, tag)
                 else:
+                    tag = ""
+                    for pos in target_pos:
+                        if nd_states[pos].tag:
+                            tag = nd_states[pos].tag
+                            break
+
                     target_state = State(
-                        nd_states[list(target_pos)[0]].name, nd_states[list(target_pos)[0]].is_final
+                        nd_states[list(target_pos)[0]].name, 
+                        nd_states[list(target_pos)[0]].is_final,
+                        tag
                     )
+
                 if target_state not in det_states:
                     det_states.append(target_state)
                 if (current, symbol) not in det_transition_map:
@@ -186,10 +208,17 @@ class NDFiniteAutomata:
         det_transition_map = dict()
 
         state_set = self.epsilon_closure(self.initial_state)
+        tag = ""
+        for pos in state_set:
+            if self.states[pos].tag:
+                tag = self.states[pos].tag
+                break
+
         det_states.append(
             State(
                 self._get_name_of_state_list(list(state_set), self.states),
                 any(self.states[pos].is_final for pos in state_set),
+                tag
             )
         )
 
@@ -221,6 +250,9 @@ class NDFiniteAutomata:
         machine = automata.FiniteAutomata(det_states, [], alphabet, self.initial_state)
         machine.transition_map = final_transition_map
         return machine
+
+    def __or__(self, other):
+        return self.union(other)
 
     # TODO:Use a lib to print it like a table
     # def __repr__(self):

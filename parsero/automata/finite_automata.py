@@ -1,5 +1,7 @@
 from copy import deepcopy
 from parsero import automata
+from parsero.automata.state import State
+
 
 DEAD_STATE = -1
 
@@ -48,24 +50,25 @@ class FiniteAutomata:
 
     def match(self, string):
         """
-        Returns a number that corresponds to the length of the longest prefix recognized by the automata.
+        Returns the longest substring prefix that belongs to the automata language and the final state.
 
         If the automata recognizes the language
         L = {w | w bellows to {abor} starts with a and ends with b}
 
-        and your test string is "abobora", this function will return 4, corresponding to the suffix "abob".
+        and your test string is "abobora", this function will return ("abob", 2).
         """
 
         length = 0
-        last_recognized_state = DEAD_STATE
+        found_state = DEAD_STATE
 
         for i, state in enumerate(self.iterate(string)):
             if state == DEAD_STATE:
                 break
             if self.is_state_final(state):
                 length = i
+                found_state = state
 
-        return length
+        return string[:length], found_state
 
     def compute(self, origin, symbol):
         """
@@ -77,7 +80,7 @@ class FiniteAutomata:
             return DEAD_STATE
     
     def union(self, other):
-        united_alphabet = list(set(self.alphabet + other.alphabet + ["&"]))  # dumb way to remove repetitions
+        united_alphabet = self.alphabet + other.alphabet + ["&"]
         united_states = [State("q0", False)] + deepcopy(self.states) + deepcopy(other.states)
         united_transitions = []
 
@@ -89,9 +92,16 @@ class FiniteAutomata:
             transition = (origin + sh0, symbol, target + sh0)
             united_transitions.append(transition)
 
-        for (origin, symbol), target in other.transition_map.items():
-            transition = (origin + sh1, symbol, target + sh1)
-            united_transitions.append(transition)
+        # allows union with NDFA
+        if isinstance(other, automata.NDFiniteAutomata):
+            for (origin, symbol), targets in other.transition_map.items():
+                shifted_targets = [target + sh1 for target in targets]
+                transition = (origin + sh1, symbol, shifted_targets)
+                united_transitions.append(transition)
+        else:
+            for (origin, symbol), target in other.transition_map.items():
+                transition = (origin + sh1, symbol, target + sh1)
+                united_transitions.append(transition)
 
         initial_transition = (0, "&", (self.initial_state + sh0, other.initial_state + sh1))
         united_transitions.append(initial_transition)

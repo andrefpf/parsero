@@ -32,6 +32,7 @@ def test_nd_finite_automata_read():
 
     transitions = [
         (0, "a", {0}),
+        (0, "c", {0}),
         (0, "b", {0, 1}),
         (1, "b", {2}),
         (2, "b", {2}),
@@ -41,7 +42,7 @@ def test_nd_finite_automata_read():
 
     assert len(automata.states) == 3
     assert automata.initial_state == 0
-    assert automata.alphabet == ["a", "b"]
+    assert automata.alphabet == ["a", "b", "c"]
 
     transitions_automata = [
         (origin, symbol, target) for (origin, symbol), target in automata.transition_map.items()
