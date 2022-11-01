@@ -2,7 +2,7 @@ from parsero import regex
 
 
 def test_compile():
-    automata = regex.compile_(r"a(a|b)*a|b(a|b)*b|a|b")
+    automata = regex.compiles(r"a(a|b)*a|b(a|b)*b|a|b")
 
     valid = [
         "a",

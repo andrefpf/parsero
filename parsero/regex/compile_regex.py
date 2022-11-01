@@ -1,6 +1,7 @@
 from collections import defaultdict, deque
 from itertools import count
 
+from parsero.errors import SyntacticError
 from parsero.finite_automata import FiniteAutomata
 from parsero.regex.commons import (
     ALPHANUMERIC,
@@ -77,7 +78,7 @@ def _simplify_regex(expression: str) -> str:
     return expression
 
 
-def compile_(expression: str) -> FiniteAutomata:
+def compiles(expression: str) -> FiniteAutomata:
     """
     Converts a regular expression into equivalent Finite Automata.
     """
@@ -88,7 +89,7 @@ def compile_(expression: str) -> FiniteAutomata:
     followpos = calculate_followpos(tree)
     leafs = get_leafs(tree)
 
-    alphabet = "".join([leaf.char for leaf in leafs])
+    alphabet = "".join([leaf.char for leaf in leafs if leaf.char != "#"])
 
     symbol_tags = defaultdict(set)
     for leaf in leafs:
@@ -109,15 +110,34 @@ def compile_(expression: str) -> FiniteAutomata:
 
 def compile_regular_definitions(definitions: str) -> dict[str, FiniteAutomata]:
     expressions = dict()
+    is_identifier = compiles(r"\w(\w|\d|-|_)*")
 
-    for line in definitions.splitlines():
+    for i, line in enumerate(definitions.splitlines(), 1):
         line = line.strip()
         if not line:
             continue
 
+        if ":" not in line:
+            msg = 'Regular definitions should be separated by ":".'
+            raise SyntacticError.from_data(definitions, msg, line=i)
+
         identifier, expression = line.split(":")
         identifier = identifier.strip()
         expression = expression.strip()
+
+        if not identifier:
+            msg = "The left side of the expression shoud not be empty."
+            raise SyntacticError.from_data(definitions, msg, line=i)
+
+        if not expression:
+            msg = "The right side of the expression shoud not be empty."
+            col = line.index(":") + 1
+            raise SyntacticError.from_data(definitions, msg, line=i, col=col)
+
+        col = is_identifier.match(identifier)
+        if col < len(identifier):
+            msg = "Invalid identifier."
+            raise SyntacticError.from_data(definitions, msg, line=i, col=(col + 1))
 
         for _id, _exp in expressions.items():
             expression = expression.replace(_id, _exp)
@@ -126,13 +146,17 @@ def compile_regular_definitions(definitions: str) -> dict[str, FiniteAutomata]:
     automatas = dict()
 
     for _id, _exp in expressions.items():
-        automata = compile_(_exp)
+        automata = compiles(_exp)
         automatas[_id] = automata
 
     return automatas
 
 
 def from_file(path: str) -> dict[str, FiniteAutomata]:
-    with open(path, "r") as file:
-        data = file.read()
-    return compile_regular_definitions(data)
+    try:
+        with open(path, "r") as file:
+            data = file.read()
+        return compile_regular_definitions(data)
+    except SyntacticError as e:
+        e.filename = path
+        raise e
