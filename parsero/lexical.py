@@ -3,6 +3,7 @@ from parsero.automata import FiniteAutomata
 from functools import reduce
 from operator import or_
 from parsero.utils import consume
+from parsero.errors import LexicalError
 
 
 class LexicalAnalyzer:
@@ -13,40 +14,46 @@ class LexicalAnalyzer:
         self._generate_automata(regular_definitions_path)
     
     def analyze(self, path):
-        with open(path) as file:
-            self.analyze_data(file.read())
+        try:
+            with open(path) as file:
+                self.analyze_data(file.read())
+        except LexicalError as e:
+            e.filename = path
+            raise e
     
     def analyze_data(self, string):
-        for i in self.make_tokens(string):
-            print(i)
+        for tag, lexeme in self.make_tokens(string):
+            print(f"<{tag}, {lexeme}>")
         
     def make_tokens(self, string):
         find_spaces = regex.compiles(r"\s+")
-        iterator = iter(range(len(string)))
 
-        for i in iterator:
-            remaining = string[i:]
+        for i, line in enumerate(string.splitlines()):
+            iterator = enumerate(line)
+            for j, char in iterator:
+                remaining = line[j:]
 
-            special_word, _ = self.special_machine.match(remaining)
-            if special_word:
-                consume(len(special_word), iterator)
-                yield special_word, special_word
-                continue
-            
-            lexeme, state_index = self.machine.match(remaining)
-            if lexeme:
-                consume(len(lexeme) - 1, iterator)
-                tag = self.machine.states[state_index].tag
-                yield tag, lexeme  # use Token class
-                continue
+                special_word, _ = self.special_machine.match(remaining)
+                if special_word:
+                    consume(len(special_word), iterator)
+                    yield special_word, special_word
+                    continue
+                
+                lexeme, state_index = self.machine.match(remaining)
+                if lexeme:
+                    consume(len(lexeme) - 1, iterator)
+                    tag = self.machine.states[state_index].tag
+                    yield tag, lexeme  # use Token class
+                    continue
 
-            spaces, _ = find_spaces.match(remaining)
-            if spaces:
-                consume(len(spaces) - 1, iterator)
-                continue
-            
-            # se nada der certo
-            print(f'\tCaractere desconhecido "{string[i]}"')
+                spaces, _ = find_spaces.match(remaining)
+                if spaces:
+                    consume(len(spaces) - 1, iterator)
+                    continue
+
+                msg = f'Unknown char "{char}"'
+                raise LexicalError.from_data(string, msg, line=i+1, col=j+1)
+
 
     def _generate_automata(self, regular_definitions_path):
         with open(regular_definitions_path) as file:
@@ -79,9 +86,14 @@ class LexicalAnalyzer:
         machines = []
         special_words = []
 
+        tmp_id = []
         for line in definitions.splitlines():
             line = line.strip()
             if not line:
+                continue
+
+            # support comments
+            if line[0] == "#":
                 continue
 
             identifier, expression = line.split(":", 1)  # use only first occurence
@@ -93,8 +105,15 @@ class LexicalAnalyzer:
                 continue
 
             for _id, _exp in expressions.items():
-                expression = expression.replace(_id, _exp)
+                replaced = expression.replace(_id, _exp)
+                if replaced != expression:
+                    tmp_id.append(_id)
+                    expression = replaced
             expressions[identifier] = expression
+
+        # if an expression is used inside another it doesn't becomes an automata
+        for _id in tmp_id:
+            expressions.pop(_id)
 
         for _id, _exp in expressions.items():
             machine = regex.compiles(_exp)

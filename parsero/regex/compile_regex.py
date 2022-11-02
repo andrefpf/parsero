@@ -6,12 +6,12 @@ from parsero.automata.state import State
 from parsero.errors import SyntacticError
 
 from parsero.regex.commons import (
-    ALPHANUMERIC,
-    BLANK,
-    DIGIT,
-    LOWER_CASE,
-    SYMBOL,
-    UPPER_CASE,
+    any_blank,
+    any_digit,
+    any_lower_case,
+    any_upper_case,
+    any_alphanumeric,
+    any_symbol,
 )
 from parsero.regex.regex_tree import (
     anotate_tree,
@@ -55,18 +55,7 @@ def _simplify_regex(expression: str) -> str:
     Replace common symbols like \\d for its equivalent syntax (union of all numbers)
     """
 
-    any_blank = "|".join(BLANK)
-    any_digit = "|".join(DIGIT)
-    any_lower_case = "|".join(LOWER_CASE)
-    any_upper_case = "|".join(UPPER_CASE)
-    any_alphanumeric = "|".join(ALPHANUMERIC)
-    any_symbol = "|".join(SYMBOL)
-
     replacement = {
-        ".": f"({any_digit}|{any_lower_case}|{any_upper_case}|{any_blank})",
-        "\\s": f"({any_blank})",
-        "\\d": f"({any_digit})",
-        "\\w": f"({any_lower_case}|{any_upper_case})",
         "[0-9]": f"({any_digit})",
         "[a-z]": f"({any_lower_case})",
         "[A-Z]": f"({any_upper_case})",

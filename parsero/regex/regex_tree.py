@@ -4,7 +4,7 @@ from typing import Optional
 
 from treelib import Tree
 
-from parsero.regex.commons import ALPHANUMERIC, EPSILON, SPECIAL
+from parsero.regex.commons import ALPHANUMERIC, EPSILON, SPECIAL, any_blank, any_digit, any_lower_case, any_upper_case
 from parsero.utils import consume
 
 
@@ -245,19 +245,34 @@ def create_regex_tree(expression: str) -> ReNode:
         elif char == "?":
             tree = tree.optional()
             continue
-            
-        print(char)
 
-        if char == "\\":
+        if char == "\\":  # scaped chars
             _, next_char = next(iterator)
-            subtree = ReSymbolNode(next_char)
+            if next_char == "s":
+                subexpression = any_blank
+                subtree = create_regex_tree(subexpression)
+            elif next_char == "d":
+                subexpression = any_digit
+                subtree = create_regex_tree(subexpression)
+            elif next_char == "w":
+                subexpression = f"{any_lower_case}|{any_upper_case}"
+                subtree = create_regex_tree(subexpression)
+            else:
+                subtree = ReSymbolNode(next_char)
+
+        elif char == ".":
+            subexpression = f"{any_digit}|{any_lower_case}|{any_upper_case}|{any_blank}"
+            subtree = create_regex_tree(subexpression)
+
         elif char in "([{":
             subexpression = _extract_brackets(expression[i:])
             subtree = create_regex_tree(subexpression)
             length = len(subexpression) + 1
             consume(length, iterator)
+
         elif (char == EPSILON) or (char in SPECIAL) or (char in ALPHANUMERIC):
             subtree = ReSymbolNode(char)
+
         else:
             raise ValueError(f'Unknown symbol "{char}"')
 

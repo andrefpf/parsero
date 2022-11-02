@@ -5,12 +5,16 @@ try:try
 except:except
 return:return
 
+dot: \.
 comma: ,
 colon: :
+equal: =
 single_quote: '
 double_quote: "
 triple_quote: """
+open_bracket: \(
+closing_bracket: \)
 
 digit: [0-9]
 letter: [a-zA-Z]
-id: letter(letter|digit)*
+id: letter(letter|digit|_)*

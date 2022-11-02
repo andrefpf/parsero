@@ -65,15 +65,20 @@ def test_file_regex():
 
 
 def test_escaped():
-    teste = "(um)(dois)(tr.es)(q.u+a*t|r[o)"
+    """
+    la bestialidad
+    """
 
-    # matched = regex.match(r"\(um\)", teste)
-    # assert matched == "(um)"
+    teste = "(um)(dois)(tr.es)(q.u+a*t|r,o)"
 
-    # matched = regex.match(r"(\(\w*\))*", teste)
-    # assert matched == "(um)(dois)"
+    matched = regex.match(r"\(um\)", teste)
+    assert matched == "(um)"
+
+    matched = regex.match(r"(\(\w*\))*", teste)
+    assert matched == "(um)(dois)"
     
-    matched = regex.match(r"\(\.\)", teste)
+    matched = regex.match(r"(\(\w*(\.\w*)*\))*", teste)
+    assert matched == "(um)(dois)(tr.es)"
 
-
-    # matched
+    matched = regex.match(r"(\(\w*((\.|\+|\*|\||,)\w*)*\))*", teste)
+    assert matched == "(um)(dois)(tr.es)(q.u+a*t|r,o)"
