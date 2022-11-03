@@ -5,7 +5,6 @@ from tabulate import tabulate
 
 from parsero import automata
 from parsero.automata.state import State
-# from parsero.finite_automata import FiniteAutomata
 from parsero.regex.commons import EPSILON
 
 
