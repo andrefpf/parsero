@@ -11,7 +11,7 @@ class LexicalAnalyzer:
     def __init__(self, regular_definitions_path):
         self.machine: FiniteAutomata
         self.special_machine: FiniteAutomata
-        self.special_words: list
+        self.keywords: list
         self._generate_automata(regular_definitions_path)
     
     def analyze(self, path):
@@ -104,10 +104,10 @@ class LexicalAnalyzer:
 
     def _generate_automata(self, regular_definitions_path):
         with open(regular_definitions_path) as file:
-            machines, special_words = self._read_regular_definitions(file.read())
+            machines, keywords = self._read_regular_definitions(file.read())
         
         special_machines = []
-        for word in special_words:
+        for word in keywords:
             machine = regex.compiles(word)
             for state in machine.states:
                 if state.is_final:
@@ -128,12 +128,12 @@ class LexicalAnalyzer:
         else:
             self.special_machine = FiniteAutomata.empty()
 
-        self.special_words = special_words
+        self.keywords = keywords
 
     def _read_regular_definitions(self, definitions):
         expressions = dict()
         machines = []
-        special_words = []
+        keywords = []
 
         tmp_id = []
         for line in definitions.splitlines():
@@ -152,7 +152,7 @@ class LexicalAnalyzer:
             expression = expression.strip()
 
             if identifier == expression:
-                special_words.append(expression)
+                keywords.append(expression)
                 continue
 
             id_size = lambda x: len(x[0])
@@ -174,4 +174,4 @@ class LexicalAnalyzer:
                     state.tag = _id
             machines.append(machine)
         
-        return machines, special_words
+        return machines, keywords

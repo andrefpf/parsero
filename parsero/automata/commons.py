@@ -6,8 +6,8 @@ from parsero import automata
 
 
 def union(*args):
-    if len(args) < 2:
-        raise ValueError("Union needs at least two arguments.")
+    if len(args) == 0:
+        raise ValueError("Union needs at least one argument.")
 
     alphabets = [m.alphabet for m in args]
     alphabets.append(["&"])

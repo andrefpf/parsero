@@ -1,0 +1,8 @@
+digit: [0-9]
+letter: [a-zA-Z]
+sign: (\+|-)
+decimal: (\.digit*)
+scientific_notation: (e(\+|-)?digit+)
+
+number: (sign?)(digit+)(decimal?)(scientific_notation?)
+identifier: letter(letter|digit|_)*
