@@ -2,14 +2,30 @@
 
 # Se o nome é igual a definição
 # então essa é uma palavra reservada
+as:as
+assert:assert
+break:break
+raise:raise
+yield:yield
+return:return
+class:class
+continue:continue
 def:def
+del:del
+with:with
+if:if
+elif:elif
+else:else
 for:for
-int:int
-float:float
+while:while
 in:in
 try:try
 except:except
-return:return
+None:None
+True:True
+False:False
+int:int
+float:float
 
 # Expressões auxiliares
 # estas expressões fazem parte das
@@ -43,4 +59,4 @@ string: "inside_string*"
 line_comment: #inside_comment*\n
 multiline_comment: """inside_multiline_comment*"""
 number: (sign?)(digit+)(decimal?)(scientific_notation?)
-identifier: (letter|_)(letter|digit|_)*
+id: (letter|_)(letter|digit|_)*

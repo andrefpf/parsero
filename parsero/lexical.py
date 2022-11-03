@@ -6,6 +6,7 @@ from parsero.automata import FiniteAutomata, union
 from parsero.errors import LexicalError
 from parsero.token import Token, TokenList
 from parsero.utils import consume
+from parsero.symbol_table import SymbolTable
 
 
 class LexicalAnalyzer:
@@ -14,6 +15,24 @@ class LexicalAnalyzer:
         self.special_machine: FiniteAutomata
         self.keywords: list
         self._generate_automata(regular_definitions_path)
+    
+    def parse(self, path):
+        with open(path) as file:
+            string = file.read()
+        return self.parse_string(string)
+
+    def parse_string(self, string):
+        sym_table = SymbolTable()
+        tokens = self.tokenize_string(string)
+
+        for word in self.keywords:
+            sym_table.insert(word, word)
+
+        for token in tokens:
+            if token.name == "id":
+                sym_table.insert(token.attribute, token.name)
+
+        return tokens, sym_table
 
     def analyze(self, path):
         try:
