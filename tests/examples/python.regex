@@ -25,9 +25,11 @@ plus: \+
 minus: -
 hashtag: #
 backslash: \\
-single_quote: '
-double_quote: "
-triple_quote: """
+string: '.*'|".*"
+multiline_comment: """.*"""
+#single_quote: '
+#double_quote: "
+#triple_quote: """
 open_bracket: \(
 closing_bracket: \)
 open_square_bracket: \[
@@ -40,4 +42,4 @@ closing_curly_bracket: \}
 digit: [0-9]
 letter: [a-zA-Z]
 number: (\+|-)?digit+(\.digit*)?(e(\+|-)?digit+)?
-identifier: letter(letter|digit|_)*
+identifier: (letter|_)(letter|digit|_)*

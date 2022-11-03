@@ -17,18 +17,23 @@ class FileError(Exception):
     it is common for text editors to index like this as well.
     """
 
-    def __init__(self, filename, msg="", *, line=1, col=1):
+    def __init__(self, filename, msg="", *, line=None, col=None, index=0):
         self.filename = filename
         self.msg = msg
+        self.data = ""
         self.line = line
         self.col = col
-        self.data = ""
 
     @classmethod
     def from_data(cls, data, msg="", *, line=1, col=1):
         exp = cls(filename=None, msg=msg, line=line, col=col)
         exp.data = data
         return exp
+    
+    def _line_col_by_index(self, index):
+        last_newline = self.data[:index].rfind("\n")
+        self.line = self.data[:index].count("\n")
+        self.row = index - last_newline
 
     def __str__(self):
         if self.filename is None:

@@ -42,33 +42,76 @@ class LexicalAnalyzer:
         return TokenList(self.make_tokens(string))
         
     def make_tokens(self, string):
-        find_spaces = regex.compiles(r"\s+")
+        iterator = enumerate(string)
+        line = 1
+        col = 1
 
-        for i, line in enumerate(string.splitlines()):
-            iterator = enumerate(line)
-            for j, char in iterator:
-                remaining = line[j:]
+        for i, char in iterator:
+            if char == " ":
+                continue
+            
+            if char == "\n":
+                # col = 1
+                # line += 1
+                continue
 
-                special_word, _ = self.special_machine.match(remaining)
-                if special_word:
-                    consume(len(special_word), iterator)
-                    yield Token(special_word, special_word)
-                    continue
+            remaining = string[i:]
+
+            special_word, _ = self.special_machine.match(remaining)
+            if special_word:
+                # new_lines = special_word.count("\n")
+                # if new_lines:
+                #     col = 1
+                #     line += new_lines
+
+                consume(len(special_word), iterator)
+                yield Token(special_word, special_word)
+                continue
+
+            lexeme, state_index = self.machine.match(remaining)
+            if lexeme:
+                # new_lines = special_word.count("\n")
+                # if new_lines:
+                #     col = 1
+                #     line += new_lines
+
+                consume(len(lexeme) - 1, iterator)
+                tag = self.machine.states[state_index].tag
+                yield Token(tag, lexeme)
+                continue
+
+
+            # it should stop before
+            msg = f'Unknown char "{char}"'
+            raise LexicalError.from_data(string, msg)
+
+
+        # find_spaces = regex.compiles(r"\s+")
+        # for i, line in enumerate(string.splitlines()):
+        #     iterator = enumerate(line)
+        #     for j, char in iterator:
+        #         remaining = line[j:]
+
+        #         special_word, _ = self.special_machine.match(remaining)
+        #         if special_word:
+        #             consume(len(special_word), iterator)
+        #             yield Token(special_word, special_word)
+        #             continue
                 
-                lexeme, state_index = self.machine.match(remaining)
-                if lexeme:
-                    consume(len(lexeme) - 1, iterator)
-                    tag = self.machine.states[state_index].tag
-                    yield Token(tag, lexeme)
-                    continue
+        #         lexeme, state_index = self.machine.match(remaining)
+        #         if lexeme:
+        #             consume(len(lexeme) - 1, iterator)
+        #             tag = self.machine.states[state_index].tag
+        #             yield Token(tag, lexeme)
+        #             continue
 
-                spaces, _ = find_spaces.match(remaining)
-                if spaces:
-                    consume(len(spaces) - 1, iterator)
-                    continue
+        #         spaces, _ = find_spaces.match(remaining)
+        #         if spaces:
+        #             consume(len(spaces) - 1, iterator)
+        #             continue
 
-                msg = f'Unknown char "{char}"'
-                raise LexicalError.from_data(string, msg, line=i+1, col=j+1)
+        #         msg = f'Unknown char "{char}"'
+        #         raise LexicalError.from_data(string, msg, line=i+1, col=j+1)
 
 
     def _generate_automata(self, regular_definitions_path):
@@ -116,11 +159,14 @@ class LexicalAnalyzer:
             identifier = identifier.strip()
             expression = expression.strip()
 
+            # print(identifier, expression)
+
             if identifier == expression:
                 special_words.append(expression)
                 continue
 
-            for _id, _exp in sorted(expressions.items(), key=len):
+            id_size = lambda x: len(x[0])
+            for _id, _exp in sorted(expressions.items(), key=id_size, reverse=True):
                 replaced = expression.replace(_id, _exp)
                 if replaced != expression:
                     tmp_id.append(_id)
@@ -129,7 +175,6 @@ class LexicalAnalyzer:
 
         # if an expression is used inside another it doesn't becomes an automata
         for _id in tmp_id:
-            print(_id)
             expressions.pop(_id, None)  # if not found ignore
 
         for _id, _exp in expressions.items():

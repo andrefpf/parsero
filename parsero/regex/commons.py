@@ -1,6 +1,6 @@
 EPSILON = "&"
 BLANK = " \n"
-SPECIAL = "!@#$%_-=,.:;/'\""
+SPECIAL = "!@#$%_-=,:;/'\""
 DIGIT = "0123456789"
 LOWER_CASE = "abcdefghijklmnopqrstuvxwyz"
 UPPER_CASE = "ABCDEFGHIJKLMNOPQRSTUVXWYZ"
