@@ -74,33 +74,6 @@ class LexicalAnalyzer:
             msg = f'Unknown char "{char}"'
             raise LexicalError.from_data(string, msg, index=i)
 
-        # find_spaces = regex.compiles(r"\s+")
-        # for i, line in enumerate(string.splitlines()):
-        #     iterator = enumerate(line)
-        #     for j, char in iterator:
-        #         remaining = line[j:]
-
-        #         special_word, _ = self.special_machine.match(remaining)
-        #         if special_word:
-        #             consume(len(special_word), iterator)
-        #             yield Token(special_word, special_word)
-        #             continue
-
-        #         lexeme, state_index = self.machine.match(remaining)
-        #         if lexeme:
-        #             consume(len(lexeme) - 1, iterator)
-        #             tag = self.machine.states[state_index].tag
-        #             yield Token(tag, lexeme)
-        #             continue
-
-        #         spaces, _ = find_spaces.match(remaining)
-        #         if spaces:
-        #             consume(len(spaces) - 1, iterator)
-        #             continue
-
-        #         msg = f'Unknown char "{char}"'
-        #         raise LexicalError.from_data(string, msg, line=i+1, col=j+1)
-
     def _generate_automata(self, regular_definitions_path):
         with open(regular_definitions_path) as file:
             machines, keywords = self._read_regular_definitions(file.read())
@@ -114,14 +87,12 @@ class LexicalAnalyzer:
             special_machines.append(machine)
 
         if machines:
-            # nd_automata = reduce(or_, machines)
             nd_automata = union(*machines)
             self.machine = nd_automata.determinize()
         else:
             self.machine = FiniteAutomata.empty()
 
         if special_machines:
-            # nd_special_automata = reduce(or_, special_machines)
             nd_special_automata = union(*special_machines)
             self.special_machine = nd_special_automata.determinize()
         else:
