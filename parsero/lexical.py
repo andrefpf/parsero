@@ -1,5 +1,5 @@
 from parsero import regex
-from parsero.automata import FiniteAutomata
+from parsero.automata import FiniteAutomata, union
 from functools import reduce
 from operator import or_
 from parsero.utils import consume
@@ -34,9 +34,9 @@ class LexicalAnalyzer:
         try:
             with open(path) as file:
                 return self.tokenize_string(file.read())
-        except LexicalError as e:
-            e.filename = path
-            raise e
+        except LexicalError as error:
+            error.filename = path
+            raise error
     
     def tokenize_string(self, string):
         return TokenList(self.make_tokens(string))
@@ -47,43 +47,31 @@ class LexicalAnalyzer:
         col = 1
 
         for i, char in iterator:
-            if char == " ":
-                continue
-            
-            if char == "\n":
-                # col = 1
-                # line += 1
-                continue
-
             remaining = string[i:]
 
             special_word, _ = self.special_machine.match(remaining)
             if special_word:
-                # new_lines = special_word.count("\n")
-                # if new_lines:
-                #     col = 1
-                #     line += new_lines
-
                 consume(len(special_word), iterator)
                 yield Token(special_word, special_word)
                 continue
 
             lexeme, state_index = self.machine.match(remaining)
             if lexeme:
-                # new_lines = special_word.count("\n")
-                # if new_lines:
-                #     col = 1
-                #     line += new_lines
-
                 consume(len(lexeme) - 1, iterator)
                 tag = self.machine.states[state_index].tag
                 yield Token(tag, lexeme)
                 continue
-
+            
+            # it is a bit slow to ignore these chars this far, but 
+            # languages like python need tokens for identation
+            # so we cannot ignore spaces before checking 
+            # the regular definitions
+            if char in " \n":
+                continue
 
             # it should stop before
             msg = f'Unknown char "{char}"'
-            raise LexicalError.from_data(string, msg)
+            raise LexicalError.from_data(string, msg, index=i)
 
 
         # find_spaces = regex.compiles(r"\s+")
@@ -127,13 +115,15 @@ class LexicalAnalyzer:
             special_machines.append(machine)
 
         if machines:
-            nd_automata = reduce(or_, machines)
+            # nd_automata = reduce(or_, machines)
+            nd_automata = union(*machines)
             self.machine = nd_automata.determinize()
         else:
             self.machine = FiniteAutomata.empty()
 
         if special_machines:
-            nd_special_automata = reduce(or_, special_machines)
+            # nd_special_automata = reduce(or_, special_machines)
+            nd_special_automata = union(*special_machines)
             self.special_machine = nd_special_automata.determinize()
         else:
             self.special_machine = FiniteAutomata.empty()
@@ -158,8 +148,6 @@ class LexicalAnalyzer:
             identifier, expression = line.split(":", 1)  # use only first occurence
             identifier = identifier.strip()
             expression = expression.strip()
-
-            # print(identifier, expression)
 
             if identifier == expression:
                 special_words.append(expression)

@@ -151,6 +151,6 @@ def from_file(path: str) -> dict[str, FiniteAutomata]:
         with open(path, "r") as file:
             data = file.read()
         return compile_regular_definitions(data)
-    except SyntacticError as e:
-        e.filename = path
-        raise e
+    except SyntacticError as error:
+        error.filename = path
+        raise error

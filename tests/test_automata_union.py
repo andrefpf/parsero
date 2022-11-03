@@ -1,4 +1,4 @@
-from parsero.automata import file_to_automata
+from parsero.automata import file_to_automata, union
 
 
 def test_dfa_dfa():
@@ -62,7 +62,8 @@ def test_ndfa_ndfa():
     abc = file_to_automata("tests/examples/abc.ndfa")
     bb = file_to_automata("tests/examples/ends_with_bb.ndfa")
 
-    automata = abc | bb
+    automata = union(abc, bb)
+    # automata = abc | bb
 
     for string in valid:
         assert automata.evaluate(string)

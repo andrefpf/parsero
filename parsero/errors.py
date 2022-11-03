@@ -17,30 +17,32 @@ class FileError(Exception):
     it is common for text editors to index like this as well.
     """
 
-    def __init__(self, filename, msg="", *, line=None, col=None, index=0):
+    def __init__(self, filename, msg="", *, index=0):
+        if filename:
+            with open(self.filename, "r") as file:
+                self.data = file.read()
+        else:
+            self.data = ""
+    
         self.filename = filename
         self.msg = msg
-        self.data = ""
-        self.line = line
-        self.col = col
+        self.line, self.col = self._find_line_col(index)
 
     @classmethod
-    def from_data(cls, data, msg="", *, line=1, col=1):
-        exp = cls(filename=None, msg=msg, line=line, col=col)
-        exp.data = data
-        return exp
+    def from_data(cls, data, msg="", *, index=0):
+        error = cls(filename="", msg=msg)
+        error.data = data
+        error.line, error.col = error._find_line_col(index)
+        return error
     
-    def _line_col_by_index(self, index):
+    def _find_line_col(self, index):
+        # print(self.data[:index])
         last_newline = self.data[:index].rfind("\n")
-        self.line = self.data[:index].count("\n")
-        self.row = index - last_newline
+        line = self.data[:index].count("\n") + 1
+        col = index - last_newline
+        return line, col
 
     def __str__(self):
-        if self.filename is None:
-            lines = self.data.splitlines()
-        else:
-            with open(self.filename, "r") as file:
-                lines = file.readlines()
 
         msg = 'File "{filename}", line {line}\n'
         msg += "{code}\n"
@@ -50,6 +52,7 @@ class FileError(Exception):
         spaces = " " * (self.col - 1)
         pointer = spaces + "^"
 
+        lines = self.data.splitlines()
         return msg.format(
             msg=self.msg,
             filename=self.filename,

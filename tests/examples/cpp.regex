@@ -2,14 +2,15 @@
 
 # Se o nome é igual a definição
 # então essa é uma palavra reservada
-def:def
 for:for
 int:int
 float:float
+return:return
+
+
 in:in
 try:try
 except:except
-return:return
 
 # Expressões auxiliares
 # estas expressões fazem parte das
@@ -32,15 +33,15 @@ or: \|
 dot: \.
 comma: ,
 colon: :
+semicolon: ;
 add: \+
 sub: -
 mul: \*
 div: /
-true_div: //
 left_shift: \<\<
 right_shift: \>\>
+scope_resolution: ::
 backslash: \\
-identation: (    )
 open_bracket: \(
 closing_bracket: \)
 open_square_bracket: \[
@@ -48,8 +49,10 @@ closing_square_bracket: \]
 open_curly_bracket: \{
 closing_curly_bracket: \}
 
+package: \<inside_string*\>
+macro: #letter(letter|digit|_)*
 string: "inside_string*"
-line_comment: #(inside_string|")*\n
-multiline_comment: """(inside_string|\s)*"""
+line_comment: //(inside_string|")*\n
+multiline_comment: /\*(inside_string|\s)*\*/
 number: (\+|-)?digit+(\.digit*)?(e(\+|-)?digit+)?
-identifier: (letter|_)(letter|digit|_)*
+identifier: letter(letter|digit|_)*
