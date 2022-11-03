@@ -140,6 +140,8 @@ class LexicalAnalyzer:
             line = line.strip()
             if not line:
                 continue
+                
+            line = line.replace("\\n", "\n")
 
             # support comments
             if line[0] == "#":

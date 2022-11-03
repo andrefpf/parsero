@@ -19,7 +19,12 @@ except:except
 # para elas
 digit: [0-9]
 letter: [a-zA-Z]
-inside_string: (\w|\d|_| |!|,)
+inside_string: (\w|\d|_| |!|,|\*)
+inside_comment: (inside_string|")
+inside_multiline_comment: (inside_comment|\s)
+sign: (\+|-)
+decimal: (\.digit*)
+scientific_notation: (e(\+|-)?digit+)
 
 # operadores
 atr: =
@@ -52,7 +57,7 @@ closing_curly_bracket: \}
 package: \<inside_string*\>
 macro: #letter(letter|digit|_)*
 string: "inside_string*"
-line_comment: //(inside_string|")*\n
-multiline_comment: /\*(inside_string|\s)*\*/
-number: (\+|-)?digit+(\.digit*)?(e(\+|-)?digit+)?
+line_comment: //inside_comment*\n
+multiline_comment: /\*inside_multiline_comment*\*/
+number: (sign?)(digit+)(decimal?)(scientific_notation?)
 identifier: letter(letter|digit|_)*
