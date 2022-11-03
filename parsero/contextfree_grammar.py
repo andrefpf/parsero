@@ -48,7 +48,11 @@ class ContextFreeGrammar:
                     # else add the new production if it doesn't exist already
                     if new_prod == "" and not symbol in nullable_symbol:
                         nullable_symbol.append(symbol)
-                        [symbols_to_check.append(symbol) for symbol in new_production_rules.keys() if symbol not in symbols_to_check]
+                        [
+                            symbols_to_check.append(symbol)
+                            for symbol in new_production_rules.keys()
+                            if symbol not in symbols_to_check
+                        ]
                     elif not new_prod == "" and new_prod not in new_production_rules[symbol]:
                         new_production_rules[symbol].append(new_prod)
 
@@ -61,6 +65,29 @@ class ContextFreeGrammar:
             new_production_rules[self.initial_symbol] = ["{}".format(old_initial_symbol), "&"]
 
         self.production_rules = new_production_rules
+
+    def simplify_unitary_productions(self):
+        symbols = list(self.production_rules.keys())
+
+        for productions in self.production_rules.values():
+            for prod in productions:
+                if not prod in symbols:
+                    continue
+
+                new_productions = self.production_rules[prod]
+
+                for new_prod in new_productions:
+                    if new_prod not in productions:
+                        productions.append(new_prod)
+
+        for productions in self.production_rules.values():
+            i = 0
+            while i < len(productions):
+                if productions[i] in symbols:
+                    productions.remove(productions[i])
+                    continue
+                
+                i += 1
 
     def __str__(self):
         data = "{} -> ".format(self.initial_symbol)
