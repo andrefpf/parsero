@@ -18,28 +18,19 @@ return:return
 # para elas
 digit: [0-9]
 letter: [a-zA-Z]
-inside_string: (\w|\d|_| |!|,)
+inside_string: (\w|\d|_| |!|,|\*)
+inside_comment: (inside_string|")
+inside_multiline_comment: (inside_comment|\s)
+sign: (\+|-)
+decimal: (\.digit*)
+scientific_notation: (e(\+|-)?digit+)
 
-# operadores
+comparator: (==|!=|\<|\>|\<=|\>=)
+operator: (\+|-|\*|/|//|\||\<\<|\>\>)
 atr: =
-eq: ==
-ne: !=
-lt: \<
-le: \<=
-gt: \>
-ge: \>=
-or: \|
 dot: \.
 comma: ,
 colon: :
-add: \+
-sub: -
-mul: \*
-div: /
-true_div: //
-left_shift: \<\<
-right_shift: \>\>
-backslash: \\
 identation: (    )
 open_bracket: \(
 closing_bracket: \)
@@ -49,7 +40,7 @@ open_curly_bracket: \{
 closing_curly_bracket: \}
 
 string: "inside_string*"
-line_comment: #(inside_string|")*\n
-multiline_comment: """(inside_string|\s)*"""
-number: (\+|-)?digit+(\.digit*)?(e(\+|-)?digit+)?
+line_comment: #inside_comment*\n
+multiline_comment: """inside_multiline_comment*"""
+number: (sign?)(digit+)(decimal?)(scientific_notation?)
 identifier: (letter|_)(letter|digit|_)*

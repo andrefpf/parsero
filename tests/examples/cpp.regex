@@ -26,25 +26,13 @@ sign: (\+|-)
 decimal: (\.digit*)
 scientific_notation: (e(\+|-)?digit+)
 
-# operadores
+comparator: (==|!=|\<|\>|\<=|\>=)
+operator: (\+|-|\*|/|\||\<\<|\>\>)
 atr: =
-eq: ==
-ne: !=
-lt: \<
-le: \<=
-gt: \>
-ge: \>=
-or: \|
 dot: \.
 comma: ,
 colon: :
 semicolon: ;
-add: \+
-sub: -
-mul: \*
-div: /
-left_shift: \<\<
-right_shift: \>\>
 scope_resolution: ::
 backslash: \\
 open_bracket: \(
