@@ -1,8 +1,9 @@
 from copy import deepcopy
-from parsero import automata
-from parsero.automata.state import State
 
 from tabulate import tabulate
+
+from parsero import automata
+from parsero.automata.state import State
 
 DEAD_STATE = -1
 
@@ -79,7 +80,7 @@ class FiniteAutomata:
             return self.transition_map[(origin, symbol)]
         except KeyError:
             return DEAD_STATE
-    
+
     def union(self, other):
         united_alphabet = self.alphabet + other.alphabet + ["&"]
         united_alphabet = list(set(united_alphabet))
@@ -111,8 +112,10 @@ class FiniteAutomata:
 
         initial_transition = (0, "&", (self.initial_state + sh0, other.initial_state + sh1))
         united_transitions.append(initial_transition)
-        
-        return automata.NDFiniteAutomata(united_states, united_transitions, united_alphabet, initial_state=0)
+
+        return automata.NDFiniteAutomata(
+            united_states, united_transitions, united_alphabet, initial_state=0
+        )
 
     def _create_transition_map(self, transitions):
         """
@@ -123,7 +126,7 @@ class FiniteAutomata:
         for origin, symbol, target in transitions:
             transition_map[(origin, symbol)] = target
         return transition_map
-    
+
     def __or__(self, other):
         return self.union(other)
 

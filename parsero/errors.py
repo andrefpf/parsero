@@ -23,7 +23,7 @@ class FileError(Exception):
                 self.data = file.read()
         else:
             self.data = ""
-    
+
         self.filename = filename
         self.msg = msg
         self.line, self.col = self._find_line_col(index)
@@ -34,7 +34,7 @@ class FileError(Exception):
         error.data = data
         error.line, error.col = error._find_line_col(index)
         return error
-    
+
     def _find_line_col(self, index):
         # print(self.data[:index])
         last_newline = self.data[:index].rfind("\n")

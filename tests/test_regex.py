@@ -76,7 +76,7 @@ def test_escaped():
 
     matched = regex.match(r"(\(\w*\))*", teste)
     assert matched == "(um)(dois)"
-    
+
     matched = regex.match(r"(\(\w*(\.\w*)*\))*", teste)
     assert matched == "(um)(dois)(tr.es)"
 

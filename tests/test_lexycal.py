@@ -1,6 +1,7 @@
+import cProfile
+
 from parsero.lexical import LexicalAnalyzer
 from parsero.token import Token
-import cProfile
 
 
 def test_tokens():
@@ -11,7 +12,7 @@ def test_tokens():
         ABC123
         -1.65e+13
     """
-    
+
     template = [
         Token("identifier", "hi"),
         Token("number", "128"),
@@ -24,15 +25,18 @@ def test_tokens():
     for token, expected in zip(la.tokenize_string(test), template):
         assert token == expected
 
+
 def test_python():
     la = LexicalAnalyzer("tests/examples/python.regex")
     path = "tests/examples/hello_worlds/python.py"
     assert la.analyze(path)
 
+
 def test_cpp():
     la = LexicalAnalyzer("tests/examples/cpp.regex")
     path = "tests/examples/hello_worlds/cpp.cpp"
     assert la.analyze(path)
+
 
 if __name__ == "__main__":
     # cProfile.run("test_python()")

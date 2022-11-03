@@ -4,7 +4,16 @@ from typing import Optional
 
 from treelib import Tree
 
-from parsero.regex.commons import ALPHANUMERIC, EPSILON, SPECIAL, any_blank, any_digit, any_lower_case, any_upper_case, any_symbol
+from parsero.regex.commons import (
+    ALPHANUMERIC,
+    EPSILON,
+    SPECIAL,
+    any_blank,
+    any_digit,
+    any_lower_case,
+    any_symbol,
+    any_upper_case,
+)
 from parsero.utils import consume
 
 

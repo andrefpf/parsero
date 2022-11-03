@@ -1,10 +1,10 @@
 from copy import deepcopy
 from functools import cache
 
-from parsero import automata
-from parsero.automata.state import State
 from tabulate import tabulate
 
+from parsero import automata
+from parsero.automata.state import State
 # from parsero.finite_automata import FiniteAutomata
 from parsero.regex.commons import EPSILON
 
@@ -97,12 +97,10 @@ class NDFiniteAutomata:
                 transition = (origin + sh1, symbol, target + sh1)
                 united_transitions.append(transition)
 
-
         initial_transition = (0, "&", (self.initial_state + sh0, other.initial_state + sh1))
         united_transitions.append(initial_transition)
-        
-        return NDFiniteAutomata(united_states, united_transitions, united_alphabet, initial_state=0)
 
+        return NDFiniteAutomata(united_states, united_transitions, united_alphabet, initial_state=0)
 
     @cache
     def epsilon_closure(self, state):
@@ -192,9 +190,9 @@ class NDFiniteAutomata:
                             break
 
                     target_state = State(
-                        nd_states[list(target_pos)[0]].name, 
+                        nd_states[list(target_pos)[0]].name,
                         nd_states[list(target_pos)[0]].is_final,
-                        tag
+                        tag,
                     )
 
                 if target_state not in det_states:
@@ -226,7 +224,7 @@ class NDFiniteAutomata:
             State(
                 self._get_name_of_state_list(list(state_set), self.states),
                 any(self.states[pos].is_final for pos in state_set),
-                tag
+                tag,
             )
         )
 

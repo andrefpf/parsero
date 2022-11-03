@@ -1,10 +1,11 @@
-from parsero import regex
-from parsero.automata import FiniteAutomata, union
 from functools import reduce
 from operator import or_
-from parsero.utils import consume
+
+from parsero import regex
+from parsero.automata import FiniteAutomata, union
 from parsero.errors import LexicalError
 from parsero.token import Token, TokenList
+from parsero.utils import consume
 
 
 class LexicalAnalyzer:
@@ -13,7 +14,7 @@ class LexicalAnalyzer:
         self.special_machine: FiniteAutomata
         self.keywords: list
         self._generate_automata(regular_definitions_path)
-    
+
     def analyze(self, path):
         try:
             self.tokenize(path)
@@ -21,7 +22,7 @@ class LexicalAnalyzer:
             return False
         else:
             return True
-    
+
     def analyze_string(self, string):
         try:
             self.tokenize_string(string)
@@ -29,7 +30,7 @@ class LexicalAnalyzer:
             return False
         else:
             return True
-    
+
     def tokenize(self, path):
         try:
             with open(path) as file:
@@ -37,10 +38,10 @@ class LexicalAnalyzer:
         except LexicalError as error:
             error.filename = path
             raise error
-    
+
     def tokenize_string(self, string):
         return TokenList(self.make_tokens(string))
-        
+
     def make_tokens(self, string):
         iterator = enumerate(string)
         line = 1
@@ -61,10 +62,10 @@ class LexicalAnalyzer:
                 tag = self.machine.states[state_index].tag
                 yield Token(tag, lexeme)
                 continue
-            
-            # it is a bit slow to ignore these chars this far, but 
+
+            # it is a bit slow to ignore these chars this far, but
             # languages like python need tokens for identation
-            # so we cannot ignore spaces before checking 
+            # so we cannot ignore spaces before checking
             # the regular definitions
             if char in " \n":
                 continue
@@ -72,7 +73,6 @@ class LexicalAnalyzer:
             # it should stop before
             msg = f'Unknown char "{char}"'
             raise LexicalError.from_data(string, msg, index=i)
-
 
         # find_spaces = regex.compiles(r"\s+")
         # for i, line in enumerate(string.splitlines()):
@@ -85,7 +85,7 @@ class LexicalAnalyzer:
         #             consume(len(special_word), iterator)
         #             yield Token(special_word, special_word)
         #             continue
-                
+
         #         lexeme, state_index = self.machine.match(remaining)
         #         if lexeme:
         #             consume(len(lexeme) - 1, iterator)
@@ -101,11 +101,10 @@ class LexicalAnalyzer:
         #         msg = f'Unknown char "{char}"'
         #         raise LexicalError.from_data(string, msg, line=i+1, col=j+1)
 
-
     def _generate_automata(self, regular_definitions_path):
         with open(regular_definitions_path) as file:
             machines, keywords = self._read_regular_definitions(file.read())
-        
+
         special_machines = []
         for word in keywords:
             machine = regex.compiles(word)
@@ -140,7 +139,7 @@ class LexicalAnalyzer:
             line = line.strip()
             if not line:
                 continue
-                
+
             line = line.replace("\\n", "\n")
 
             # support comments
@@ -173,5 +172,5 @@ class LexicalAnalyzer:
                 if state.is_final:
                     state.tag = _id
             machines.append(machine)
-        
+
         return machines, keywords

@@ -4,14 +4,13 @@ from itertools import count
 from parsero.automata import FiniteAutomata
 from parsero.automata.state import State
 from parsero.errors import SyntacticError
-
 from parsero.regex.commons import (
+    any_alphanumeric,
     any_blank,
     any_digit,
     any_lower_case,
-    any_upper_case,
-    any_alphanumeric,
     any_symbol,
+    any_upper_case,
 )
 from parsero.regex.regex_tree import (
     anotate_tree,
