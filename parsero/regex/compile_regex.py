@@ -79,7 +79,7 @@ def compiles(expression: str) -> FiniteAutomata:
     followpos = calculate_followpos(tree)
     leafs = get_leafs(tree)
 
-    alphabet = [leaf.char for leaf in leafs if leaf.char != "#"]
+    alphabet = [leaf.char for leaf in leafs if leaf.char != "⚑"]
 
     symbol_tags = defaultdict(set)
     for leaf in leafs:

@@ -4,6 +4,7 @@ from functools import reduce
 from operator import or_
 from parsero.utils import consume
 from parsero.errors import LexicalError
+from parsero.token import Token, TokenList
 
 
 class LexicalAnalyzer:
@@ -15,15 +16,30 @@ class LexicalAnalyzer:
     
     def analyze(self, path):
         try:
+            self.tokenize(path)
+        except LexicalError:
+            return False
+        else:
+            return True
+    
+    def analyze_string(self, string):
+        try:
+            self.tokenize_string(string)
+        except LexicalError:
+            return False
+        else:
+            return True
+    
+    def tokenize(self, path):
+        try:
             with open(path) as file:
-                self.analyze_data(file.read())
+                return self.tokenize_string(file.read())
         except LexicalError as e:
             e.filename = path
             raise e
     
-    def analyze_data(self, string):
-        for tag, lexeme in self.make_tokens(string):
-            print(f"<{tag}, {lexeme}>")
+    def tokenize_string(self, string):
+        return TokenList(self.make_tokens(string))
         
     def make_tokens(self, string):
         find_spaces = regex.compiles(r"\s+")
@@ -36,14 +52,14 @@ class LexicalAnalyzer:
                 special_word, _ = self.special_machine.match(remaining)
                 if special_word:
                     consume(len(special_word), iterator)
-                    yield special_word, special_word
+                    yield Token(special_word, special_word)
                     continue
                 
                 lexeme, state_index = self.machine.match(remaining)
                 if lexeme:
                     consume(len(lexeme) - 1, iterator)
                     tag = self.machine.states[state_index].tag
-                    yield tag, lexeme  # use Token class
+                    yield Token(tag, lexeme)
                     continue
 
                 spaces, _ = find_spaces.match(remaining)
@@ -104,7 +120,7 @@ class LexicalAnalyzer:
                 special_words.append(expression)
                 continue
 
-            for _id, _exp in expressions.items():
+            for _id, _exp in sorted(expressions.items(), key=len):
                 replaced = expression.replace(_id, _exp)
                 if replaced != expression:
                     tmp_id.append(_id)
@@ -113,7 +129,8 @@ class LexicalAnalyzer:
 
         # if an expression is used inside another it doesn't becomes an automata
         for _id in tmp_id:
-            expressions.pop(_id)
+            print(_id)
+            expressions.pop(_id, None)  # if not found ignore
 
         for _id, _exp in expressions.items():
             machine = regex.compiles(_exp)

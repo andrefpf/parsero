@@ -40,7 +40,9 @@ class ReNode:
         """
         Function for the ? operator.
         """
-        return ReUnionNode(ReSymbolNode("&"), self)
+        node = ReUnionNode(ReSymbolNode("&"), self)
+        node.grouped = True
+        return node
 
     def _tree_str(self):
         def representation(node):
@@ -115,7 +117,9 @@ class ReUnionNode(ReNode):
 
     def optional(self):
         if self.grouped:
-            return ReUnionNode(ReSymbolNode("&"), self)
+            node = ReUnionNode(ReSymbolNode("&"), self)
+            node.grouped = True
+            return node
         else:
             self.right = self.right.optional()
             return self
@@ -149,7 +153,9 @@ class ReConcatNode(ReNode):
 
     def optional(self):
         if self.grouped:
-            return ReUnionNode(ReSymbolNode("&"), self)
+            node = ReUnionNode(ReSymbolNode("&"), self)
+            node.grouped = True
+            return node
         else:
             self.right = self.right.optional()
             return self
@@ -292,7 +298,8 @@ def create_regex_tree(expression: str) -> ReNode:
 
 
 def anotate_tree(tree: ReNode) -> ReNode:
-    tree = ReConcatNode(tree, ReSymbolNode("#"))
+    # using random utf8 char that no one cares about instead of # sign
+    tree = ReConcatNode(tree, ReSymbolNode("⚑"))
     _recursive_anotate_tree(tree, 0)
     return tree
 

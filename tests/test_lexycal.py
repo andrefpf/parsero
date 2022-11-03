@@ -12,4 +12,7 @@ test = """
 
 def test_python():
     la = LexicalAnalyzer("tests/examples/python.regex")
-    la.analyze("parsero/utils.py")
+    path = "parsero/utils.py"
+    print(la.analyze(path))
+    for token in la.tokenize(path):
+        print(token)

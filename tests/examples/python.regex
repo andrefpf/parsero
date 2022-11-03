@@ -1,3 +1,7 @@
+# Isso é um comentário
+
+# Se o nome é igual a definição
+# então essa é uma palavra reservada
 def:def
 for:for
 in:in
@@ -5,16 +9,35 @@ try:try
 except:except
 return:return
 
+# Caso contário defina assim
+atr: =
+eq: ==
+ne: !=
+lt: \<
+le: \<=
+gt: \>
+ge: \>=
+or: \|
 dot: \.
 comma: ,
 colon: :
-equal: =
+plus: \+
+minus: -
+hashtag: #
+backslash: \\
 single_quote: '
 double_quote: "
 triple_quote: """
 open_bracket: \(
 closing_bracket: \)
+open_square_bracket: \[
+closing_square_bracket: \]
+open_curly_bracket: \{
+closing_curly_bracket: \}
 
+# Se a expressão aparece como parte de outra, como é o
+# caso de digit e letter, ela não vai virar um autômato.
 digit: [0-9]
 letter: [a-zA-Z]
-id: letter(letter|digit|_)*
+number: (\+|-)?digit+(\.digit*)?(e(\+|-)?digit+)?
+identifier: letter(letter|digit|_)*
