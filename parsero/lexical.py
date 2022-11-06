@@ -1,5 +1,6 @@
 from functools import reduce
 from operator import or_
+from typing import Generator
 
 from parsero import regex
 from parsero.automata import FiniteAutomata, union
@@ -16,12 +17,20 @@ class LexicalAnalyzer:
         self.keywords: list
         self._generate_automata(regular_definitions_path)
     
-    def parse(self, path):
+    def parse(self, path: str) -> tuple[TokenList, SymbolTable]:
+        """
+        Reads a file and returns the token list and a symbol table
+        """
+
         with open(path) as file:
             string = file.read()
         return self.parse_string(string)
 
-    def parse_string(self, string):
+    def parse_string(self, string) -> tuple[TokenList, SymbolTable]:
+        """
+        Reads a string and returns the token list and a symbol table
+        """
+
         sym_table = SymbolTable()
         tokens = self.tokenize_string(string)
 
@@ -34,7 +43,11 @@ class LexicalAnalyzer:
 
         return tokens, sym_table
 
-    def analyze(self, path):
+    def analyze(self, path: str) -> bool:
+        """
+        Checks if a file is accepted by the lexical analyzer.
+        """
+
         try:
             self.tokenize(path)
         except LexicalError:
@@ -42,7 +55,11 @@ class LexicalAnalyzer:
         else:
             return True
 
-    def analyze_string(self, string):
+    def analyze_string(self, string: str) -> bool:
+        """
+        Checks if a string is accepted by the lexical analyzer.
+        """
+
         try:
             self.tokenize_string(string)
         except LexicalError:
@@ -50,7 +67,11 @@ class LexicalAnalyzer:
         else:
             return True
 
-    def tokenize(self, path):
+    def tokenize(self, path: str) -> TokenList:
+        """
+        Create tokens for every lexeme recognized in the file.
+        """
+
         try:
             with open(path) as file:
                 return self.tokenize_string(file.read())
@@ -58,10 +79,18 @@ class LexicalAnalyzer:
             error.filename = path
             raise error
 
-    def tokenize_string(self, string):
+    def tokenize_string(self, string: str) -> TokenList:
+        """
+        Create tokens for every lexeme recognized in the string.
+        """
+
         return TokenList(self.make_tokens(string))
 
-    def make_tokens(self, string):
+    def make_tokens(self, string: str) -> Generator[TokenList]:
+        """
+        Generator that yields tokens it finds along a string.
+        """
+
         iterator = enumerate(string)
         line = 1
         col = 1
