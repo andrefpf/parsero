@@ -1,4 +1,5 @@
 from collections import OrderedDict
+
 from tabulate import tabulate
 
 
@@ -22,5 +23,5 @@ class SymbolTable:
 
         for symbol, (index, value) in self.st.items():
             data.append([index, symbol, value])
-        
+
         return tabulate(data, headers=headers, tablefmt="fancy_grid")

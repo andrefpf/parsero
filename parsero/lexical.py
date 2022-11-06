@@ -1,13 +1,12 @@
 from functools import reduce
 from operator import or_
-from typing import Generator
 
 from parsero import regex
 from parsero.automata import FiniteAutomata, union
 from parsero.errors import LexicalError
+from parsero.symbol_table import SymbolTable
 from parsero.token import Token, TokenList
 from parsero.utils import consume
-from parsero.symbol_table import SymbolTable
 
 
 class LexicalAnalyzer:
@@ -16,7 +15,7 @@ class LexicalAnalyzer:
         self.special_machine: FiniteAutomata
         self.keywords: list
         self._generate_automata(regular_definitions_path)
-    
+
     def parse(self, path: str) -> tuple[TokenList, SymbolTable]:
         """
         Reads a file and returns the token list and a symbol table
@@ -86,7 +85,7 @@ class LexicalAnalyzer:
 
         return TokenList(self.make_tokens(string))
 
-    def make_tokens(self, string: str) -> Generator[TokenList]:
+    def make_tokens(self, string: str):
         """
         Generator that yields tokens it finds along a string.
         """
