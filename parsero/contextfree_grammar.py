@@ -1,5 +1,8 @@
 class ContextFreeGrammar:
-    def __init__(self, productions):
+    def __init__(self, non_terminal_symbols, terminal_symbols, productions, initial_symbol):
+        self.non_terminal_symbols = non_terminal_symbols
+        self.terminal_symbols = terminal_symbols
+        self.initial_symbol = initial_symbol
         self.production_rules = self.__create_production_rule(productions)
 
     def __create_production_rule(self, productions):
@@ -10,21 +13,18 @@ class ContextFreeGrammar:
         production_rules = dict()
 
         for symbol, production in productions:
-            if not production_rules:
-                self.initial_symbol = symbol
-
             production_rules[symbol] = production
 
         return production_rules
 
     def simplify_epsilon_free(self):
-        nullable_symbol = []
+        nullable_symbol = list()
         new_production_rules = dict()
 
         for symbol, productions in self.production_rules.items():
             new_production_rules[symbol] = list()
             for prod in productions:
-                if prod == "&":
+                if prod == ["&"]:
                     nullable_symbol.append(symbol)
                     continue
 
@@ -41,19 +41,20 @@ class ContextFreeGrammar:
                     if not nullable in prod:
                         continue
 
-                    new_prod = prod.replace(nullable, "")
+                    new_prod = prod.copy()
+                    new_prod.remove(nullable)
 
                     # If new nullable symbol, place it in the nullable_symbol list and
                     # recheck every production
                     # else add the new production if it doesn't exist already
-                    if new_prod == "" and not symbol in nullable_symbol:
+                    if new_prod == [] and not symbol in nullable_symbol:
                         nullable_symbol.append(symbol)
                         [
                             symbols_to_check.append(symbol)
                             for symbol in new_production_rules.keys()
                             if symbol not in symbols_to_check
                         ]
-                    elif not new_prod == "" and new_prod not in new_production_rules[symbol]:
+                    elif not new_prod == [] and new_prod not in new_production_rules[symbol]:
                         new_production_rules[symbol].append(new_prod)
 
                 i += 1
@@ -61,8 +62,9 @@ class ContextFreeGrammar:
         if self.initial_symbol in nullable:
             old_initial_symbol = self.initial_symbol
             self.initial_symbol = "{}'".format(old_initial_symbol)
+            self.non_terminal_symbols.add(self.initial_symbol)
 
-            new_production_rules[self.initial_symbol] = ["{}".format(old_initial_symbol), "&"]
+            new_production_rules[self.initial_symbol] = [["{}".format(old_initial_symbol)], ["&"]]
 
         self.production_rules = new_production_rules
 
@@ -70,36 +72,53 @@ class ContextFreeGrammar:
         symbols = list(self.production_rules.keys())
 
         for productions in self.production_rules.values():
-            for prod in productions:
-                if not prod in symbols:
+            for production in productions:
+                if len(production) > 1:
                     continue
 
-                new_productions = self.production_rules[prod]
+                if not production[0] in symbols:
+                    continue
 
-                for new_prod in new_productions:
-                    if new_prod not in productions:
-                        productions.append(new_prod)
+                new_productions = self.production_rules[production[0]]
+
+                for new_production in new_productions:
+                    if new_production not in productions:
+                        productions.append(new_production)
 
         for productions in self.production_rules.values():
             i = 0
             while i < len(productions):
-                if productions[i] in symbols:
-                    productions.remove(productions[i])
+                if len(productions[i]) > 1:
+                    i += 1
                     continue
-                
+
+                if productions[i][0] in symbols:
+                    productions.pop(i)
+                    continue
+
                 i += 1
 
     def __str__(self):
-        data = "{} -> ".format(self.initial_symbol)
+        data = "{}\t → ".format(self.initial_symbol)
+        data_partial = list()
 
-        data += " | ".join([prod for prod in self.production_rules[self.initial_symbol]]).strip()
+        productions = self.production_rules[self.initial_symbol]
 
-        for symbol, production in self.production_rules.items():
+        for prod in productions:
+            data_partial.append(''.join(prod))
+                
+        data += " | ".join(data_partial).strip()
+
+        for symbol, productions in self.production_rules.items():
             if symbol == self.initial_symbol:
                 continue
 
+            data_partial = []
+            for prod in productions:
+                data_partial.append(''.join(prod))
+
             data += "\n"
-            data += "{} -> ".format(symbol)
-            data += " | ".join([prod for prod in self.production_rules[symbol]]).strip()
+            data += "{}\t → ".format(symbol)
+            data += " | ".join(data_partial).strip()
 
         return data
