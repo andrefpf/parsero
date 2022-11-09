@@ -69,39 +69,7 @@ class NDFiniteAutomata:
         return False
 
     def union(self, other):
-        united_alphabet = self.alphabet + other.alphabet + ["&"]
-        united_alphabet = list(set(united_alphabet))
-        united_states = [State("q0", False)] + deepcopy(self.states) + deepcopy(other.states)
-        united_transitions = []
-
-        # rename states
-        for i, state in enumerate(united_states):
-            state.name = f"q{i}"
-
-        # shift indexes for first and second list of states
-        sh0 = 1
-        sh1 = sh0 + len(self.states)
-
-        for (origin, symbol), targets in self.transition_map.items():
-            shifted_targets = [target + sh0 for target in targets]
-            transition = (origin + sh0, symbol, shifted_targets)
-            united_transitions.append(transition)
-
-        # allows union with DFA
-        if isinstance(other, automata.NDFiniteAutomata):
-            for (origin, symbol), targets in other.transition_map.items():
-                shifted_targets = [target + sh1 for target in targets]
-                transition = (origin + sh1, symbol, shifted_targets)
-                united_transitions.append(transition)
-        else:
-            for (origin, symbol), target in other.transition_map.items():
-                transition = (origin + sh1, symbol, target + sh1)
-                united_transitions.append(transition)
-
-        initial_transition = (0, "&", (self.initial_state + sh0, other.initial_state + sh1))
-        united_transitions.append(initial_transition)
-
-        return NDFiniteAutomata(united_states, united_transitions, united_alphabet, initial_state=0)
+        return automata.union(self, other)
 
     @cache
     def epsilon_closure(self, state):
