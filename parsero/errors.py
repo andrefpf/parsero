@@ -36,7 +36,6 @@ class FileError(Exception):
         return error
 
     def _find_line_col(self, index):
-        # print(self.data[:index])
         last_newline = self.data[:index].rfind("\n")
         line = self.data[:index].count("\n") + 1
         col = index - last_newline

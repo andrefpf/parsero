@@ -10,6 +10,7 @@ yield:yield
 return:return
 class:class
 continue:continue
+pass:pass
 def:def
 del:del
 with:with
@@ -58,8 +59,8 @@ open_curly_bracket: \{
 closing_curly_bracket: \}
 
 decorator: @(letter|_)(letter|digit|_)*
-string: "(inside_string|')*"|'(inside_string|")*'
+string: (f?"(inside_string|')*")|(f?'(inside_string|")*')
 line_comment: #inside_comment*\n
-multiline_comment: """inside_multiline_comment*"""|'''inside_multiline_comment*'''
+multiline_comment: (f?"""inside_multiline_comment*""")|(f?'''inside_multiline_comment*''')
 number: (sign?)(digit+)(decimal?)(scientific_notation?)
 id: (letter|_)(letter|digit|_)*
