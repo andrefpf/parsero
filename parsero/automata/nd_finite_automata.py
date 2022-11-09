@@ -47,11 +47,13 @@ class NDFiniteAutomata:
         """
 
         target = set()
-        for state in origins:
-            try:
-                target |= self.transition_map[(state, symbol)]
-            except KeyError:
-                continue
+        for origin in origins:
+            if symbol == "&":
+                transition = (origin, "\\&")
+            else:
+                transition = (origin, symbol)
+            target |= self.transition_map.get(transition, set())
+
         return target
 
     def evaluate(self, string):
@@ -118,7 +120,8 @@ class NDFiniteAutomata:
 
         while stack:
             s = stack.pop(0)
-            for n in self.compute({s}, "&"):
+            epsilon_reachable = self.transition_map.get((s, "&"), [])
+            for n in epsilon_reachable:
                 if not visited[n]:
                     stack.append(n)
                     visited[n] = True
