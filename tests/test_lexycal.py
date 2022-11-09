@@ -2,6 +2,7 @@ import cProfile
 
 from parsero.lexical import LexicalAnalyzer
 from parsero.token import Token
+from pathlib import Path
 
 
 def test_tokens():
@@ -41,7 +42,16 @@ def test_cpp():
     # for token in la.tokenize(path):
     #     print(token)
 
+def python_exagerado():
+    """
+    Esse é um teste completamente desnecessário percorrendo todos os arquivos do próprio código fonte.
+    Ele não roda todas as vezes porque demora um pouco e pode atrapalhar o desenvolvimento 
+    caso seja adicionado algum símbolo diferente.
+    """
+    la = LexicalAnalyzer("tests/examples/python.regex")
+    for p in Path("parsero").rglob("*.py"):
+        la.tokenize(p)
 
 if __name__ == "__main__":
-    # cProfile.run("test_python()")
-    test_python()
+    cProfile.run("python_exagerado()")
+    # test_python()

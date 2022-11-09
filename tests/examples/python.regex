@@ -34,15 +34,17 @@ float:float
 # para elas
 digit: [0-9]
 letter: [a-zA-Z]
-inside_string: (\w|\d|_| |!|,|\*)
-inside_comment: (inside_string|")
+acentuated: (á|à|â|ã|é|ê|í|ó|ô|ú|ü|ç|Á|À|Â|É|Ê|Í|Ó|Ô|Ú|Ü|Ç)
+symbols: (_| |!|\=|\&|@|#|$|%|\&|\||\+|-|\&|\*|/|\\|\"|\.|,|\[|\]|\(|\)|\{|\}|\<|\>|:|;|\?|\^|\Σ|\→)
+inside_string: (\w|\d|acentuated|symbols)
+inside_comment: (inside_string|"|')
 inside_multiline_comment: (inside_comment|\s)
 sign: (\+|-)
 decimal: (\.digit*)
 scientific_notation: (e(\+|-)?digit+)
 
 comparator: (==|!=|\<|\>|\<=|\>=)
-operator: (\+|-|\*|/|//|\||\<\<|\>\>)
+operator: (\+|-|\*|/|//|\||\<\<|\>\>|\&)
 atr: =
 dot: \.
 comma: ,
@@ -55,8 +57,9 @@ closing_square_bracket: \]
 open_curly_bracket: \{
 closing_curly_bracket: \}
 
-string: "inside_string*"
+decorator: @(letter|_)(letter|digit|_)*
+string: "(inside_string|')*"|'(inside_string|")*'
 line_comment: #inside_comment*\n
-multiline_comment: """inside_multiline_comment*"""
+multiline_comment: """inside_multiline_comment*"""|'''inside_multiline_comment*'''
 number: (sign?)(digit+)(decimal?)(scientific_notation?)
 id: (letter|_)(letter|digit|_)*

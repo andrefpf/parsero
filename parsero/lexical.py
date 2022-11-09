@@ -118,7 +118,7 @@ class LexicalAnalyzer:
                 continue
 
             # it should stop before
-            msg = f'Unknown char "{char}"'
+            msg = f"Invalid expression"
             raise LexicalError.from_data(string, msg, index=i)
 
     def _generate_automata(self, regular_definitions_path):

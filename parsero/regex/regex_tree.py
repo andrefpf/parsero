@@ -8,6 +8,7 @@ from parsero.regex.commons import (
     ALPHANUMERIC,
     EPSILON,
     SPECIAL,
+    SYMBOL,
     any_blank,
     any_digit,
     any_lower_case,
@@ -250,8 +251,13 @@ def _extract_brackets(expression: str) -> str:
 
     stack = []  # it is ok to use a list as a stack
 
-    for i, char in enumerate(expression):
-        if char in brackets_pair.keys():
+    iterator = enumerate(expression)
+    for i, char in iterator:
+        # ignore scaped brackets
+        if char == "\\":
+            consume(1, iterator)
+
+        elif char in brackets_pair.keys():
             stack.append(char)
 
         elif char in brackets_pair.values():
@@ -318,7 +324,7 @@ def create_regex_tree(expression: str) -> ReNode:
         elif char == EPSILON:
             subtree = ReEmptyNode()
 
-        elif (char in SPECIAL) or (char in ALPHANUMERIC):
+        elif char in SYMBOL:
             subtree = ReSymbolNode(char)
 
         else:
