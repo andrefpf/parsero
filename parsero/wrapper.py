@@ -114,12 +114,12 @@ def file_to_contextfree_grammar(path_to_file):
             production_pieces = line.split("->", 1)
             symbol = production_pieces[0].strip()
             non_terminal_symbols.add(symbol)
-            
+
             if initial_symbol == "":
                 initial_symbol = symbol
 
             productions_body = [prod.strip() for prod in production_pieces[1].split("|")]
-            
+
             production_rule = list()
 
             for prod in productions_body:
