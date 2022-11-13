@@ -4,7 +4,17 @@ from typing import Optional
 
 from treelib import Tree
 
-from parsero.regex.commons import ALPHANUMERIC, EPSILON, SPECIAL
+from parsero.regex.commons import (
+    ALPHANUMERIC,
+    EPSILON,
+    SPECIAL,
+    SYMBOL,
+    any_blank,
+    any_digit,
+    any_lower_case,
+    any_symbol,
+    any_upper_case,
+)
 from parsero.utils import consume
 
 
@@ -40,7 +50,9 @@ class ReNode:
         """
         Function for the ? operator.
         """
-        return ReUnionNode(ReSymbolNode("&"), self)
+        node = ReUnionNode(ReEmptyNode(), self)
+        node.grouped = True
+        return node
 
     def _tree_str(self):
         def representation(node):
@@ -115,7 +127,9 @@ class ReUnionNode(ReNode):
 
     def optional(self):
         if self.grouped:
-            return ReUnionNode(ReSymbolNode("&"), self)
+            node = ReUnionNode(ReEmptyNode(), self)
+            node.grouped = True
+            return node
         else:
             self.right = self.right.optional()
             return self
@@ -149,7 +163,9 @@ class ReConcatNode(ReNode):
 
     def optional(self):
         if self.grouped:
-            return ReUnionNode(ReSymbolNode("&"), self)
+            node = ReUnionNode(ReEmptyNode(), self)
+            node.grouped = True
+            return node
         else:
             self.right = self.right.optional()
             return self
@@ -185,6 +201,34 @@ class ReSymbolNode(ReNode):
         return (type(self) == type(other)) and (self.char == other.char)
 
 
+class ReEmptyNode(ReNode):
+    def __init__(self):
+        super().__init__()
+
+    def __repr__(self):
+        return "&"
+
+    def __hash__(self):
+        return id(self)
+
+    def __eq__(self, other):
+        return type(self) == type(other)
+
+
+class ReEndNode(ReNode):
+    def __init__(self):
+        super().__init__()
+
+    def __repr__(self):
+        return "#"
+
+    def __hash__(self):
+        return id(self)
+
+    def __eq__(self, other):
+        return type(self) == type(other)
+
+
 def _extract_brackets(expression: str) -> str:
     """
     Given an expression starting with some opening bracket ("(", "[", "{")
@@ -207,8 +251,13 @@ def _extract_brackets(expression: str) -> str:
 
     stack = []  # it is ok to use a list as a stack
 
-    for i, char in enumerate(expression):
-        if char in brackets_pair.keys():
+    iterator = enumerate(expression)
+    for i, char in iterator:
+        # ignore scaped brackets
+        if char == "\\":
+            consume(1, iterator)
+
+        elif char in brackets_pair.keys():
             stack.append(char)
 
         elif char in brackets_pair.values():
@@ -246,13 +295,38 @@ def create_regex_tree(expression: str) -> ReNode:
             tree = tree.optional()
             continue
 
-        if char in "([{":
+        if char == "\\":  # scaped chars
+            _, next_char = next(iterator)
+            if next_char == "s":
+                subexpression = any_blank
+                subtree = create_regex_tree(subexpression)
+            elif next_char == "d":
+                subexpression = any_digit
+                subtree = create_regex_tree(subexpression)
+            elif next_char == "w":
+                subexpression = f"{any_lower_case}|{any_upper_case}"
+                subtree = create_regex_tree(subexpression)
+            elif next_char == "&":
+                subtree = ReSymbolNode("\\&")
+            else:
+                subtree = ReSymbolNode(next_char)
+
+        elif char == ".":
+            subexpression = f"{any_symbol}"
+            subtree = create_regex_tree(subexpression)
+
+        elif char in "([{":
             subexpression = _extract_brackets(expression[i:])
             subtree = create_regex_tree(subexpression)
             length = len(subexpression) + 1
             consume(length, iterator)
-        elif (char == EPSILON) or (char in SPECIAL) or (char in ALPHANUMERIC):
+
+        elif char == EPSILON:
+            subtree = ReEmptyNode()
+
+        elif char in SYMBOL:
             subtree = ReSymbolNode(char)
+
         else:
             raise ValueError(f'Unknown symbol "{char}"')
 
@@ -272,7 +346,7 @@ def create_regex_tree(expression: str) -> ReNode:
 
 
 def anotate_tree(tree: ReNode) -> ReNode:
-    tree = ReConcatNode(tree, ReSymbolNode("#"))
+    tree = ReConcatNode(tree, ReEndNode())
     _recursive_anotate_tree(tree, 0)
     return tree
 
@@ -309,15 +383,15 @@ def _recursive_anotate_tree(tree: ReNode, tag: int) -> int:
     """
     Recursive function to calculate firstpos and lastpos for all trees.
     """
-    if isinstance(tree, ReSymbolNode):
-        if tree.char == "&":
-            tree.nullable = True
-            return tag
-        else:
-            tree.firstpos = {tag}
-            tree.lastpos = {tag}
-            tree.nullable = False
-            return tag + 1
+    if isinstance(tree, ReEmptyNode):
+        tree.nullable = True
+        return tag
+
+    if isinstance(tree, (ReSymbolNode, ReEndNode)):
+        tree.firstpos = {tag}
+        tree.lastpos = {tag}
+        tree.nullable = False
+        return tag + 1
 
     if isinstance(tree, ReUnionNode):
         tag = _recursive_anotate_tree(tree.left, tag)

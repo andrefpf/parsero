@@ -1,15 +1,16 @@
 from collections import defaultdict, deque
 from itertools import count
 
+from parsero.automata import FiniteAutomata
+from parsero.automata.state import State
 from parsero.errors import SyntacticError
-from parsero.finite_automata import FiniteAutomata
 from parsero.regex.commons import (
-    ALPHANUMERIC,
-    BLANK,
-    DIGIT,
-    LOWER_CASE,
-    SYMBOL,
-    UPPER_CASE,
+    any_alphanumeric,
+    any_blank,
+    any_digit,
+    any_lower_case,
+    any_symbol,
+    any_upper_case,
 )
 from parsero.regex.regex_tree import (
     anotate_tree,
@@ -17,7 +18,6 @@ from parsero.regex.regex_tree import (
     create_regex_tree,
     get_leafs,
 )
-from parsero.state import State
 
 
 def _get_automata_parameters(*, first_tagset, final_leaf_tag, alphabet, followpos, symbol_tags):
@@ -54,18 +54,7 @@ def _simplify_regex(expression: str) -> str:
     Replace common symbols like \\d for its equivalent syntax (union of all numbers)
     """
 
-    any_blank = "|".join(BLANK)
-    any_digit = "|".join(DIGIT)
-    any_lower_case = "|".join(LOWER_CASE)
-    any_upper_case = "|".join(UPPER_CASE)
-    any_alphanumeric = "|".join(ALPHANUMERIC)
-    any_symbol = "|".join(SYMBOL)
-
     replacement = {
-        ".": f"({any_digit}|{any_lower_case}|{any_upper_case}|{any_blank})",
-        "\\s": f"({any_blank})",
-        "\\d": f"({any_digit})",
-        "\\w": f"({any_lower_case}|{any_upper_case})",
         "[0-9]": f"({any_digit})",
         "[a-z]": f"({any_lower_case})",
         "[A-Z]": f"({any_upper_case})",
@@ -89,7 +78,7 @@ def compiles(expression: str) -> FiniteAutomata:
     followpos = calculate_followpos(tree)
     leafs = get_leafs(tree)
 
-    alphabet = "".join([leaf.char for leaf in leafs if leaf.char != "#"])
+    alphabet = [leaf.char for leaf in leafs]
 
     symbol_tags = defaultdict(set)
     for leaf in leafs:
@@ -134,7 +123,8 @@ def compile_regular_definitions(definitions: str) -> dict[str, FiniteAutomata]:
             col = line.index(":") + 1
             raise SyntacticError.from_data(definitions, msg, line=i, col=col)
 
-        col = is_identifier.match(identifier)
+        recognized, _ = is_identifier.match(identifier)
+        col = len(recognized)
         if col < len(identifier):
             msg = "Invalid identifier."
             raise SyntacticError.from_data(definitions, msg, line=i, col=(col + 1))
@@ -148,6 +138,9 @@ def compile_regular_definitions(definitions: str) -> dict[str, FiniteAutomata]:
     for _id, _exp in expressions.items():
         automata = compiles(_exp)
         automatas[_id] = automata
+        for state in automata.states:
+            if state.is_final:
+                state.tag = _id
 
     return automatas
 
@@ -157,6 +150,6 @@ def from_file(path: str) -> dict[str, FiniteAutomata]:
         with open(path, "r") as file:
             data = file.read()
         return compile_regular_definitions(data)
-    except SyntacticError as e:
-        e.filename = path
-        raise e
+    except SyntacticError as error:
+        error.filename = path
+        raise error
