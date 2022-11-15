@@ -1,4 +1,6 @@
+import copy
 from collections import defaultdict
+from parsero.regex.commons import EPSILON
 
 class ContextFreeGrammar:
     def __init__(self, non_terminal_symbols, terminal_symbols, productions, initial_symbol):
@@ -161,6 +163,69 @@ class ContextFreeGrammar:
                     continue
 
                 i += 1
+
+    def left_factor(self):
+        while True:
+            old_productions = copy.deepcopy(self.production_rules)
+            self.__indirect_factoring()
+            self.__direct_factoring()
+            if (old_productions == self.production_rules):
+                break
+
+    def __indirect_factoring(self):
+        for head, body in self.production_rules.items():
+            new_body = []
+            for prod in body:
+                if prod[0] not in self.terminal_symbols:
+                    rules = self.production_rules[prod[0]]
+                    for rule in rules:
+                        new_prod = rule + prod[1:]
+                        if new_prod not in new_body:
+                            new_body.append(new_prod)
+                else:
+                    if prod not in new_body:
+                        new_body.append(prod)
+            if self.production_rules[head] != new_body:
+                self.production_rules[head] = new_body
+
+    def __direct_factoring(self):
+        new_production_rules = defaultdict()
+        for head, body in self.production_rules.items():
+            symbol_map = dict()
+            for prod in body:
+                if prod[0] not in symbol_map:
+                    if len(prod[1:]) > 0:
+                        symbol_map[prod[0]] = [prod[1:]]
+                    else:
+                        symbol_map[prod[0]] = [[EPSILON]]
+                        self.terminal_symbols.add(EPSILON)
+                else:
+                    if len(prod[1:]) > 0:
+                        symbol_map[prod[0]].append(prod[1:])
+                    else:
+                        symbol_map[prod[0]].append([EPSILON])
+                        self.terminal_symbols.add(EPSILON)
+
+            updated_body = []
+            separators = ""
+            for start, rest_of_body in symbol_map.items():
+                separators += "'"
+                if len(rest_of_body) > 1:
+                    if head[0] == "<":
+                        new_head = head[:2] + separators + head[2:]
+                    else:
+                        new_head = "<" + head + separators + ">"
+                    new_production_rules[new_head] = rest_of_body
+                    updated_body.append([start] + [new_head])
+                    self.non_terminal_symbols.add(new_head)
+                else:
+                    if (start == EPSILON):
+                        updated_body.append([EPSILON])
+                    else:
+                        rest_of_body[0].insert(0, start)
+                        updated_body.append(rest_of_body[0])
+            new_production_rules[head] = updated_body
+        self.production_rules = new_production_rules
 
     def __str__(self):
         data = "{}\t → ".format(self.initial_symbol)
