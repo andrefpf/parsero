@@ -51,3 +51,11 @@ def test_table_creation():
     t_line_end = ['&']
     assert table[('T', '¬')] == t_not  # Just some special cases, no need to test the whole thing
     assert table[("<T'>", '$')] == t_line_end
+
+
+def test_ll1():
+    path_to_file = "examples/ff_table_example.cfg"
+    cfg = file_to_contextfree_grammar(path_to_file)
+    table: dict = syntactic.create_table(cfg)
+    word = ["<id>", "∨", "<id>", "∧", "<id>", "$"]
+    assert syntactic.ll1_parse(word, table, cfg) == True

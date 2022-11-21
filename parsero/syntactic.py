@@ -1,5 +1,3 @@
-import copy
-
 from parsero.contextfree_grammar import ContextFreeGrammar
 
 
@@ -77,3 +75,25 @@ def create_table(cfg: ContextFreeGrammar) -> dict:
                 table[(head, symbol)] = body
 
     return table
+
+
+def ll1_parse(word: list, table: dict, cfg: ContextFreeGrammar) -> bool:
+    stack = ["$", cfg.initial_symbol]
+    for symbol in word:
+        ready_for_next = False
+        while not ready_for_next:
+            current = stack.pop()
+
+            if not (current, symbol) in table:
+                return False
+
+            next_symbols = table[(current, symbol)]
+            for next_symbol in reversed(next_symbols):
+                if next_symbol != "&":
+                    stack.append(next_symbol)
+
+            if stack[-1] == symbol:
+                stack.pop()
+                ready_for_next = True
+
+    return True
