@@ -41,3 +41,13 @@ def test_first_follow_example_2():
     assert follow_result["A"] == expected_follow_A
     assert follow_result["B"] == expected_follow_B
     assert follow_result["C"] == expected_follow_C
+
+
+def test_table_creation():
+    path_to_file = "examples/ff_table_example.cfg"
+    cfg = file_to_contextfree_grammar(path_to_file)
+    table: dict = syntactic.create_table(cfg)
+    t_not = ['F', "<T'>"]
+    t_line_end = ['&']
+    assert table[('T', '¬')] == t_not  # Just some special cases, no need to test the whole thing
+    assert table[("<T'>", '$')] == t_line_end

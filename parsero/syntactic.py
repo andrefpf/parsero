@@ -1,3 +1,5 @@
+import copy
+
 from parsero.contextfree_grammar import ContextFreeGrammar
 
 
@@ -17,6 +19,8 @@ def first(head: str, cfg: ContextFreeGrammar) -> set:
                             first_set.add(symbol)
                         else:
                             nullable = True
+                    if not nullable:
+                        break
             if nullable:
                 first_set.add('&')
     else:
@@ -55,5 +59,21 @@ def follow(cfg: ContextFreeGrammar) -> dict:
                     else:
                         if body[i] in cfg.non_terminal_symbols:
                             follow_dict[body[i]].update(follow_dict[head])
-    print(follow_dict)
     return follow_dict
+
+
+def create_table(cfg: ContextFreeGrammar) -> dict:
+    table = dict()
+    follow_dict: dict = follow(cfg)
+
+    for head, prod in cfg.production_rules.items():
+        for body in prod:
+            first_set = first(body[0], cfg)
+            if "&" in first_set:
+                first_set.remove("&")
+                for symbol in follow_dict[head]:
+                    table[(head, symbol)] = body
+            for symbol in first_set:
+                table[(head, symbol)] = body
+
+    return table
