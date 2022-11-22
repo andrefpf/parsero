@@ -39,6 +39,7 @@ class ContextFreeGrammar:
 
     def remove_unreachable_symbols(self):
         reachable_symbols = [self.initial_symbol]
+        reachable_terminals = set()
 
         for reachable_symbol in reachable_symbols:
             for productions in self.production_rules[reachable_symbol]:
@@ -46,13 +47,17 @@ class ContextFreeGrammar:
                     for symbol in productions:
                         if symbol in self.non_terminal_symbols and symbol not in reachable_symbols:
                             reachable_symbols.append(symbol)
+                        elif symbol in self.terminal_symbols:
+                            reachable_terminals.add(symbol)
 
         reachable_symbols = set(reachable_symbols)
         symbols_to_remove = self.non_terminal_symbols - reachable_symbols
 
         for symbol in symbols_to_remove:
             del self.production_rules[symbol]
-            self.non_terminal_symbols.remove(symbol)
+
+        self.non_terminal_symbols = self.non_terminal_symbols.intersection(reachable_symbols)
+        self.terminal_symbols = self.terminal_symbols.intersection(reachable_terminals)
 
     def remove_unproductive_symbols(self):
         productive_productions = defaultdict(list)
@@ -85,14 +90,29 @@ class ContextFreeGrammar:
 
         self.production_rules = productive_productions
 
+        new_non_terminals = set()
+        new_terminals = set()
+
+        for head, body in self.production_rules.items():
+            new_non_terminals.add(head)
+
+            for production in body:
+                for symbol in production:
+                    if symbol in self.terminal_symbols:
+                        new_terminals.add(symbol)
+                    elif symbol in self.non_terminal_symbols:
+                        new_non_terminals.add(symbol)
+
+        self.non_terminal_symbols = new_non_terminals
+        self.terminal_symbols = new_terminals
+
         self.__sort_productions()
 
     def remove_useless_symbols(self):
-        self.remove_unreachable_symbols
-        self.remove_unproductive_symbols
-        pass
+        self.remove_unreachable_symbols()
+        self.remove_unproductive_symbols()
 
-    def simplify_epsilon_free(self):
+    def refactor_epsilon_free(self):
         nullable_symbol = list()
         new_production_rules = defaultdict(list)
 
@@ -135,7 +155,12 @@ class ContextFreeGrammar:
 
         if self.initial_symbol in nullable and self.appears_on_production(self.initial_symbol):
             old_initial_symbol = self.initial_symbol
-            self.initial_symbol = "{}'".format(old_initial_symbol)
+
+            i = 0
+            while f"S{i}" in self.non_terminal_symbols:
+                i += 1
+
+            self.initial_symbol = f"S{i}"
             self.non_terminal_symbols.add(self.initial_symbol)
 
             new_production_rules[self.initial_symbol] = [["{}".format(old_initial_symbol)], ["&"]]
@@ -145,7 +170,7 @@ class ContextFreeGrammar:
         self.production_rules = new_production_rules
         self.__sort_productions()
 
-    def simplify_unitary_productions(self):
+    def refactor_unitary_productions(self):
         for productions in self.production_rules.values():
             for production in productions:
                 if len(production) > 1:
