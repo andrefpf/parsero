@@ -49,7 +49,15 @@ def test_refactor_epsilon_free():
     dict_to_compare["A"] = [["a"], ["a", "S"]]
     dict_to_compare["B"] = [["b", "S0"], ["d"]]
 
-    non_terminal_symbols = set(["S1", "S0", "S", "A", "B",])
+    non_terminal_symbols = set(
+        [
+            "S1",
+            "S0",
+            "S",
+            "A",
+            "B",
+        ]
+    )
     terminal_symbols = set(["a", "b", "id", "&", "d"])
 
     cfg = file_to_contextfree_grammar(path_to_file)
@@ -62,6 +70,7 @@ def test_refactor_epsilon_free():
 
     for symbol, productions in dict_from_cfg.items():
         assert dict_to_compare[symbol] == productions
+
 
 def test_refactor_unitary_productions():
     path_to_file = "tests/examples/simple_cfg.cfg"
@@ -87,6 +96,7 @@ def test_refactor_unitary_productions():
     for symbol, productions in dict_from_cfg.items():
         assert dict_to_compare[symbol] == productions
 
+
 def test_remove_unreachable_symbols():
     path_to_file = "tests/examples/simple_cfg.cfg"
     dict_to_compare = dict()
@@ -109,6 +119,7 @@ def test_remove_unreachable_symbols():
 
     for symbol, productions in dict_from_cfg.items():
         assert dict_to_compare[symbol] == productions
+
 
 def test_remove_unproductive_symbols():
     path_to_file = "tests/examples/simple_cfg.cfg"
@@ -133,6 +144,7 @@ def test_remove_unproductive_symbols():
     for symbol, productions in dict_from_cfg.items():
         assert dict_to_compare[symbol] == productions
 
+
 def test_remove_useless_symbols():
     path_to_file = "tests/examples/simple_cfg.cfg"
     dict_to_compare = dict()
@@ -154,6 +166,52 @@ def test_remove_useless_symbols():
 
     for symbol, productions in dict_from_cfg.items():
         assert dict_to_compare[symbol] == productions
+
+
+def test_left_recursion():
+    path_to_file = "tests/examples/left_recursion_one.cfg"
+    dict_to_compare = dict()
+
+    dict_to_compare["S"] = [["A", "a"], ["b"]]
+    dict_to_compare["A"] = [["a", "A0"], ["b", "d", "A0"]]
+    dict_to_compare["A0"] = [["&"], ["a", "d", "A0"], ["c", "A0"]]
+
+    non_terminal_symbols = set(["S", "A", "A0"])
+    terminal_symbols = set(["a", "b", "c", "d", "&"])
+
+    cfg = file_to_contextfree_grammar(path_to_file)
+    cfg.refactor_left_recursion()
+    dict_from_cfg = cfg.production_rules
+
+    assert set(dict_from_cfg.keys()) == set(dict_to_compare.keys())
+    assert cfg.non_terminal_symbols == non_terminal_symbols
+    assert cfg.terminal_symbols == terminal_symbols
+
+    for symbol, productions in dict_from_cfg.items():
+        assert dict_to_compare[symbol] == productions
+
+    path_to_file = "tests/examples/left_recursion_two.cfg"
+    dict_to_compare = dict()
+
+    dict_to_compare["S"] = [["A", "a", "S0"]]
+    dict_to_compare["S0"] = [["&"], ["b", "S0"]]
+    dict_to_compare["A"] = [["d", "A0"]]
+    dict_to_compare["A0"] = [["&"], ["a", "S0", "c", "A0"]]
+
+    non_terminal_symbols = set(["S", "S0", "A", "A0"])
+    terminal_symbols = set(["a", "b", "c", "d", "&"])
+
+    cfg = file_to_contextfree_grammar(path_to_file)
+    cfg.refactor_left_recursion()
+    dict_from_cfg = cfg.production_rules
+
+    assert set(dict_from_cfg.keys()) == set(dict_to_compare.keys())
+    assert cfg.non_terminal_symbols == non_terminal_symbols
+    assert cfg.terminal_symbols == terminal_symbols
+
+    for symbol, productions in dict_from_cfg.items():
+        assert dict_to_compare[symbol] == productions
+
 
 def test_factoring():
     # TODO corrigir path

@@ -196,6 +196,77 @@ class ContextFreeGrammar:
 
         self.__sort_productions()
 
+    def refactor_left_recursion(self):
+        symbols_to_check = list()
+        symbols_to_check.append(self.initial_symbol)
+
+        [
+            symbols_to_check.append(symbol)
+            for symbol in list(self.non_terminal_symbols - set(self.initial_symbol))
+        ]
+
+        for i in range(len(symbols_to_check)):
+            head_symbol = symbols_to_check[i]
+
+            for j in range(i):
+                body_symbol = symbols_to_check[j]
+                productions = self.production_rules[head_symbol]
+                productions_to_adjust = list()
+
+                for production in productions:
+                    if production[0] == body_symbol:
+                        productions_to_adjust.append(production)
+
+                for production in productions_to_adjust:
+                    old_production = production
+                    new_productions = list()
+                    productions_to_replace_symbol = self.production_rules[body_symbol]
+                    production.pop(0)
+
+                    for production_replacement in productions_to_replace_symbol:
+                        new_production = list()
+                        for symbol in production_replacement:
+                            new_production.append(symbol)
+
+                        [new_production.append(symbol) for symbol in production]
+                        new_productions.append(new_production)
+
+                    self.production_rules[head_symbol].remove(old_production)
+                    [
+                        self.production_rules[head_symbol].append(new_production)
+                        for new_production in new_productions
+                    ]
+
+            z = 0
+            while f"{head_symbol}{z}" in self.non_terminal_symbols:
+                z += 1
+
+            left_recursion_symbol = f"{head_symbol}{z}"
+            left_recursion_productions = list()
+
+            for production in self.production_rules[head_symbol]:
+                if production[0] == head_symbol:
+                    left_recursion_productions.append(production)            
+
+            if len(left_recursion_productions) > 0:
+                self.non_terminal_symbols.add(left_recursion_symbol)
+                self.terminal_symbols.add("&")
+                self.production_rules[left_recursion_symbol].append(["&"])
+
+                for production in self.production_rules[head_symbol]:
+                    if production not in left_recursion_productions:
+                        production.append(left_recursion_symbol)
+
+            for production in left_recursion_productions:
+                self.production_rules[head_symbol].remove(production)
+
+                production.append(left_recursion_symbol)
+                production.pop(0)
+
+                self.production_rules[left_recursion_symbol].append(production)
+
+        self.__sort_productions()
+
     def left_factor(self):
         while True:
             old_productions = copy.deepcopy(self.production_rules)
