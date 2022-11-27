@@ -1,13 +1,48 @@
 import copy
 from collections import defaultdict
+
 from parsero.regex.commons import EPSILON
 
+
 class ContextFreeGrammar:
-    def __init__(self, non_terminal_symbols, terminal_symbols, productions, initial_symbol):
+    def __init__(self, path_to_file):
+        all_symbols = set()
+        non_terminal_symbols = set()
+        productions = list()
+        initial_symbol = ""
+
+        with open(path_to_file, "r") as file:
+            while line := file.readline():
+                production_pieces = line.split("->", 1)
+                production_head = production_pieces[0].strip()
+                non_terminal_symbols.add(production_head)
+
+                if initial_symbol == "":
+                    initial_symbol = production_head
+
+                productions_body = [prod.strip() for prod in production_pieces[1].split("|")]
+
+                production_rule = list()
+
+                for production in productions_body:
+                    production = production.split()
+
+                    for symbol in production:
+                        all_symbols.add(symbol)
+
+                    production_rule.append(production)
+
+                productions.append((production_head, production_rule))
+
+        terminal_symbols = all_symbols - non_terminal_symbols
+
         self.non_terminal_symbols = non_terminal_symbols
         self.terminal_symbols = terminal_symbols
         self.initial_symbol = initial_symbol
         self.production_rules = self.__create_production_rule(productions)
+        self.original_symbol = dict()
+
+        self.__sort_productions()
 
     def __create_production_rule(self, productions):
         """
@@ -21,6 +56,10 @@ class ContextFreeGrammar:
 
         return production_rules
 
+    def __sort_productions(self):
+        for productions in self.production_rules.values():
+            productions.sort()
+
     def appears_on_production(self, symbol):
         for productions in self.production_rules.values():
             for production in productions:
@@ -31,6 +70,7 @@ class ContextFreeGrammar:
 
     def remove_unreachable_symbols(self):
         reachable_symbols = [self.initial_symbol]
+        reachable_terminals = set()
 
         for reachable_symbol in reachable_symbols:
             for productions in self.production_rules[reachable_symbol]:
@@ -38,13 +78,17 @@ class ContextFreeGrammar:
                     for symbol in productions:
                         if symbol in self.non_terminal_symbols and symbol not in reachable_symbols:
                             reachable_symbols.append(symbol)
+                        elif symbol in self.terminal_symbols:
+                            reachable_terminals.add(symbol)
 
         reachable_symbols = set(reachable_symbols)
         symbols_to_remove = self.non_terminal_symbols - reachable_symbols
 
         for symbol in symbols_to_remove:
             del self.production_rules[symbol]
-            self.non_terminal_symbols.remove(symbol)
+
+        self.non_terminal_symbols = self.non_terminal_symbols.intersection(reachable_symbols)
+        self.terminal_symbols = self.terminal_symbols.intersection(reachable_terminals)
 
     def remove_unproductive_symbols(self):
         productive_productions = defaultdict(list)
@@ -77,12 +121,29 @@ class ContextFreeGrammar:
 
         self.production_rules = productive_productions
 
-    def simplify_useless_symbols(self):
-        self.remove_unreachable_symbols
-        # self.remove_unproductive_symbols
-        pass
+        new_non_terminals = set()
+        new_terminals = set()
 
-    def simplify_epsilon_free(self):
+        for head, body in self.production_rules.items():
+            new_non_terminals.add(head)
+
+            for production in body:
+                for symbol in production:
+                    if symbol in self.terminal_symbols:
+                        new_terminals.add(symbol)
+                    elif symbol in self.non_terminal_symbols:
+                        new_non_terminals.add(symbol)
+
+        self.non_terminal_symbols = new_non_terminals
+        self.terminal_symbols = new_terminals
+
+        self.__sort_productions()
+
+    def remove_useless_symbols(self):
+        self.remove_unreachable_symbols()
+        self.remove_unproductive_symbols()
+
+    def refactor_epsilon_free(self):
         nullable_symbol = list()
         new_production_rules = defaultdict(list)
 
@@ -125,24 +186,33 @@ class ContextFreeGrammar:
 
         if self.initial_symbol in nullable and self.appears_on_production(self.initial_symbol):
             old_initial_symbol = self.initial_symbol
-            self.initial_symbol = "{}'".format(old_initial_symbol)
+            original_symbol = self.initial_symbol
+
+            if self.initial_symbol in self.original_symbol.keys():
+                original_symbol = self.original_symbol[self.initial_symbol]
+
+            z = 0
+            while f"{original_symbol}{z}" in self.non_terminal_symbols:
+                z += 1
+
+            self.initial_symbol = f"{original_symbol}{z}"
             self.non_terminal_symbols.add(self.initial_symbol)
+            self.original_symbol[self.initial_symbol] = original_symbol
 
             new_production_rules[self.initial_symbol] = [["{}".format(old_initial_symbol)], ["&"]]
         else:
             new_production_rules[self.initial_symbol].append(["&"])
 
         self.production_rules = new_production_rules
+        self.__sort_productions()
 
-    def simplify_unitary_productions(self):
-        symbols = list(self.production_rules.keys())
-
+    def refactor_unitary_productions(self):
         for productions in self.production_rules.values():
             for production in productions:
                 if len(production) > 1:
                     continue
 
-                if not production[0] in symbols:
+                if not production[0] in self.non_terminal_symbols:
                     continue
 
                 new_productions = self.production_rules[production[0]]
@@ -154,23 +224,100 @@ class ContextFreeGrammar:
         for productions in self.production_rules.values():
             i = 0
             while i < len(productions):
-                if len(productions[i]) > 1:
-                    i += 1
-                    continue
-
-                if productions[i][0] in symbols:
+                if len(productions[i]) == 1 and productions[i][0] in self.non_terminal_symbols:
                     productions.pop(i)
                     continue
 
                 i += 1
+
+        self.__sort_productions()
+
+    def refactor_left_recursion(self):
+        symbols_to_check = list()
+        symbols_to_check.append(self.initial_symbol)
+
+        [
+            symbols_to_check.append(symbol)
+            for symbol in list(self.non_terminal_symbols - set(self.initial_symbol))
+        ]
+
+        for i in range(len(symbols_to_check)):
+            head_symbol = symbols_to_check[i]
+
+            for j in range(i):
+                body_symbol = symbols_to_check[j]
+                productions = self.production_rules[head_symbol]
+                productions_to_adjust = list()
+
+                for production in productions:
+                    if production[0] == body_symbol:
+                        productions_to_adjust.append(production)
+
+                for production in productions_to_adjust:
+                    old_production = production
+                    new_productions = list()
+                    productions_to_replace_symbol = self.production_rules[body_symbol]
+                    production.pop(0)
+
+                    for production_replacement in productions_to_replace_symbol:
+                        new_production = list()
+                        for symbol in production_replacement:
+                            new_production.append(symbol)
+
+                        [new_production.append(symbol) for symbol in production]
+                        new_productions.append(new_production)
+
+                    self.production_rules[head_symbol].remove(old_production)
+                    [
+                        self.production_rules[head_symbol].append(new_production)
+                        for new_production in new_productions
+                    ]
+
+            original_symbol = head_symbol
+
+            if head_symbol in self.original_symbol.keys():
+                original_symbol = self.original_symbol[head_symbol]
+
+            z = 0
+            while f"{original_symbol}{z}" in self.non_terminal_symbols:
+                z += 1
+
+            left_recursion_symbol = f"{original_symbol}{z}"
+            left_recursion_productions = list()
+
+            for production in self.production_rules[head_symbol]:
+                if production[0] == head_symbol:
+                    left_recursion_productions.append(production)
+
+            if len(left_recursion_productions) > 0:
+                self.non_terminal_symbols.add(left_recursion_symbol)
+                self.original_symbol[left_recursion_symbol] = original_symbol
+                self.terminal_symbols.add("&")
+                self.production_rules[left_recursion_symbol].append(["&"])
+
+                for production in self.production_rules[head_symbol]:
+                    if production not in left_recursion_productions:
+                        production.append(left_recursion_symbol)
+
+            for production in left_recursion_productions:
+                self.production_rules[head_symbol].remove(production)
+
+                production.append(left_recursion_symbol)
+                production.pop(0)
+
+                self.production_rules[left_recursion_symbol].append(production)
+
+        self.__sort_productions()
 
     def left_factor(self):
         while True:
             old_productions = copy.deepcopy(self.production_rules)
             self.__indirect_factoring()
             self.__direct_factoring()
-            if (old_productions == self.production_rules):
+            if old_productions == self.production_rules:
                 break
+
+        self.__sort_productions()
 
     def __indirect_factoring(self):
         for head, body in self.production_rules.items():
@@ -209,17 +356,23 @@ class ContextFreeGrammar:
             updated_body = []
             separators = ""
             for start, rest_of_body in symbol_map.items():
-                separators += "'"
                 if len(rest_of_body) > 1:
-                    if head[0] == "<":
-                        new_head = head[:2] + separators + head[2:]
-                    else:
-                        new_head = "<" + head + separators + ">"
+                    original_symbol = head
+
+                    if head in self.original_symbol.keys():
+                        original_symbol = self.original_symbol[head]
+
+                    z = 0
+                    while f"{original_symbol}{z}" in self.non_terminal_symbols:
+                        z += 1
+                    new_head = f"{original_symbol}{z}"
+
                     new_production_rules[new_head] = rest_of_body
                     updated_body.append([start] + [new_head])
                     self.non_terminal_symbols.add(new_head)
+                    self.original_symbol[new_head] = original_symbol
                 else:
-                    if (start == EPSILON):
+                    if start == EPSILON:
                         updated_body.append([EPSILON])
                     else:
                         rest_of_body[0].insert(0, start)
@@ -228,29 +381,31 @@ class ContextFreeGrammar:
         self.production_rules = new_production_rules
 
     def __str__(self):
-        data = "{}\t → ".format(self.initial_symbol)
+        production_head = list(self.non_terminal_symbols)
         data_partial = list()
 
-        productions = self.production_rules[self.initial_symbol]
-        productions.sort()
+        for production in self.production_rules[self.initial_symbol]:
+            data_partial.append(" ".join(production))
 
-        for prod in productions:
-            data_partial.append("".join(prod))
-
+        data = "{}\t → ".format(self.initial_symbol)
         data += " | ".join(data_partial).strip()
 
-        for symbol, productions in self.production_rules.items():
-            if symbol == self.initial_symbol:
-                continue
+        production_head.remove(self.initial_symbol)
+        production_head.sort()
 
-            productions.sort()
-
-            data_partial = []
-            for prod in productions:
-                data_partial.append("".join(prod))
+        for symbol in production_head:
+            data_partial = list()
+            for production in self.production_rules[symbol]:
+                data_partial.append(" ".join(production))
 
             data += "\n"
             data += "{}\t → ".format(symbol)
             data += " | ".join(data_partial).strip()
 
         return data
+
+    def to_file(self, path_to_file: str):
+        data = self.__str__().replace("\t →", " ->")
+
+        with open(path_to_file, "w") as file:
+            file.write(data)

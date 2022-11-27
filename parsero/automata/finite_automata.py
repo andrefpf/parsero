@@ -1,4 +1,9 @@
+from copy import deepcopy
+
 from tabulate import tabulate
+
+from parsero import automata
+from parsero.automata.state import State
 
 DEAD_STATE = -1
 
@@ -47,33 +52,42 @@ class FiniteAutomata:
 
     def match(self, string):
         """
-        Returns a number that corresponds to the length of the longest prefix recognized by the automata.
+        Returns the longest substring prefix that belongs to the automata language and the final state.
 
         If the automata recognizes the language
         L = {w | w bellows to {abor} starts with a and ends with b}
 
-        and your test string is "abobora", this function will return 4, corresponding to the suffix "abob".
+        and your test string is "abobora", this function will return ("abob", 2).
         """
 
         length = 0
-        last_recognized_state = DEAD_STATE
+        found_state = DEAD_STATE
 
         for i, state in enumerate(self.iterate(string)):
             if state == DEAD_STATE:
                 break
             if self.is_state_final(state):
                 length = i
+                found_state = state
 
-        return length
+        return string[:length], found_state
 
     def compute(self, origin, symbol):
         """
         Executes a single step of computation from a origin state through a symbol, then returns the next state.
+        The symbol & is used to mark epsilon transitions. If the symbol to match in the string is & we look for
+        a transition through "\\&", this way we can handle this symbol with the automata.
         """
-        try:
-            return self.transition_map[(origin, symbol)]
-        except KeyError:
-            return DEAD_STATE
+
+        if symbol == "&":
+            transition = (origin, "\\&")
+        else:
+            transition = (origin, symbol)
+
+        return self.transition_map.get(transition, DEAD_STATE)
+
+    def union(self, other):
+        return automata.union(self, other)
 
     def _create_transition_map(self, transitions):
         """
@@ -84,6 +98,9 @@ class FiniteAutomata:
         for origin, symbol, target in transitions:
             transition_map[(origin, symbol)] = target
         return transition_map
+
+    def __or__(self, other):
+        return self.union(other)
 
     def __str__(self):
         headers = ["Q/Σ"] + self.alphabet

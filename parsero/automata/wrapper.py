@@ -1,7 +1,5 @@
-from parsero.contextfree_grammar import ContextFreeGrammar
-from parsero.finite_automata import FiniteAutomata
-from parsero.nd_finite_automata import NDFiniteAutomata
-from parsero.state import State
+from parsero.automata import FiniteAutomata, NDFiniteAutomata
+from parsero.automata.state import State
 
 
 def file_to_automata(path_to_file):
@@ -100,80 +98,4 @@ def automata_to_file(automata, path_to_file):
             file.write(transitions.pop(0))
 
             if transitions:
-                file.write("\n")
-
-
-def file_to_contextfree_grammar(path_to_file):
-    all_symbols = set()
-    non_terminal_symbols = set()
-    initial_symbol = ""
-    productions = list()
-
-    with open(path_to_file, "r") as file:
-        while line := file.readline():
-            production_pieces = line.split("->", 1)
-            symbol = production_pieces[0].strip()
-            non_terminal_symbols.add(symbol)
-
-            if initial_symbol == "":
-                initial_symbol = symbol
-
-            productions_body = [prod.strip() for prod in production_pieces[1].split("|")]
-
-            production_rule = list()
-
-            for prod in productions_body:
-                i = 0
-                body = []
-                while True:
-                    if i == len(prod):
-                        break
-
-                    if prod[i] == "<":
-                        long_symbol = prod[i]
-
-                        while True:
-                            i += 1
-                            if prod[i] == ">":
-                                long_symbol += ">"
-                                break
-
-                            long_symbol += prod[i]
-
-                        body.append(long_symbol)
-                        i += 1
-                        continue
-
-                    body.append(prod[i])
-                    i += 1
-
-                for s in body:
-                    all_symbols.add(s)
-                production_rule.append(body)
-
-            productions.append((symbol, production_rule))
-
-    terminal_symbols = all_symbols - non_terminal_symbols
-
-    return ContextFreeGrammar(non_terminal_symbols, terminal_symbols, productions, initial_symbol)
-
-
-def contextfree_grammar_to_file(contextfree_grammar, path_to_file):
-    if type(contextfree_grammar) != ContextFreeGrammar:
-        raise TypeError("Specified ContextFree Grammar is not a ContextFree Grammar.")
-
-    productions = list()
-    production_rules = contextfree_grammar.production_rules
-
-    for symbol, production_rule in production_rules.items():
-        production_rule = " | ".join(production_rule).strip()
-
-        production = "{} -> {}".format(symbol, production_rule)
-        productions.append(production)
-
-    with open(path_to_file, "w") as file:
-        while productions:
-            file.write(productions.pop(0))
-
-            if productions:
                 file.write("\n")

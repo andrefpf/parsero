@@ -29,9 +29,8 @@ def test_compile():
 
 def test_match():
     code = "s0m3 w0rds_th4t 4re p0ss1ble variables"
-    size = regex.match(r"(\s|\w(\w|\d|_)*)*", code)
-    assert size == 16
-    assert code[:size] == "s0m3 w0rds_th4t "
+    matched = regex.match(r"(\s|\w(\w|\d|_)*)*", code)
+    assert matched == "s0m3 w0rds_th4t "
 
 
 def test_evaluate():
@@ -63,3 +62,23 @@ def test_file_regex():
     assert automatas["id"].evaluate("andrezinhogameplay2001")
     assert not automatas["id"].evaluate("007Teste")
     assert not automatas["id"].evaluate("200bananas")
+
+
+def test_escaped():
+    """
+    la bestialidad
+    """
+
+    teste = "(um)(dois)(tr.es)(q.u+a*t|r,o)"
+
+    matched = regex.match(r"\(um\)", teste)
+    assert matched == "(um)"
+
+    matched = regex.match(r"(\(\w*\))*", teste)
+    assert matched == "(um)(dois)"
+
+    matched = regex.match(r"(\(\w*(\.\w*)*\))*", teste)
+    assert matched == "(um)(dois)(tr.es)"
+
+    matched = regex.match(r"(\(\w*((\.|\+|\*|\||,)\w*)*\))*", teste)
+    assert matched == "(um)(dois)(tr.es)(q.u+a*t|r,o)"

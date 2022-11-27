@@ -1,3 +1,4 @@
+from parsero.automata import file_to_automata
 from parsero.machines.fa_machines import (
     fa_determinized_epsilon,
     fa_determinized_no_epsilon,
@@ -6,7 +7,6 @@ from parsero.machines.ndfa_machines import (
     ndfa_to_determinize_epsilon,
     ndfa_to_determinize_no_epsilon,
 )
-from parsero.wrapper import file_to_automata
 
 
 def test_ends_with_bb():
@@ -18,6 +18,7 @@ def test_ends_with_bb():
         "aaabb",
         "bbbbb",
         "abbabb",
+        "aaacaabb",
     ]
 
     invalid = [
@@ -26,7 +27,6 @@ def test_ends_with_bb():
         "aaab",
         "abba",
         "abbab",
-        "aaacaabb",
     ]
 
     automata = file_to_automata("tests/examples/ends_with_bb.ndfa")
@@ -75,6 +75,7 @@ def test_ends_with_bb_determinized():
         "aaabb",
         "bbbbb",
         "abbabb",
+        "aaacaabb",
     ]
 
     invalid = [
@@ -83,7 +84,6 @@ def test_ends_with_bb_determinized():
         "aaab",
         "abba",
         "abbab",
-        "aaacaabb",
     ]
 
     automata = file_to_automata("tests/examples/ends_with_bb.ndfa").determinize()

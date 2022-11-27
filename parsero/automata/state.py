@@ -5,3 +5,4 @@ from dataclasses import dataclass
 class State:
     name: str
     is_final: bool
+    tag: str = ""
