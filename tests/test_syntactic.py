@@ -44,7 +44,7 @@ def test_first_follow_example_2():
 
 
 def test_table_creation():
-    path_to_file = "examples/ff_table_example.cfg"
+    path_to_file = "tests/examples/ff_table_example.cfg"
     cfg = file_to_contextfree_grammar(path_to_file)
     table: dict = syntactic.create_table(cfg)
     t_not = ['F', "<T'>"]
@@ -54,7 +54,7 @@ def test_table_creation():
 
 
 def test_ll1():
-    path_to_file = "examples/ff_table_example.cfg"
+    path_to_file = "tests/examples/ff_table_example.cfg"
     cfg = file_to_contextfree_grammar(path_to_file)
     table: dict = syntactic.create_table(cfg)
     word = ["<id>", "∨", "<id>", "∧", "<id>", "$"]
