@@ -1,4 +1,4 @@
-from parsero.wrapper import *
+from parsero.contextfree_grammar import ContextFreeGrammar
 
 
 def test_import():
@@ -14,7 +14,7 @@ def test_import():
     non_terminal_symbols = set(["S", "A", "B", "C", "D"])
     terminal_symbols = set(["a", "b", "c", "d", "id", "&"])
 
-    cfg = file_to_contextfree_grammar(path_to_file)
+    cfg = ContextFreeGrammar(path_to_file)
     dict_from_cfg = cfg.production_rules
 
     assert set(dict_from_cfg.keys()) == set(dict_to_compare.keys())
@@ -34,7 +34,7 @@ def test_to_str():
     str_to_compare += "C\t → c | c C\n"
     str_to_compare += "D\t → d D"
 
-    cfg = file_to_contextfree_grammar("tests/examples/simple_cfg.cfg")
+    cfg = ContextFreeGrammar("tests/examples/simple_cfg.cfg")
 
     assert str(cfg) == str_to_compare
 
@@ -60,7 +60,7 @@ def test_refactor_epsilon_free():
     )
     terminal_symbols = set(["a", "b", "id", "&", "d"])
 
-    cfg = file_to_contextfree_grammar(path_to_file)
+    cfg = ContextFreeGrammar(path_to_file)
     cfg.refactor_epsilon_free()
     dict_from_cfg = cfg.production_rules
 
@@ -85,7 +85,7 @@ def test_refactor_unitary_productions():
     non_terminal_symbols = set(["S", "A", "B", "C", "D"])
     terminal_symbols = set(["a", "b", "c", "d", "id", "&"])
 
-    cfg = file_to_contextfree_grammar(path_to_file)
+    cfg = ContextFreeGrammar(path_to_file)
     cfg.refactor_unitary_productions()
     dict_from_cfg = cfg.production_rules
 
@@ -109,7 +109,7 @@ def test_remove_unreachable_symbols():
     non_terminal_symbols = set(["S", "A", "B", "D"])
     terminal_symbols = set(["a", "b", "d", "id", "&"])
 
-    cfg = file_to_contextfree_grammar(path_to_file)
+    cfg = ContextFreeGrammar(path_to_file)
     cfg.remove_unreachable_symbols()
     dict_from_cfg = cfg.production_rules
 
@@ -133,7 +133,7 @@ def test_remove_unproductive_symbols():
     non_terminal_symbols = set(["S", "A", "B", "C"])
     terminal_symbols = set(["a", "b", "c", "id", "&"])
 
-    cfg = file_to_contextfree_grammar(path_to_file)
+    cfg = ContextFreeGrammar(path_to_file)
     cfg.remove_unproductive_symbols()
     dict_from_cfg = cfg.production_rules
 
@@ -156,7 +156,7 @@ def test_remove_useless_symbols():
     non_terminal_symbols = set(["S", "A", "B"])
     terminal_symbols = set(["a", "b", "id", "&"])
 
-    cfg = file_to_contextfree_grammar(path_to_file)
+    cfg = ContextFreeGrammar(path_to_file)
     cfg.remove_useless_symbols()
     dict_from_cfg = cfg.production_rules
 
@@ -179,7 +179,7 @@ def test_left_recursion():
     non_terminal_symbols = set(["S", "A", "A0"])
     terminal_symbols = set(["a", "b", "c", "d", "&"])
 
-    cfg = file_to_contextfree_grammar(path_to_file)
+    cfg = ContextFreeGrammar(path_to_file)
     cfg.refactor_left_recursion()
     dict_from_cfg = cfg.production_rules
 
@@ -201,7 +201,7 @@ def test_left_recursion():
     non_terminal_symbols = set(["S", "S0", "A", "A0"])
     terminal_symbols = set(["a", "b", "c", "d", "&"])
 
-    cfg = file_to_contextfree_grammar(path_to_file)
+    cfg = ContextFreeGrammar(path_to_file)
     cfg.refactor_left_recursion()
     dict_from_cfg = cfg.production_rules
 
@@ -229,7 +229,7 @@ def test_factoring():
     non_terminal_symbols = set(["S", "S0", "S1", "S2", "B", "B0", "D", "D0"])
     terminal_symbols = set(["b", "c", "d", "&"])
 
-    cfg = file_to_contextfree_grammar(path_to_file)
+    cfg = ContextFreeGrammar(path_to_file)
     cfg.left_factor()
     dict_from_cfg = cfg.production_rules
 

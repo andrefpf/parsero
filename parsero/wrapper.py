@@ -1,4 +1,3 @@
-from parsero.contextfree_grammar import ContextFreeGrammar
 from parsero.finite_automata import FiniteAutomata
 from parsero.nd_finite_automata import NDFiniteAutomata
 from parsero.state import State
@@ -101,37 +100,3 @@ def automata_to_file(automata, path_to_file):
 
             if transitions:
                 file.write("\n")
-
-
-def file_to_contextfree_grammar(path_to_file):
-    all_symbols = set()
-    non_terminal_symbols = set()
-    initial_symbol = ""
-    productions = list()
-
-    with open(path_to_file, "r") as file:
-        while line := file.readline():
-            production_pieces = line.split("->", 1)
-            production_head = production_pieces[0].strip()
-            non_terminal_symbols.add(production_head)
-
-            if initial_symbol == "":
-                initial_symbol = production_head
-
-            productions_body = [prod.strip() for prod in production_pieces[1].split("|")]
-
-            production_rule = list()
-
-            for production in productions_body:
-                production = production.split()
-
-                for symbol in production:
-                    all_symbols.add(symbol)
-
-                production_rule.append(production)
-
-            productions.append((production_head, production_rule))
-
-    terminal_symbols = all_symbols - non_terminal_symbols
-
-    return ContextFreeGrammar(non_terminal_symbols, terminal_symbols, productions, initial_symbol)

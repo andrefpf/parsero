@@ -5,12 +5,41 @@ from parsero.regex.commons import EPSILON
 
 
 class ContextFreeGrammar:
-    def __init__(self, non_terminal_symbols, terminal_symbols, productions, initial_symbol):
+    def __init__(self, path_to_file):
+        all_symbols = set()
+        non_terminal_symbols = set()
+        productions = list()
+        initial_symbol = ""
+
+        with open(path_to_file, "r") as file:
+            while line := file.readline():
+                production_pieces = line.split("->", 1)
+                production_head = production_pieces[0].strip()
+                non_terminal_symbols.add(production_head)
+
+                if initial_symbol == "":
+                    initial_symbol = production_head
+
+                productions_body = [prod.strip() for prod in production_pieces[1].split("|")]
+
+                production_rule = list()
+
+                for production in productions_body:
+                    production = production.split()
+
+                    for symbol in production:
+                        all_symbols.add(symbol)
+
+                    production_rule.append(production)
+
+                productions.append((production_head, production_rule))
+
+        terminal_symbols = all_symbols - non_terminal_symbols
+
         self.non_terminal_symbols = non_terminal_symbols
         self.terminal_symbols = terminal_symbols
         self.initial_symbol = initial_symbol
         self.production_rules = self.__create_production_rule(productions)
-
         self.original_symbol = dict()
 
         self.__sort_productions()
