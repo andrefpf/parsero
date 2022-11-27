@@ -1,11 +1,15 @@
-# Isso é só um rascunho, não funciona ainda
+from parsero import syntactic
+from parsero.contextfree_grammar import ContextFreeGrammar
+from parsero.errors import SyntacticError
+from parsero.lexical import LexicalAnalyzer
+from parsero.syntactic import ll1_parse
 
 
 class Parser:
     def __init__(self, regex_path, grammar_path):
         self.lexical = LexicalAnalyzer(regex_path)
-        self.cfg = file_to_contextfree_grammar(grammar_path)
-        self.table: dict = syntactic.create_table(cfg)
+        self.cfg = ContextFreeGrammar(grammar_path)
+        self.table: dict = syntactic.create_table(self.cfg)
 
     def parse(self, path: str):
         tokens = self.lexical.tokenize(path)
