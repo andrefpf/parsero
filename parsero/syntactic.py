@@ -13,14 +13,14 @@ def first(head: str, cfg: ContextFreeGrammar) -> set:
                 else:
                     first_non_terminal = list(first(prod[i], cfg))
                     for symbol in first_non_terminal:
-                        if symbol != '&':
+                        if symbol != "&":
                             first_set.add(symbol)
                         else:
                             nullable = True
                     if not nullable:
                         break
             if nullable:
-                first_set.add('&')
+                first_set.add("&")
     else:
         first_set.add(head)
     return first_set
@@ -43,8 +43,8 @@ def follow(cfg: ContextFreeGrammar) -> dict:
                             if j != len(body) - 1:
                                 first_of_next = first(body[j + 1], cfg)
 
-                                if '&' in first_of_next:
-                                    first_of_next.remove('&')
+                                if "&" in first_of_next:
+                                    first_of_next.remove("&")
                                     nullable = True
                                     follow_dict[body[i]].update(first_of_next)
                                 else:

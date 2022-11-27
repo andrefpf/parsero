@@ -213,7 +213,6 @@ def test_left_recursion():
         assert dict_to_compare[symbol] == productions
 
 
-
 def test_factoring():
     path_to_file = "tests/examples/non_deterministic.cfg"
     dict_to_compare = dict()
