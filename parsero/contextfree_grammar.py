@@ -11,6 +11,8 @@ class ContextFreeGrammar:
         self.initial_symbol = initial_symbol
         self.production_rules = self.__create_production_rule(productions)
 
+        self.original_symbol = dict()
+
         self.__sort_productions()
 
     def __create_production_rule(self, productions):
@@ -155,13 +157,18 @@ class ContextFreeGrammar:
 
         if self.initial_symbol in nullable and self.appears_on_production(self.initial_symbol):
             old_initial_symbol = self.initial_symbol
+            original_symbol = self.initial_symbol
 
-            i = 0
-            while f"S{i}" in self.non_terminal_symbols:
-                i += 1
+            if self.initial_symbol in self.original_symbol.keys():
+                original_symbol = self.original_symbol[self.initial_symbol]
 
-            self.initial_symbol = f"S{i}"
+            z = 0
+            while f"{original_symbol}{z}" in self.non_terminal_symbols:
+                z += 1
+
+            self.initial_symbol = f"{original_symbol}{z}"
             self.non_terminal_symbols.add(self.initial_symbol)
+            self.original_symbol[self.initial_symbol] = original_symbol
 
             new_production_rules[self.initial_symbol] = [["{}".format(old_initial_symbol)], ["&"]]
         else:
@@ -237,19 +244,25 @@ class ContextFreeGrammar:
                         for new_production in new_productions
                     ]
 
+            original_symbol = head_symbol
+
+            if head_symbol in self.original_symbol.keys():
+                original_symbol = self.original_symbol[head_symbol]
+
             z = 0
-            while f"{head_symbol}{z}" in self.non_terminal_symbols:
+            while f"{original_symbol}{z}" in self.non_terminal_symbols:
                 z += 1
 
-            left_recursion_symbol = f"{head_symbol}{z}"
+            left_recursion_symbol = f"{original_symbol}{z}"
             left_recursion_productions = list()
 
             for production in self.production_rules[head_symbol]:
                 if production[0] == head_symbol:
-                    left_recursion_productions.append(production)            
+                    left_recursion_productions.append(production)
 
             if len(left_recursion_productions) > 0:
                 self.non_terminal_symbols.add(left_recursion_symbol)
+                self.original_symbol[left_recursion_symbol] = original_symbol
                 self.terminal_symbols.add("&")
                 self.production_rules[left_recursion_symbol].append(["&"])
 
@@ -274,6 +287,8 @@ class ContextFreeGrammar:
             self.__direct_factoring()
             if old_productions == self.production_rules:
                 break
+
+        self.__sort_productions()
 
     def __indirect_factoring(self):
         for head, body in self.production_rules.items():
@@ -312,15 +327,21 @@ class ContextFreeGrammar:
             updated_body = []
             separators = ""
             for start, rest_of_body in symbol_map.items():
-                separators += "'"
                 if len(rest_of_body) > 1:
-                    if head[0] == "<":
-                        new_head = head[:2] + separators + head[2:]
-                    else:
-                        new_head = "<" + head + separators + ">"
+                    original_symbol = head
+
+                    if head in self.original_symbol.keys():
+                        original_symbol = self.original_symbol[head]
+
+                    z = 0
+                    while f"{original_symbol}{z}" in self.non_terminal_symbols:
+                        z += 1
+                    new_head = f"{original_symbol}{z}"
+
                     new_production_rules[new_head] = rest_of_body
                     updated_body.append([start] + [new_head])
                     self.non_terminal_symbols.add(new_head)
+                    self.original_symbol[new_head] = original_symbol
                 else:
                     if start == EPSILON:
                         updated_body.append([EPSILON])

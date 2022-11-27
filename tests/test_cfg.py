@@ -214,11 +214,28 @@ def test_left_recursion():
 
 
 def test_factoring():
-    # TODO corrigir path
     path_to_file = "tests/examples/non_deterministic.cfg"
+    dict_to_compare = dict()
+
+    dict_to_compare["S"] = [["b", "S0"]]
+    dict_to_compare["S0"] = [["b", "B0", "c", "d"], ["c", "S1"]]
+    dict_to_compare["S1"] = [["d", "S2"]]
+    dict_to_compare["S2"] = [["&"], ["d", "D0"]]
+    dict_to_compare["B"] = [["b", "B0"]]
+    dict_to_compare["B0"] = [["&"], ["b", "B0"]]
+    dict_to_compare["D"] = [["d", "D0"]]
+    dict_to_compare["D0"] = [["&"], ["d", "D0"]]
+
+    non_terminal_symbols = set(["S", "S0", "S1", "S2", "B", "B0", "D", "D0"])
+    terminal_symbols = set(["b", "c", "d", "&"])
+
     cfg = file_to_contextfree_grammar(path_to_file)
     cfg.left_factor()
+    dict_from_cfg = cfg.production_rules
 
-    # path_to_model = "examples/left_factored.cfg"
-    # model_cfg = file_to_contextfree_grammar(path_to_model)
-    # TODO achar um bom jeito de comparar os dicionarios
+    assert set(dict_from_cfg.keys()) == set(dict_to_compare.keys())
+    assert cfg.non_terminal_symbols == non_terminal_symbols
+    assert cfg.terminal_symbols == terminal_symbols
+
+    for symbol, productions in dict_from_cfg.items():
+        assert dict_to_compare[symbol] == productions
