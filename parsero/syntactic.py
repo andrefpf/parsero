@@ -84,6 +84,10 @@ def ll1_parse(word: list, table: dict, cfg: ContextFreeGrammar) -> bool:
         while not ready_for_next:
             current = stack.pop()
 
+            if symbol == current:
+                ready_for_next = True
+                continue
+
             if not (current, symbol) in table:
                 return False
 
