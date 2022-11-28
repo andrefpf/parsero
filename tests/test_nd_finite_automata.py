@@ -29,7 +29,7 @@ def test_ends_with_bb():
         "abbab",
     ]
 
-    automata = file_to_automata("tests/examples/ends_with_bb.ndfa")
+    automata = file_to_automata("examples/ends_with_bb.ndfa")
 
     for string in valid:
         assert automata.evaluate(string)
@@ -57,7 +57,7 @@ def test_abc_sequence():
         "ccb",
     ]
 
-    automata = file_to_automata("tests/examples/abc.ndfa")
+    automata = file_to_automata("examples/abc.ndfa")
 
     for string in valid:
         assert automata.evaluate(string)
@@ -86,7 +86,7 @@ def test_ends_with_bb_determinized():
         "abbab",
     ]
 
-    automata = file_to_automata("tests/examples/ends_with_bb.ndfa").determinize()
+    automata = file_to_automata("examples/ends_with_bb.ndfa").determinize()
 
     for string in valid:
         assert automata.evaluate(string)
@@ -114,7 +114,7 @@ def test_abc_sequence_determinized():
         "ccb",
     ]
 
-    automata = file_to_automata("tests/examples/abc.ndfa").determinize()
+    automata = file_to_automata("examples/abc.ndfa").determinize()
 
     for string in valid:
         assert automata.evaluate(string)

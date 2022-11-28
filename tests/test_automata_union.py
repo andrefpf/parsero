@@ -20,8 +20,8 @@ def test_dfa_dfa():
         "abobora",
     ]
 
-    ab = file_to_automata("tests/examples/starts_a_ends_b.fa")
-    even = file_to_automata("tests/examples/even_chars.fa")
+    ab = file_to_automata("examples/starts_a_ends_b.fa")
+    even = file_to_automata("examples/even_chars.fa")
 
     automata = ab | even
 
@@ -59,8 +59,8 @@ def test_ndfa_ndfa():
         "ccb",
     ]
 
-    abc = file_to_automata("tests/examples/abc.ndfa")
-    bb = file_to_automata("tests/examples/ends_with_bb.ndfa")
+    abc = file_to_automata("examples/abc.ndfa")
+    bb = file_to_automata("examples/ends_with_bb.ndfa")
 
     automata = union(abc, bb)
     # automata = abc | bb

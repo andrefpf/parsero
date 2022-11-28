@@ -18,7 +18,7 @@ def test_even_chars():
         "c",
     ]
 
-    automata = file_to_automata("tests/examples/even_chars.fa")
+    automata = file_to_automata("examples/even_chars.fa")
 
     for string in valid:
         assert automata.evaluate(string)
@@ -44,7 +44,7 @@ def test_starts_with_a_ends_with_b():
         "abobora",
     ]
 
-    automata = file_to_automata("tests/examples/starts_a_ends_b.fa")
+    automata = file_to_automata("examples/starts_a_ends_b.fa")
 
     for string in valid:
         assert automata.evaluate(string)
@@ -54,7 +54,7 @@ def test_starts_with_a_ends_with_b():
 
 
 def test_match():
-    automata = file_to_automata("tests/examples/starts_a_ends_b.fa")
+    automata = file_to_automata("examples/starts_a_ends_b.fa")
 
     prefix, state = automata.match("abobora")
     assert prefix == "abob"

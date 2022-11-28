@@ -1,8 +1,8 @@
 import cProfile
 from pathlib import Path
 
-from parsero.lexical import LexicalAnalyzer
-from parsero.token import Token
+from parsero.lexical.lexical_analyzer import LexicalAnalyzer
+from parsero.lexical.token import Token
 
 
 def test_tokens():
@@ -22,22 +22,22 @@ def test_tokens():
         Token("number", "-1.65e+13"),
     ]
 
-    la = LexicalAnalyzer("tests/examples/example_2.regex")
+    la = LexicalAnalyzer("examples/example_2.regex")
     for token, expected in zip(la.tokenize_string(test), template):
         assert token == expected
 
 
 def test_python():
-    la = LexicalAnalyzer("tests/examples/python.regex")
-    path = "tests/examples/hello_worlds/python.py"
+    la = LexicalAnalyzer("examples/python.regex")
+    path = "examples/hello_worlds/python.py"
     assert la.analyze(path)
     # for token in la.tokenize(path):
     #     print(token)
 
 
 def test_cpp():
-    la = LexicalAnalyzer("tests/examples/cpp.regex")
-    path = "tests/examples/hello_worlds/cpp.cpp"
+    la = LexicalAnalyzer("examples/cpp.regex")
+    path = "examples/hello_worlds/cpp.cpp"
     assert la.analyze(path)
     # for token in la.tokenize(path):
     #     print(token)
@@ -49,7 +49,7 @@ def python_exagerado():
     Ele não roda todas as vezes porque demora um pouco e pode atrapalhar o desenvolvimento
     caso seja adicionado algum símbolo diferente.
     """
-    la = LexicalAnalyzer("tests/examples/python.regex")
+    la = LexicalAnalyzer("examples/python.regex")
     for p in Path("parsero").rglob("*.py"):
         la.tokenize(p)
 

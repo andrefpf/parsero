@@ -1,1 +1,3 @@
-__version__ = "0.1.0"
+from . import automata, cfg, common, lexical, machines, regex, syntactic
+
+__version__ = "1.2"

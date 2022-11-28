@@ -1,6 +1,6 @@
 from parsero.automata import NDFiniteAutomata
 from parsero.automata.state import State
-from parsero.regex.commons import EPSILON
+from parsero.common.constants import EPSILON
 
 
 def ndfa_to_determinize_no_epsilon():

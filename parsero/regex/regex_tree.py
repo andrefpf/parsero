@@ -1,13 +1,9 @@
 from collections import defaultdict
-from dataclasses import dataclass, field
-from typing import Optional
 
 from treelib import Tree
 
-from parsero.regex.commons import (
-    ALPHANUMERIC,
+from parsero.common.constants import (
     EPSILON,
-    SPECIAL,
     SYMBOL,
     any_blank,
     any_digit,
@@ -15,7 +11,7 @@ from parsero.regex.commons import (
     any_symbol,
     any_upper_case,
 )
-from parsero.utils import consume
+from parsero.common.utils import consume
 
 
 class ReNode:
