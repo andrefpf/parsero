@@ -13,6 +13,14 @@ class ContextFreeGrammar:
 
         with open(path_to_file, "r") as file:
             while line := file.readline():
+                line = line.strip()
+
+                if not line:
+                    continue
+                
+                if line[0] == "#":
+                    continue
+
                 production_pieces = line.split("->", 1)
                 production_head = production_pieces[0].strip()
                 non_terminal_symbols.add(production_head)
