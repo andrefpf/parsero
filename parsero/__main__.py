@@ -7,6 +7,8 @@ from termcolor import colored
 import parsero
 from parsero import *
 from parsero.automata import *
+from parsero.cfg import ContextFreeGrammar
+from parsero.syntactic import create_table, ll1_parse
 
 
 def welcome_message():
@@ -25,11 +27,11 @@ def select_analyser():
         case "0":
             start_automata()
         case "1":
-            sintactic()
+            syntactic()
         case "2":
             lexical()
         case "3":
-            sintactic()
+            syntactic()
         case _:
             invalid_command()
 
@@ -124,18 +126,34 @@ def show_automata(built: list):
     print(built[int(selected)])
 
 
+def show_glc(built: list):
+    show_glc_list(built)
+    selected = number_input()
+    print(built[int(selected)])
+
+
 def show_automata_list(built: list):
     match len(built):
         case "0":
             file_not_valid()
         case "1":
-            print("Automato carregados [0]")
+            print("Automato finito carregado [0]")
         case _:
-            print("Automatos carregados [0, ..., {}]".format(len(built) - 1))
+            print("Automatos finitos carregados [0, ..., {}]".format(len(built) - 1))
+
+
+def show_glc_list(built: list):
+    match len(built):
+        case "0":
+            file_not_valid()
+        case "1":
+            print("Gramática Livre de Contexto carregada [0]")
+        case _:
+            print("Gramáticas Livres de Contexto carregadas [0, ..., {}]".format(len(built) - 1))
 
 
 def automata_file_select():
-    filenames = select_automata_to_load()
+    filenames = select_files()
     if filenames:
         built = build_automata(filenames)
         return built
@@ -162,8 +180,8 @@ def select_single_automata() -> int:
             return int(selected)
 
 
-def select_automata_to_load():
-    print("Selecione os arquivos com expressões regulares a serem carregados.")
+def select_files():
+    print("Selecione os arquivos a serem carregados.")
     tkinter.Tk().withdraw()
     filenames = askopenfilenames()
 
@@ -190,7 +208,6 @@ def build_automata(filenames):
         print(built_automata)
         i += 1
         automata_list.append(built_automata)
-        # wait_user()
     return automata_list
 
 
@@ -209,8 +226,72 @@ def lexical():
     pass
 
 
-def sintactic():
-    pass
+def syntactic():
+    files = select_files()
+    cfg_list = load_cfgs(files)
+    if cfg_list:
+        syntactic_loop(cfg_list)
+    else:
+        pass
+
+
+def select_glc(cfg_list) -> int:
+    print("Selecione a GLC para fazer uma operação:")
+    while True:
+        selected = number_input()
+        print(selected)
+        print("Você deseja selecionar este automato?")
+        if boolean_select():
+            return int(selected)
+
+
+def syntatic_parse(cfg_list):
+    if len(cfg_list) > 1:
+        pos = select_glc(cfg_list)
+    else:
+        pos = 0
+    cfg = cfg_list[pos]
+    print("Terminais: ", cfg.terminal_symbols)
+    word_input = input("Forneça a palavra: ")
+    word = word_input.split(" ")
+    word.append("$")
+    table: dict = create_table(cfg)
+    print(ll1_parse(word, table, cfg))
+
+
+def syntactic_loop(cfg_list):
+    while True:
+        show_glc_list(cfg_list)
+        print("Selecione uma operação:")
+        print("(0) Exibir GLC")
+        print("(1) Preparar GLC")
+        print("(2) Parsear LL(1)")
+        print("(3) Voltar para o menu")
+
+        selected = number_input()
+        match selected:
+            case "0":
+                show_glc(cfg_list)
+            case "1":
+                pass  # TODO
+            case "2":
+                syntatic_parse(cfg_list)
+            case "3":
+                break
+            case _:
+                invalid_command()
+
+
+def load_cfgs(filenames) -> list:
+    cfg_list = []
+    i = 0
+    for file in filenames:
+        built_cfg = ContextFreeGrammar(file)
+        print(i, ": ", os.path.basename(file))
+        print(built_cfg)
+        i += 1
+        cfg_list.append(built_cfg)
+    return cfg_list
 
 
 def invalid_command():
