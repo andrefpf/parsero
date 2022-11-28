@@ -1,8 +1,8 @@
-from parsero.contextfree_grammar import ContextFreeGrammar
+from parsero.cfg.contextfree_grammar import ContextFreeGrammar
 
 
 def test_import():
-    path_to_file = "tests/examples/simple_cfg.cfg"
+    path_to_file = "examples/simple_cfg.cfg"
     dict_to_compare = dict()
 
     dict_to_compare["S"] = [["A", "B"], ["id"]]
@@ -26,7 +26,7 @@ def test_import():
 
 
 def test_to_str():
-    path_to_file = "tests/examples/simple_cfg.cfg"
+    path_to_file = "examples/simple_cfg.cfg"
 
     str_to_compare = "S\t → A B | id\n"
     str_to_compare += "A\t → & | a A\n"
@@ -34,13 +34,13 @@ def test_to_str():
     str_to_compare += "C\t → c | c C\n"
     str_to_compare += "D\t → d D"
 
-    cfg = ContextFreeGrammar("tests/examples/simple_cfg.cfg")
+    cfg = ContextFreeGrammar("examples/simple_cfg.cfg")
 
     assert str(cfg) == str_to_compare
 
 
 def test_refactor_epsilon_free():
-    path_to_file = "tests/examples/nullable_initial.cfg"
+    path_to_file = "examples/nullable_initial.cfg"
     dict_to_compare = dict()
 
     dict_to_compare["S1"] = [["&"], ["S"]]
@@ -73,7 +73,7 @@ def test_refactor_epsilon_free():
 
 
 def test_refactor_unitary_productions():
-    path_to_file = "tests/examples/simple_cfg.cfg"
+    path_to_file = "examples/simple_cfg.cfg"
     dict_to_compare = dict()
 
     dict_to_compare["S"] = [["A", "B"], ["id"]]
@@ -98,7 +98,7 @@ def test_refactor_unitary_productions():
 
 
 def test_remove_unreachable_symbols():
-    path_to_file = "tests/examples/simple_cfg.cfg"
+    path_to_file = "examples/simple_cfg.cfg"
     dict_to_compare = dict()
 
     dict_to_compare["S"] = [["A", "B"], ["id"]]
@@ -122,7 +122,7 @@ def test_remove_unreachable_symbols():
 
 
 def test_remove_unproductive_symbols():
-    path_to_file = "tests/examples/simple_cfg.cfg"
+    path_to_file = "examples/simple_cfg.cfg"
     dict_to_compare = dict()
 
     dict_to_compare["S"] = [["A", "B"], ["id"]]
@@ -146,7 +146,7 @@ def test_remove_unproductive_symbols():
 
 
 def test_remove_useless_symbols():
-    path_to_file = "tests/examples/simple_cfg.cfg"
+    path_to_file = "examples/simple_cfg.cfg"
     dict_to_compare = dict()
 
     dict_to_compare["S"] = [["A", "B"], ["id"]]
@@ -169,7 +169,7 @@ def test_remove_useless_symbols():
 
 
 def test_left_recursion():
-    path_to_file = "tests/examples/left_recursion_one.cfg"
+    path_to_file = "examples/left_recursion_one.cfg"
     dict_to_compare = dict()
 
     dict_to_compare["S"] = [["A", "a"], ["b"]]
@@ -190,7 +190,7 @@ def test_left_recursion():
     for symbol, productions in dict_from_cfg.items():
         assert dict_to_compare[symbol] == productions
 
-    path_to_file = "tests/examples/left_recursion_two.cfg"
+    path_to_file = "examples/left_recursion_two.cfg"
     dict_to_compare = dict()
 
     dict_to_compare["S"] = [["A", "a", "S0"]]
@@ -214,7 +214,7 @@ def test_left_recursion():
 
 
 def test_factoring():
-    path_to_file = "tests/examples/non_deterministic.cfg"
+    path_to_file = "examples/non_deterministic.cfg"
     dict_to_compare = dict()
 
     dict_to_compare["S"] = [["b", "S0"]]

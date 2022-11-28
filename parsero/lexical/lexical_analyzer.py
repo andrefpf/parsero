@@ -1,12 +1,9 @@
-from functools import reduce
-from operator import or_
-
 from parsero import regex
 from parsero.automata import FiniteAutomata, union
-from parsero.errors import LexicalError
-from parsero.symbol_table import SymbolTable
-from parsero.token import Token, TokenList
-from parsero.utils import consume
+from parsero.common.errors import LexicalError
+from parsero.common.utils import consume
+from parsero.lexical.symbol_table import SymbolTable
+from parsero.lexical.token import Token, TokenList
 
 
 class LexicalAnalyzer:

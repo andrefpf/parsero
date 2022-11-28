@@ -2,7 +2,7 @@ from parsero.automata import *
 
 
 def test_finite_automata_read():
-    path_to_file = "tests/examples/even_chars.fa"
+    path_to_file = "examples/even_chars.fa"
 
     transitions = [
         (0, "a", 1),
@@ -28,7 +28,7 @@ def test_finite_automata_read():
 
 
 def test_nd_finite_automata_read():
-    path_to_file = "tests/examples/ends_with_bb.ndfa"
+    path_to_file = "examples/ends_with_bb.ndfa"
 
     transitions = [
         (0, "a", {0}),
@@ -55,7 +55,7 @@ def test_nd_finite_automata_read():
 
 
 def test_nd_finite_automata_epsilon_read():
-    path_to_file = "tests/examples/abc.ndfa"
+    path_to_file = "examples/abc.ndfa"
 
     transitions = [
         (0, "a", {0}),
@@ -82,8 +82,8 @@ def test_nd_finite_automata_epsilon_read():
 
 
 def test_finite_automata_write():
-    path_to_file_read = "tests/examples/even_chars.fa"
-    path_to_file_write = "tests/output/even_chars.fa"
+    path_to_file_read = "examples/even_chars.fa"
+    path_to_file_write = "examples/output/even_chars.fa"
 
     automata = file_to_automata(path_to_file_read)
     automata_to_file(automata, path_to_file_write)
@@ -93,8 +93,8 @@ def test_finite_automata_write():
 
 
 def test_nd_finite_automata_write():
-    path_to_file_read = "tests/examples/ends_with_bb.ndfa"
-    path_to_file_write = "tests/output/ends_with_bb.ndfa"
+    path_to_file_read = "examples/ends_with_bb.ndfa"
+    path_to_file_write = "examples/output/ends_with_bb.ndfa"
 
     automata = file_to_automata(path_to_file_read)
     automata_to_file(automata, path_to_file_write)
@@ -104,8 +104,8 @@ def test_nd_finite_automata_write():
 
 
 def test_nd_finite_automata_epsilon_write():
-    path_to_file_read = "tests/examples/abc.ndfa"
-    path_to_file_write = "tests/output/abc.ndfa"
+    path_to_file_read = "examples/abc.ndfa"
+    path_to_file_write = "examples/output/abc.ndfa"
 
     automata = file_to_automata(path_to_file_read)
     automata_to_file(automata, path_to_file_write)

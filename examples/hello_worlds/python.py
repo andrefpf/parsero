@@ -4,5 +4,3 @@ function()
 
 if a == 2:
     print("IHAAA")
-    if a == 3:
-        print("IMPOSSÍVEL")

@@ -1,8 +1,8 @@
 import copy
 from collections import defaultdict
 
-from parsero.regex.commons import EPSILON
-from parsero.errors import SyntacticError
+from parsero.common.constants import EPSILON
+from parsero.common.errors import SyntacticError
 
 
 class ContextFreeGrammar:

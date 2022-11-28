@@ -1,6 +1,6 @@
-from parsero.contextfree_grammar import ContextFreeGrammar
-from parsero.errors import SyntacticError
-from parsero.token import Token
+from parsero.cfg.contextfree_grammar import ContextFreeGrammar
+from parsero.lexical.token import Token
+from parsero.common.errors import SyntacticError
 
 
 def first(head: str, cfg: ContextFreeGrammar) -> set:

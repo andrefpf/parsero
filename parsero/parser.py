@@ -1,6 +1,6 @@
 from parsero import syntactic
-from parsero.contextfree_grammar import ContextFreeGrammar
-from parsero.errors import LexicalError, SyntacticError
+from parsero.cfg.contextfree_grammar import ContextFreeGrammar
+from parsero.common.errors import SyntacticError
 from parsero.lexical import LexicalAnalyzer
 from parsero.syntactic import ll1_parse
 
