@@ -1,23 +1,10 @@
 from collections import defaultdict, deque
 from itertools import count
 
-from parsero.automata import FiniteAutomata
-from parsero.automata.state import State
-from parsero.errors import SyntacticError
-from parsero.regex.commons import (
-    any_alphanumeric,
-    any_blank,
-    any_digit,
-    any_lower_case,
-    any_symbol,
-    any_upper_case,
-)
-from parsero.regex.regex_tree import (
-    anotate_tree,
-    calculate_followpos,
-    create_regex_tree,
-    get_leafs,
-)
+from parsero.automata import *
+from parsero.common import *
+
+from . import regex_tree
 
 
 def _get_automata_parameters(*, first_tagset, final_leaf_tag, alphabet, followpos, symbol_tags):
@@ -72,11 +59,11 @@ def compiles(expression: str) -> FiniteAutomata:
     Converts a regular expression into equivalent Finite Automata.
     """
     expression = _simplify_regex(expression)
-    tree = create_regex_tree(expression)
+    tree = regex_tree.create_regex_tree(expression)
 
-    tree = anotate_tree(tree)
-    followpos = calculate_followpos(tree)
-    leafs = get_leafs(tree)
+    tree = regex_tree.anotate_tree(tree)
+    followpos = regex_tree.calculate_followpos(tree)
+    leafs = regex_tree.get_leafs(tree)
 
     alphabet = [leaf.char for leaf in leafs]
 

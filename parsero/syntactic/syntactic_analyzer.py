@@ -1,4 +1,4 @@
-from parsero.contextfree_grammar import ContextFreeGrammar
+from parsero.cfg.contextfree_grammar import ContextFreeGrammar
 
 
 def first(head: str, cfg: ContextFreeGrammar) -> set:

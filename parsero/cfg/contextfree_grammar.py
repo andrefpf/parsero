@@ -1,7 +1,7 @@
 import copy
 from collections import defaultdict
 
-from parsero.regex.commons import EPSILON
+from parsero.common.constants import EPSILON
 
 
 class ContextFreeGrammar:

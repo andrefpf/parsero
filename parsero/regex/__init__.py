@@ -1,4 +1,6 @@
-from .compile_regex import compiles, from_file
+from .compile_regex import *
+from .compile_regex import compiles
+from .regex_tree import *
 
 
 def match(expression: str, string: str) -> int:

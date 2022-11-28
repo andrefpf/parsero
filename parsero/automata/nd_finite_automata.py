@@ -1,11 +1,10 @@
-from copy import deepcopy
 from functools import cache
 
 from tabulate import tabulate
 
 from parsero import automata
 from parsero.automata.state import State
-from parsero.regex.commons import EPSILON
+from parsero.common.constants import EPSILON
 
 
 class NDFiniteAutomata:
