@@ -1,4 +1,6 @@
 from parsero.contextfree_grammar import ContextFreeGrammar
+from parsero.errors import SyntacticError
+from parsero.token import Token
 
 
 def first(head: str, cfg: ContextFreeGrammar) -> set:
@@ -78,8 +80,11 @@ def create_table(cfg: ContextFreeGrammar) -> dict:
 
 
 def ll1_parse(word: list, table: dict, cfg: ContextFreeGrammar) -> bool:
-    stack = ["$", cfg.initial_symbol]
-    for symbol in word:
+    s = Token("$", "$")
+    stack = [s, cfg.initial_symbol]
+
+    for token in word:
+        symbol = token.name
         ready_for_next = False
         while not ready_for_next:
             current = stack.pop()
@@ -89,7 +94,10 @@ def ll1_parse(word: list, table: dict, cfg: ContextFreeGrammar) -> bool:
                 continue
 
             if not (current, symbol) in table:
-                return False
+                msg = f"Failed to parse token <{token.name}>"
+                start = token.index
+                end = start + len(token.attribute)
+                raise SyntacticError.from_data("", msg, index=start, index_end=end)
 
             next_symbols = table[(current, symbol)]
             for next_symbol in reversed(next_symbols):

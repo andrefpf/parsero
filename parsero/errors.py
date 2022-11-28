@@ -17,7 +17,7 @@ class FileError(Exception):
     it is common for text editors to index like this as well.
     """
 
-    def __init__(self, filename, msg="", *, index=0):
+    def __init__(self, filename, msg="", *, index=0, index_end=0):
         if filename:
             with open(self.filename, "r") as file:
                 self.data = file.read()
@@ -26,13 +26,15 @@ class FileError(Exception):
 
         self.filename = filename
         self.msg = msg
-        self.line, self.col = self._find_line_col(index)
+        self.line_col = self._find_line_col(index)
+        self.line_col_end = self._find_line_col(index_end)
 
     @classmethod
-    def from_data(cls, data, msg="", *, index=0):
+    def from_data(cls, data, msg="", *, index=0, index_end=0):
         error = cls(filename="", msg=msg)
         error.data = data
-        error.line, error.col = error._find_line_col(index)
+        error.line_col = error._find_line_col(index)
+        error.line_col_end = error._find_line_col(index_end)
         return error
 
     def _find_line_col(self, index):
@@ -42,21 +44,25 @@ class FileError(Exception):
         return line, col
 
     def __str__(self):
-
         msg = 'File "{filename}", line {line}\n'
         msg += "{code}\n"
         msg += "{pointer}\n"
         msg += "{class_name}: {msg}"
 
-        spaces = " " * (self.col - 1)
-        pointer = spaces + "^"
+        line, col = self.line_col
+        _, col_end = self.line_col_end
+        if col_end < col:
+            col_end = col + 1
+
+        spaces = " " * (col - 1)
+        pointer = spaces + "^" * (col_end - col)
 
         lines = self.data.splitlines()
         return msg.format(
             msg=self.msg,
             filename=self.filename,
-            line=self.line,
-            code=lines[self.line - 1].strip("\n"),
+            line=line,
+            code=lines[line - 1].strip("\n"),
             class_name=self.__class__.__name__,
             pointer=pointer,
         )
