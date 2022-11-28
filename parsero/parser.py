@@ -9,7 +9,13 @@ class Parser:
     def __init__(self, regex_path, grammar_path):
         self.lexical = LexicalAnalyzer(regex_path)
         self.cfg = ContextFreeGrammar(grammar_path)
-        self.table: dict = syntactic.create_table(self.cfg)
+        self.adapt_grammar()
+
+        try:
+            self.table: dict = syntactic.create_table(self.cfg)
+        except RecursionError as error:
+            msg = "Não foi possível remover a recursão à esquerda desta gramática."
+            raise SyntacticError(grammar_path, msg)
 
     def parse(self, path: str):
         with open(path) as file:
@@ -39,3 +45,6 @@ class Parser:
             return False
         else:
             return True
+    
+    def adapt_grammar(self):
+        pass
