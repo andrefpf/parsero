@@ -2,6 +2,7 @@ import copy
 from collections import defaultdict
 
 from parsero.regex.commons import EPSILON
+from parsero.errors import SyntacticError
 
 
 class ContextFreeGrammar:
@@ -10,6 +11,7 @@ class ContextFreeGrammar:
         non_terminal_symbols = set()
         productions = list()
         initial_symbol = ""
+        self.path_to_file = path_to_file
 
         with open(path_to_file, "r") as file:
             while line := file.readline():
@@ -192,7 +194,7 @@ class ContextFreeGrammar:
 
                 i += 1
 
-        if self.initial_symbol in nullable and self.appears_on_production(self.initial_symbol):
+        if self.initial_symbol in nullable_symbol and self.appears_on_production(self.initial_symbol):
             old_initial_symbol = self.initial_symbol
             original_symbol = self.initial_symbol
 
@@ -208,7 +210,7 @@ class ContextFreeGrammar:
             self.original_symbol[self.initial_symbol] = original_symbol
 
             new_production_rules[self.initial_symbol] = [["{}".format(old_initial_symbol)], ["&"]]
-        else:
+        elif self.initial_symbol in nullable_symbol:
             new_production_rules[self.initial_symbol].append(["&"])
 
         self.production_rules = new_production_rules
@@ -318,12 +320,18 @@ class ContextFreeGrammar:
         self.__sort_productions()
 
     def left_factor(self):
-        while True:
+        MAX_TRIES = 10
+        for i in range(MAX_TRIES):
             old_productions = copy.deepcopy(self.production_rules)
             self.__indirect_factoring()
             self.__direct_factoring()
             if old_productions == self.production_rules:
                 break
+        else:
+            # Estudantes de computação refutam Turing 
+            # e resolvem o problema da parada
+            msg = "A gramática atingiu a quantidade máxima de iterações durante a fatoração."
+            raise SyntacticError(self.path_to_file, msg)
 
         self.__sort_productions()
 

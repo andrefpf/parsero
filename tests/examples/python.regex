@@ -52,11 +52,11 @@ comma: ,
 colon: :
 identation: (    )
 open_bracket: \(
-closing_bracket: \)
+close_bracket: \)
 open_square_bracket: \[
-closing_square_bracket: \]
+close_square_bracket: \]
 open_curly_bracket: \{
-closing_curly_bracket: \}
+close_curly_bracket: \}
 
 decorator: @(letter|_)(letter|digit|_)*
 string: (f?"(inside_string|')*")|(f?'(inside_string|")*')

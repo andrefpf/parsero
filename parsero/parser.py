@@ -6,10 +6,12 @@ from parsero.syntactic import ll1_parse
 
 
 class Parser:
-    def __init__(self, regex_path, grammar_path):
+    def __init__(self, regex_path, grammar_path, adapt=True):
         self.lexical = LexicalAnalyzer(regex_path)
         self.cfg = ContextFreeGrammar(grammar_path)
-        self.adapt_grammar()
+
+        if adapt:
+            self.adapt_grammar()
 
         try:
             self.table: dict = syntactic.create_table(self.cfg)
@@ -30,6 +32,9 @@ class Parser:
     def parse_string(self, string):
         tokens = self.lexical.tokenize_string(string)
 
+        print("TOKENS:")
+        print(tokens)
+
         try:
             tree = ll1_parse(tokens, self.table, self.cfg)
         except SyntacticError as error:
@@ -47,4 +52,8 @@ class Parser:
             return True
     
     def adapt_grammar(self):
-        pass
+        self.cfg.remove_useless_symbols()
+        self.cfg.refactor_epsilon_free()
+        self.cfg.refactor_unitary_productions()
+        self.cfg.refactor_left_recursion()
+        self.cfg.left_factor()

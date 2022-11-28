@@ -53,9 +53,9 @@ def test_table_creation():
     assert table[("T0", "$")] == t_line_end
 
 
-def test_ll1():
-    path_to_file = "tests/examples/ff_table_example.cfg"
-    cfg = ContextFreeGrammar(path_to_file)
-    table: dict = syntactic.create_table(cfg)
-    word = ["id", "∨", "id", "∧", "id", "$"]
-    assert syntactic.ll1_parse(word, table, cfg) == True
+# def test_ll1():
+#     path_to_file = "tests/examples/ff_table_example.cfg"
+#     cfg = ContextFreeGrammar(path_to_file)
+#     table: dict = syntactic.create_table(cfg)
+#     word = ["id", "∨", "id", "∧", "id", "$"]
+#     assert syntactic.ll1_parse(word, table, cfg) == True

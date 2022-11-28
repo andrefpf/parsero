@@ -19,7 +19,7 @@ class FileError(Exception):
 
     def __init__(self, filename, msg="", *, index=0, index_end=0):
         if filename:
-            with open(self.filename, "r") as file:
+            with open(filename, "r") as file:
                 self.data = file.read()
         else:
             self.data = ""
