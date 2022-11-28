@@ -82,7 +82,9 @@ def ll1_parse(word: list, table: dict, cfg: ContextFreeGrammar) -> bool:
     for symbol in word:
         ready_for_next = False
         while not ready_for_next:
+            print("Pilha: ", stack)
             current = stack.pop()
+            print("Desempilhado: ", current, " Simbolo: ", symbol)
 
             if symbol == current:
                 ready_for_next = True
@@ -95,9 +97,4 @@ def ll1_parse(word: list, table: dict, cfg: ContextFreeGrammar) -> bool:
             for next_symbol in reversed(next_symbols):
                 if next_symbol != "&":
                     stack.append(next_symbol)
-
-            if stack[-1] == symbol:
-                stack.pop()
-                ready_for_next = True
-
     return True
