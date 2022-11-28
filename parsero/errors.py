@@ -1,15 +1,3 @@
-class bcolors:
-    HEADER = "\033[95m"
-    OKBLUE = "\033[94m"
-    OKBLUE = "\033[96m"
-    OKGREEN = "\033[92m"
-    WARNING = "\033[93m"
-    FAIL = "\033[91m"
-    ENDC = "\033[0m"
-    BOLD = "\033[1m"
-    UNDERLINE = "\033[4m"
-
-
 class FileError(Exception):
     """
     A class to show errors in parts of a file.
@@ -26,15 +14,13 @@ class FileError(Exception):
 
         self.filename = filename
         self.msg = msg
-        self.line_col = self._find_line_col(index)
-        self.line_col_end = self._find_line_col(index_end)
+        self.index = index
+        self.index_end = index_end
 
     @classmethod
     def from_data(cls, data, msg="", *, index=0, index_end=0):
-        error = cls(filename="", msg=msg)
+        error = cls(filename="", msg=msg, index=index, index_end=index_end)
         error.data = data
-        error.line_col = error._find_line_col(index)
-        error.line_col_end = error._find_line_col(index_end)
         return error
 
     def _find_line_col(self, index):
@@ -49,9 +35,10 @@ class FileError(Exception):
         msg += "{pointer}\n"
         msg += "{class_name}: {msg}"
 
-        line, col = self.line_col
-        _, col_end = self.line_col_end
-        if col_end < col:
+        line, col = self._find_line_col(self.index)
+        _, col_end = self._find_line_col(self.index_end)
+
+        if col_end <= col:
             col_end = col + 1
 
         spaces = " " * (col - 1)

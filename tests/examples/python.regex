@@ -50,7 +50,7 @@ atr: =
 dot: \.
 comma: ,
 colon: :
-identation: (    )
+indentation: (    )
 open_bracket: \(
 close_bracket: \)
 open_square_bracket: \[
