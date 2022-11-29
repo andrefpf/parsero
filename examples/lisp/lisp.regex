@@ -1,0 +1,12 @@
+letter: [a-zA-Z]
+id: letter(letter|digit|_)*
+
+digit: [0-9]
+sign: (\+|-)
+decimal: (\.digit*)
+scientific_notation: (e(\+|-)?digit+)
+number: (sign?)(digit+)(decimal?)(scientific_notation?)
+
+open_bracket: \(
+close_bracket: \)
+dot: \.

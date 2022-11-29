@@ -1,10 +1,5 @@
-while (test) {
-    for (i = 0; i < 10; i++) {
-        printf("%d", i);
+int main () {
+    if (a) {
+        b;
     }
-    printf("print de fora");
 }
-
-// if (a == b) {
-//     printf("is equal");
-// }

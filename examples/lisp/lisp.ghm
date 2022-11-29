@@ -1,0 +1,5 @@
+s_expression -> atom | list
+atoms -> atom atoms | &
+atom -> id | number | nil
+list -> open_bracket atoms close_bracket
+nil -> open_bracket close_bracket

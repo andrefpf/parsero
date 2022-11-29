@@ -320,9 +320,13 @@ class ContextFreeGrammar:
         self.__sort_productions()
 
     def left_factor(self):
-        MAX_TRIES = 8
+        MAX_TRIES = 5
+
+        self.__direct_factoring()
+
         for i in range(MAX_TRIES):
-            print(i)
+            print(self.__str__())
+            print("------")
             old_productions = copy.deepcopy(self.production_rules)
             self.__indirect_factoring()
             self.__direct_factoring()
@@ -392,6 +396,9 @@ class ContextFreeGrammar:
                     if start == EPSILON:
                         updated_body.append([EPSILON])
                     else:
+                        if (rest_of_body[0] == [EPSILON]):
+                            rest_of_body[0].pop()
+
                         rest_of_body[0].insert(0, start)
                         updated_body.append(rest_of_body[0])
             new_production_rules[head] = updated_body

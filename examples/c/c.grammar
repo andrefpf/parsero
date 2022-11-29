@@ -1,25 +1,6 @@
-START_SYMBOL -> & | STATEMENTS
-STATEMENTS -> STATEMENTS STATEMENT | STATEMENT
-STATEMENT -> SIMPLE_STMT semicolon | COMPOUND_STMT | COMMENTS
+MAIN -> int main open_bracket close_bracket open_curly_bracket PROG AUX_PROG close_curly_bracket | int main open_bracket close_bracket open_curly_bracket PROG close_curly_bracket
+AUX_PROG -> PROG AUX_PROG | PROG
+PROG -> IF_STAT | id semicolon
+IF_STAT -> if open_bracket id close_bracket open_curly_bracket PROG close_curly_bracket ELSE_STAT | if open_bracket id close_bracket open_curly_bracket PROG close_curly_bracket
+ELSE_STAT -> else open_curly_bracket PROG close_curly_bracket
 
-COMMENTS -> line_comment | multiline_comment
-SIMPLE_STMT -> ASSIGNMENT | EXPRESSION
-COMPOUND_STMT -> IF_STMT | WHILE_STMT | FOR_STMT
-
-ASSIGNMENT -> id atr EXPRESSION
-EXPRESSION -> EXPRESSION operator VAL | EXPRESSION comparator VAL | EXPRESSION increment | VAL
-VAL -> id | number | string | ENCLOSED_EXPRESSION | FUNCTION_CALL | DATA_INDEXING
-
-FUNCTION_CALL -> id open_bracket COMMA_VALUES close_bracket
-DATA_INDEXING -> id open_square_bracket EXPRESSION close_square_bracket
-ENCLOSED_EXPRESSION -> open_bracket EXPRESSION close_bracket
-SCOPE -> open_curly_bracket close_curly_bracket | open_curly_bracket STATEMENTS close_curly_bracket
-
-COMMA_VALUES -> COMMA_VALUES_MULT | &
-COMMA_VALUES_MULT -> COMMA_VALUES_MULT comma EXPRESSION | EXPRESSION
-
-WHILE_STMT -> while ENCLOSED_EXPRESSION SCOPE
-FOR_STMT -> for open_bracket SIMPLE_STMT semicolon SIMPLE_STMT semicolon SIMPLE_STMT close_bracket SCOPE
-
-# IF_STMT -> if ENCLOSED_EXPRESSION SCOPE ELSE_STMT
-# ELSE_STMT -> else SCOPE

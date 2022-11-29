@@ -7,6 +7,7 @@ else:else
 while:while
 for:for
 int:int
+main:main
 float:float
 return:return
 

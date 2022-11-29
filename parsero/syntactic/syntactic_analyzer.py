@@ -80,8 +80,7 @@ def create_table(cfg: ContextFreeGrammar) -> dict:
 
 
 def ll1_parse(word: list, table: dict, cfg: ContextFreeGrammar) -> bool:
-    s = Token("$", "$")
-    stack = [s, cfg.initial_symbol]
+    stack = ["$", cfg.initial_symbol]
 
     for token in word:
         symbol = token.name

@@ -1,4 +1,5 @@
 from parsero import syntactic
+from parsero.lexical import Token
 from parsero.cfg.contextfree_grammar import ContextFreeGrammar
 from parsero.common.errors import SyntacticError
 from parsero.lexical import LexicalAnalyzer
@@ -31,7 +32,7 @@ class Parser:
     
     def parse_string(self, string):
         tokens = self.lexical.tokenize_string(string)
-
+        tokens.append(Token("$", "$"))
         print("TOKENS:")
         print(tokens)
 
