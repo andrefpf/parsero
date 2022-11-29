@@ -2,6 +2,8 @@
 
 # Se o nome é igual a definição
 # então essa é uma palavra reservada
+if:if
+else:else
 for:for
 int:int
 float:float

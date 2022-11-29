@@ -51,10 +51,9 @@ class Parser:
         else:
             return True
     
-    def adapt_grammar(self):
+    def adapt_grammar(self):        
         self.cfg.refactor_epsilon_free()
-        self.cfg.refactor_unitary_productions()
-        self.cfg.remove_useless_symbols()
         self.cfg.refactor_left_recursion()
         self.cfg.left_factor()
+        self.cfg.refactor_unitary_productions()
         self.cfg.remove_useless_symbols()

@@ -320,8 +320,9 @@ class ContextFreeGrammar:
         self.__sort_productions()
 
     def left_factor(self):
-        MAX_TRIES = 10
+        MAX_TRIES = 8
         for i in range(MAX_TRIES):
+            print(i)
             old_productions = copy.deepcopy(self.production_rules)
             self.__indirect_factoring()
             self.__direct_factoring()
