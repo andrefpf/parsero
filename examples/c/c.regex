@@ -4,6 +4,7 @@
 # então essa é uma palavra reservada
 if:if
 else:else
+while:while
 for:for
 int:int
 float:float
@@ -16,7 +17,8 @@ return:return
 # para elas
 digit: [0-9]
 letter: [a-zA-Z]
-inside_string: (\w|\d|_| |!|,|\*)
+symbols: (_| |!|\=|\&|@|#|$|%|\&|\||\+|-|\&|\*|/|\\|\"|\.|,|\[|\]|\(|\)|\{|\}|\<|\>|:|;|\?|\^|\Σ|\→)
+inside_string: (\w|\d|symbols)
 inside_comment: (inside_string|")
 inside_multiline_comment: (inside_comment|\s)
 sign: (\+|-)
@@ -25,7 +27,8 @@ scientific_notation: (e(\+|-)?digit+)
 
 comparator: (==|!=|\<|\>|\<=|\>=)
 operator: (\+|-|\*|/|\||\<\<|\>\>)
-atr: =
+increment: (\+\+|\-\-)
+atr: (=|\+=|\-=|\*=)
 dot: \.
 comma: ,
 colon: :
