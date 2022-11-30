@@ -1,6 +1,34 @@
-MAIN -> int main open_bracket close_bracket open_curly_bracket PROG AUX_PROG close_curly_bracket | int main open_bracket close_bracket open_curly_bracket PROG close_curly_bracket
-AUX_PROG -> PROG AUX_PROG | PROG
-PROG -> IF_STAT | id semicolon
-IF_STAT -> if open_bracket id close_bracket open_curly_bracket PROG close_curly_bracket ELSE_STAT | if open_bracket id close_bracket open_curly_bracket PROG close_curly_bracket
-ELSE_STAT -> else open_curly_bracket PROG close_curly_bracket
+# Memory Safe C Grammar
 
+PRIMARY_STATEMENTS -> PRIMARY_STATEMENT PRIMARY_STATEMENTS | PRIMARY_STATEMENT
+PRIMARY_STATEMENT -> FUNCTION_DEF | COMMENT | VAR_DEF semicolon | STRUCT
+
+STRUCT -> struct id SCOPE semicolon
+
+FUNCTION_DEF -> TYPE id open_bracket FUNC_DEF_ARGS close_bracket SCOPE | TYPE id open_bracket close_bracket SCOPE
+FUNC_DEF_ARGS -> TYPE id comma FUNC_DEF_ARGS | TYPE id
+SCOPE -> open_curly_bracket STATEMENTS close_curly_bracket | open_curly_bracket close_curly_bracket
+
+FUNCTION_CALL -> id open_bracket FUNC_CALL_ARGS close_bracket | id open_bracket close_bracket
+FUNC_CALL_ARGS -> EXPRESSION comma FUNC_CALL_ARGS | EXPRESSION
+
+STATEMENTS -> STATEMENT STATEMENTS | STATEMENT
+STATEMENT -> SIMPLE_STMT semicolon | COMPOUND_STMT | COMMENT
+SIMPLE_STMT -> ASSIGNMENT | EXPRESSION | VAR_DEF | FUNCTION_CALL | RETURN_STMT
+COMPOUND_STMT -> WHILE_STMT | FOR_STMT | IF_STMT
+
+ASSIGNMENT -> id atr EXPRESSION
+EXPRESSION -> VAL operator EXPRESSION | VAL comparator EXPRESSION | VAL increment | operator EXPRESSION | VAL
+ENCLOSED_EXP -> open_bracket EXPRESSION close_bracket
+VAR_DEF -> TYPE id | TYPE ASSIGNMENT
+RETURN_STMT -> return EXPRESSION
+
+COMMENT -> line_comment | multiline_comment
+TYPE -> int | long | char | short | float | id | bool
+VAL -> id | number | char | string | ENCLOSED_EXP
+
+OPTIONAL_STMT -> SIMPLE_STMT | &
+WHILE_STMT -> while ENCLOSED_EXP SCOPE
+FOR_STMT -> for open_bracket OPTIONAL_STMT semicolon OPTIONAL_STMT semicolon OPTIONAL_STMT close_bracket SCOPE
+IF_STMT -> IF_SIMPLE else SCOPE | IF_SIMPLE else IF_STMT | IF_SIMPLE
+IF_SIMPLE -> if ENCLOSED_EXP SCOPE
