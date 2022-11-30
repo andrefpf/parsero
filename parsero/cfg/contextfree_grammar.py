@@ -243,13 +243,10 @@ class ContextFreeGrammar:
         self.__sort_productions()
 
     def refactor_left_recursion(self):
-        symbols_to_check = list()
-        symbols_to_check.append(self.initial_symbol)
-
-        [
-            symbols_to_check.append(symbol)
-            for symbol in list(self.non_terminal_symbols - set(self.initial_symbol))
-        ]
+        symbols_to_check = list(self.non_terminal_symbols)
+        symbols_to_check.sort()
+        symbols_to_check.remove(self.initial_symbol)
+        symbols_to_check.insert(0, self.initial_symbol)
 
         for i in range(len(symbols_to_check)):
             head_symbol = symbols_to_check[i]
@@ -325,8 +322,8 @@ class ContextFreeGrammar:
         self.__direct_factoring()
 
         for i in range(MAX_TRIES):
-            print(self.__str__())
-            print("------")
+            # print(self.__str__())
+            # print("------")
             old_productions = copy.deepcopy(self.production_rules)
             self.__indirect_factoring()
             self.__direct_factoring()

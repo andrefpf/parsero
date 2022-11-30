@@ -1,8 +1,7 @@
 from parsero import syntactic
-from parsero.lexical import Token
 from parsero.cfg.contextfree_grammar import ContextFreeGrammar
 from parsero.common.errors import SyntacticError
-from parsero.lexical import LexicalAnalyzer
+from parsero.lexical import LexicalAnalyzer, Token
 from parsero.syntactic import ll1_parse
 
 
@@ -33,8 +32,8 @@ class Parser:
     def parse_string(self, string):
         tokens = self.lexical.tokenize_string(string)
         tokens.append(Token("$", "$"))
-        print("TOKENS:")
-        print(tokens)
+        # print("TOKENS:")
+        # print(tokens)
 
         try:
             tree = ll1_parse(tokens, self.table, self.cfg)
@@ -53,8 +52,7 @@ class Parser:
             return True
     
     def adapt_grammar(self):        
-        self.cfg.refactor_epsilon_free()
-        self.cfg.refactor_left_recursion()
         self.cfg.left_factor()
+        self.cfg.refactor_left_recursion()
         self.cfg.refactor_unitary_productions()
         self.cfg.remove_useless_symbols()
