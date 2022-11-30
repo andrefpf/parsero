@@ -19,21 +19,91 @@ def select_analyser():
     print("Selecione o analisador a ser usado:")
     print("(0) Automatos Finitos")
     print("(1) Expressões Regulares")
-
-    print("(2) Analisador Léxico")
-    print("(3) Analisador Sintático")
+    print("(2) Gramáticas Livres de Contexto")
+    print("(3) Analisador Léxico")
+    print("(4) Analisador Sintático")
     selected = number_input()
     match selected:
         case "0":
             start_automata()
         case "1":
-            syntactic()
+            pass
         case "2":
-            lexical()
+            cfg_cli()
         case "3":
+            lexical()
+        case "4":
             syntactic()
         case _:
             invalid_command()
+
+
+def cfg_cli():
+    files = select_files()
+    cfg_list = load_cfgs(files)
+    if cfg_list:
+        cfg_loop(cfg_list)
+    else:
+        pass
+
+
+def cfg_loop(cfg_list):
+    while True:
+        show_glc_list(cfg_list)
+        print("Selecione uma operação:")
+        print("(0) Exibir gramática")
+        print("(1) Remover &-transições")
+        print("(2) Remover produções unitárias")
+        print("(3) Remover símbolos inalcançáveis")
+        print("(4) Remover símbolos não produtivos")
+        print("(5) Remover símbolos inúteis")
+        print("(6) Remover recursão à esquerda")
+        print("(7) Fatorar gramática")
+        print("(8) Voltar para o menu")
+
+        selected = number_input()
+        match selected:
+            case "0":
+                show_glc(cfg_list)
+            case "1":
+                show_glc_list(cfg_list)
+                selected = select_single_cfg(cfg_list)
+                cfg_list[int(selected)].refactor_epsilon_free()
+                print(cfg_list[int(selected)])
+            case "2":
+                show_glc_list(cfg_list)
+                selected = select_single_cfg(cfg_list)
+                cfg_list[int(selected)].refactor_unitary_productions()
+                print(cfg_list[int(selected)])
+            case "3":
+                show_glc_list(cfg_list)
+                selected = select_single_cfg(cfg_list)
+                cfg_list[int(selected)].remove_unreachable_symbols()
+                print(cfg_list[int(selected)])
+            case "4":
+                show_glc_list(cfg_list)
+                selected = select_single_cfg(cfg_list)
+                cfg_list[int(selected)].remove_unproductive_symbols()
+                print(cfg_list[int(selected)])
+            case "5":
+                show_glc_list(cfg_list)
+                selected = select_single_cfg(cfg_list)
+                cfg_list[int(selected)].remove_useless_symbols()
+                print(cfg_list[int(selected)])
+            case "6":
+                show_glc_list(cfg_list)
+                selected = select_single_cfg(cfg_list)
+                cfg_list[int(selected)].refactor_left_recursion()
+                print(cfg_list[int(selected)])
+            case "7":
+                show_glc_list(cfg_list)
+                selected = select_single_cfg(cfg_list)
+                cfg_list[int(selected)].left_factor()
+                print(cfg_list[int(selected)])
+            case "8":
+                break
+            case _:
+                invalid_command()
 
 
 def start_automata():
@@ -72,7 +142,7 @@ def automata_loop(built):
 
 def save_automata(built: list):
     if len(built) > 1:
-        pos = select_single_automata()
+        pos = select_single_automata(built)
     else:
         pos = 0
     filename = input("Forneça o nome do arquivo. Ex: pasta/nome.fa: ")
@@ -95,8 +165,8 @@ def unite(built: list):
 
 
 def unite_two(built: list):
-    pos1 = select_single_automata()
-    pos2 = select_single_automata()
+    pos1 = select_single_automata(built)
+    pos2 = select_single_automata(built)
     if pos1 > pos2:  # avoids index change between operations
         automata1 = built[pos1].pop()
         automata2 = built[pos2].pop()
@@ -170,12 +240,28 @@ def boolean_select() -> bool:
     return selected.lower() == "s" or selected.lower() == "y"
 
 
-def select_single_automata() -> int:
+def select_single_automata(built) -> int:
+    if len(built) == 1:
+        return 0
+
     print("Selecione o automato para fazer uma operação:")
     while True:
         selected = number_input()
         print(selected)
         print("Você deseja selecionar este automato?")
+        if boolean_select():
+            return int(selected)
+
+
+def select_single_cfg(built) -> int:
+    if len(built) == 1:
+        return 0
+
+    print("Selecione a gramática para fazer uma operação:")
+    while True:
+        selected = number_input()
+        print(selected)
+        print("Você deseja selecionar esta gramática?")
         if boolean_select():
             return int(selected)
 
@@ -213,7 +299,7 @@ def build_automata(filenames):
 
 def determinize_automata(built: list) -> list:
     if len(built) > 1:
-        pos = select_single_automata()
+        pos = select_single_automata(built)
     else:
         pos = 0
     built[pos] = built[pos].determinize()
