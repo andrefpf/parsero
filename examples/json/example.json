@@ -1,0 +1,6 @@
+{
+    "numbers" : 123,
+    "strings" : "um dois tres",
+    "list" : [1,2,3],
+    "dict" : {"um":1, "dois":2, "tres":3}
+}

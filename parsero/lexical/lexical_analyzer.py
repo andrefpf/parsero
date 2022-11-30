@@ -111,7 +111,7 @@ class LexicalAnalyzer:
             # languages like python need tokens for identation
             # so we cannot ignore spaces before checking
             # the regular definitions
-            if char in " \n":
+            if char in " \n\t":
                 continue
 
             # it should stop before
