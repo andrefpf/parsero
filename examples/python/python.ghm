@@ -1,0 +1,29 @@
+STATEMENTS -> STATEMENT STATEMENTS | STATEMENT
+STATEMENT -> SIMPLE_STMT | COMPOUND_STMT | COMMENT
+
+SIMPLE_STMT -> ASSIGNMENT | EXPRESSION | IMPORT_STMT | continue
+COMPOUND_STMT -> FUNCTION_DEF | WHILE_STMT | FOR_STMT | IF_STMT
+COMMENT -> line_comment | multiline_comment
+
+IMPORT_STMT -> from OBJ_ACCESS import id 
+ASSIGNMENT -> id atr EXPRESSION
+EXPRESSION -> VAL operator EXPRESSION | VAL comparator EXPRESSION | not EXPRESSION | VAL
+VAL -> id | number | string | True | False | LIST | TUPLE | FUNCTION_CALL | OBJ_ACCESS
+
+OBJ_ACCESS -> id dot OBJ_ACCESS | id
+
+FOR_STMT -> for id in EXPRESSION colon SCOPE
+WHILE_STMT -> while EXPRESSION colon SCOPE
+IF_STMT -> IF_SIMPLE else colon SCOPE | IF_SIMPLE ELIF_STMT | IF_SIMPLE
+ELIF_STMT -> ELIF_SIMPLE else colon SCOPE | ELIF_SIMPLE ELIF_STMT | ELIF_SIMPLE
+ELIF_SIMPLE -> elif EXPRESSION colon SCOPE
+IF_SIMPLE -> if EXPRESSION colon SCOPE
+
+FUNCTION_DEF -> def id TUPLE colon SCOPE
+FUNCTION_CALL -> id TUPLE
+
+SCOPE -> indent STATEMENTS dedent | indent dedent
+LIST -> open_square_bracket COMMA_SEPARATED close_square_bracket | open_square_bracket close_square_bracket
+TUPLE -> open_bracket COMMA_SEPARATED close_bracket | open_bracket close_bracket
+COMMA_SEPARATED -> VAL comma COMMA_SEPARATED | VAL
+

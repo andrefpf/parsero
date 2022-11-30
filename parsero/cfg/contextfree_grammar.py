@@ -317,7 +317,7 @@ class ContextFreeGrammar:
         self.__sort_productions()
 
     def left_factor(self):
-        MAX_TRIES = 5
+        MAX_TRIES = 6
 
         self.__direct_factoring()
 

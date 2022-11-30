@@ -34,8 +34,8 @@ class Parser:
 
         tokens = self.lexical.tokenize_string(string)
         tokens.append(Token("$", "$"))
-        # print("TOKENS:")
-        # print(tokens)
+        print("TOKENS:")
+        print(tokens)
 
         try:
             tree = ll1_parse(tokens, self.table, self.cfg)

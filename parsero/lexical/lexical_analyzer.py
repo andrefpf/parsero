@@ -96,7 +96,7 @@ class LexicalAnalyzer:
 
             special_word, _ = self.special_machine.match(remaining)
             if special_word:
-                consume(len(special_word), iterator)
+                consume(len(special_word)-1, iterator)
                 yield Token(special_word, special_word, i)
                 continue
 
