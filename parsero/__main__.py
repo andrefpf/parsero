@@ -28,7 +28,18 @@ def select_analyser():
         case "0":
             start_automata()
         case "1":
-            pass
+            while True:
+                regex_exp = input("Forneça a expressão regular: ")
+                while True:
+                    word = input("Forneça a palavra: ")
+                    automata = regex.compiles(regex_exp)
+                    print(automata.evaluate(word))
+                    print("Continuar com a mesma expressão regular? s/n")
+                    if not boolean_select():
+                        break
+                print("Escrever outra expressão regular? s/n")
+                if not boolean_select():
+                    break
         case "2":
             cfg_cli()
         case "3":
@@ -274,10 +285,6 @@ def automata_file_select():
         return built
     else:
         return None
-
-
-def regex():
-    pass
 
 
 def boolean_select() -> bool:
