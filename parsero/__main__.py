@@ -8,6 +8,7 @@ import parsero
 from parsero import *
 from parsero.automata import *
 from parsero.cfg import ContextFreeGrammar
+from parsero.lexical import LexicalAnalyzer
 from parsero.syntactic import create_table, ll1_parse
 
 
@@ -31,11 +32,45 @@ def select_analyser():
         case "2":
             cfg_cli()
         case "3":
-            lexical()
+            lexical_cli()
         case "4":
             syntactic()
         case _:
             invalid_command()
+
+
+def lexical_cli():
+    print("Forneça as expressões regulares")
+    files = select_files()
+    lexical_list = load_lexical(files)
+    if lexical_list:
+        lexical_loop(lexical_list)
+    else:
+        pass
+
+
+def lexical_loop(lexical_list):
+    while True:
+        show_regex_list(lexical_list)
+        print("Selecione uma operação:")
+        print("(0) Exibir expressão regular")
+        print("(1) Parsear")
+        print("(2) Voltar para o menu")
+
+        selected = number_input()
+        match selected:
+            case "0":
+                pass
+            case "1":
+                selected = select_single_regex(lexical_list)
+                print("Forneça o arquivo a ser analisado")
+                files = select_files()
+                for file in files:
+                    print(lexical_list[selected].analyze(file))
+            case "2":
+                break
+            case _:
+                invalid_command()
 
 
 def cfg_cli():
@@ -222,6 +257,16 @@ def show_glc_list(built: list):
             print("Gramáticas Livres de Contexto carregadas [0, ..., {}]".format(len(built) - 1))
 
 
+def show_regex_list(built: list):
+    match len(built):
+        case "0":
+            file_not_valid()
+        case "1":
+            print("Expressão regular carregada [0]")
+        case _:
+            print("Expressões regulares carregadas [0, ..., {}]".format(len(built) - 1))
+
+
 def automata_file_select():
     filenames = select_files()
     if filenames:
@@ -266,6 +311,19 @@ def select_single_cfg(built) -> int:
             return int(selected)
 
 
+def select_single_regex(built) -> int:
+    if len(built) == 1:
+        return 0
+
+    print("Selecione o regex para fazer a análise:")
+    while True:
+        selected = number_input()
+        print(selected)
+        print("Você deseja selecionar este regex?")
+        if boolean_select():
+            return int(selected)
+
+
 def select_files():
     print("Selecione os arquivos a serem carregados.")
     tkinter.Tk().withdraw()
@@ -306,10 +364,6 @@ def determinize_automata(built: list) -> list:
     print("Automato determinizado: ")
     print(built[pos])
     return built
-
-
-def lexical():
-    pass
 
 
 def syntactic():
@@ -378,6 +432,18 @@ def load_cfgs(filenames) -> list:
         i += 1
         cfg_list.append(built_cfg)
     return cfg_list
+
+
+def load_lexical(filenames) -> list:
+    lexical_list = []
+    i = 0
+    for file in filenames:
+        built_lexical = LexicalAnalyzer(file)
+        print(i, ": ", os.path.basename(file))
+        print(built_lexical)
+        i += 1
+        lexical_list.append(built_lexical)
+    return lexical_list
 
 
 def invalid_command():
