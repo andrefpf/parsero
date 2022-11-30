@@ -25,7 +25,7 @@ class FileError(Exception):
 
     def _find_line_col(self, index):
         last_newline = self.data[:index].rfind("\n")
-        line = self.data[:index].count("\n") + 1
+        line = self.data[:index].count("\n")
         col = index - last_newline
         return line, col
 
@@ -49,7 +49,7 @@ class FileError(Exception):
             msg=self.msg,
             filename=self.filename,
             line=line,
-            code=lines[line - 1].strip("\n"),
+            code=lines[line].strip("\n"),
             class_name=self.__class__.__name__,
             pointer=pointer,
         )

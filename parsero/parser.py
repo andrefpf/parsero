@@ -2,7 +2,7 @@ from parsero import syntactic
 from parsero.cfg.contextfree_grammar import ContextFreeGrammar
 from parsero.common.errors import SyntacticError
 from parsero.lexical import LexicalAnalyzer, Token
-from parsero.syntactic import ll1_parse
+from parsero.syntactic import ll1_parse, treat_identation
 
 
 class Parser:
@@ -30,6 +30,8 @@ class Parser:
             raise error
     
     def parse_string(self, string):
+        string = treat_identation(string)
+
         tokens = self.lexical.tokenize_string(string)
         tokens.append(Token("$", "$"))
         # print("TOKENS:")
