@@ -1,11 +1,20 @@
 from parsero import Parser
 
+
 a = 123
 
+
+class Test:
+    def __init__(self, hello):
+        pass
+
+
 def function():
-    def subfunction(x):
+    def _subfunction(x):
         for i in range(x):
             print("ueepa")  
+        a = 3
+        return 2
 
     listinha = [1, "2", "três"]
 
