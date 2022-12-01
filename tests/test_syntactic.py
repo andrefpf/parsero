@@ -53,9 +53,10 @@ def test_table_creation():
     assert table[("T0", "$")] == t_line_end
 
 
-# def test_ll1():
-#     path_to_file = "examples/ff_table_example.cfg"
-#     cfg = ContextFreeGrammar(path_to_file)
-#     table: dict = syntactic_analyzer.create_table(cfg)
-#     word = ["id", "∨", "id", "∧", "id", "$"]
-#     assert syntactic_analyzer.ll1_parse(word, table, cfg) == True
+def test_ll1():
+    path_to_file = "examples/ff_table_example.cfg"
+    cfg = ContextFreeGrammar(path_to_file)
+    table: dict = syntactic_analyzer.create_table(cfg)
+    word = ["id", "∨", "id", "∧", "id", "$"]
+    tokens = [Token(i, i) for i in word]
+    assert syntactic_analyzer.ll1_parse(tokens, table, cfg) == True
