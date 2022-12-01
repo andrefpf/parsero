@@ -34,8 +34,8 @@ class Parser:
 
         tokens = self.lexical.tokenize_string(string)
         tokens.append(Token("$", "$"))
-        print("TOKENS:")
-        print(tokens)
+        # print("TOKENS:")
+        # print(tokens)
 
         try:
             tree = ll1_parse(tokens, self.table, self.cfg)
@@ -56,5 +56,5 @@ class Parser:
     def adapt_grammar(self):
         self.cfg.left_factor()
         self.cfg.refactor_left_recursion()
-        self.cfg.refactor_unitary_productions()
+        # self.cfg.refactor_unitary_productions()
         # self.cfg.remove_useless_symbols()

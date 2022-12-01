@@ -1,5 +1,6 @@
 import copy
 from collections import defaultdict
+from itertools import count
 
 from parsero.common.constants import EPSILON
 from parsero.common.errors import SyntacticError
@@ -317,23 +318,21 @@ class ContextFreeGrammar:
         self.__sort_productions()
 
     def left_factor(self):
-        MAX_TRIES = 6
+        MAX_SYMBOLS = 2_000
 
         self.__direct_factoring()
 
-        for i in range(MAX_TRIES):
-            # print(self.__str__())
-            # print("------")
+        for i in count():
             old_productions = copy.deepcopy(self.production_rules)
             self.__indirect_factoring()
             self.__direct_factoring()
             if old_productions == self.production_rules:
                 break
-        else:
-            # Estudantes de computação refutam Turing 
-            # e resolvem o problema da parada
-            msg = "A gramática atingiu a quantidade máxima de iterações durante a fatoração."
-            raise SyntacticError(self.path_to_file, msg)
+            elif len(self.non_terminal_symbols) >= MAX_SYMBOLS:
+                # Estudantes de computação refutam Turing 
+                # e resolvem o problema da parada
+                msg = f"A gramática o limite durante a fatoração, após {i} iterações."
+                raise SyntacticError(self.path_to_file, msg)
 
         self.__sort_productions()
 
