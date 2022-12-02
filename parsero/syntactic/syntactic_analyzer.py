@@ -61,7 +61,7 @@ def _follow_helper(cfg: ContextFreeGrammar, first_dict, follow_dict) -> dict:
                         if body[i] in cfg.non_terminal_symbols:
                             modified |= not follow_dict[body[i]].issuperset(follow_dict[head])
                             follow_dict[body[i]].update(follow_dict[head])
-    return False
+    return modified
 
 def calculate_first(cfg):
     first_dict = dict()
