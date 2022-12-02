@@ -2,7 +2,7 @@ from parsero import syntactic
 from parsero.cfg.contextfree_grammar import ContextFreeGrammar
 from parsero.common.errors import SyntacticError
 from parsero.lexical import LexicalAnalyzer, Token
-from parsero.syntactic import ll1_parse, treat_identation
+from parsero.syntactic import ll1_parse, treat_identation, first, follow
 
 
 class Parser:
@@ -28,7 +28,18 @@ class Parser:
         except SyntacticError as error:
             error.filename = path
             raise error
-    
+
+    def check_ll1(self) -> bool:
+        follow_table = follow(self.cfg)
+        for head, prod in self.cfg.production_rules.items():
+            for body in prod:
+                if body[0] == "&":
+                    if (first(head, self.cfg).intersection(follow_table[head])):
+                        print(head)
+                        print(first(head, self.cfg).intersection(follow_table[head]))
+                        return False
+        return True
+
     def parse_string(self, string):
         string = treat_identation(string)
 
