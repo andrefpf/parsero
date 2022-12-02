@@ -369,9 +369,7 @@ class ContextFreeGrammar:
                     else:
                         symbol_map[prod[0]].append([EPSILON])
                         self.terminal_symbols.add(EPSILON)
-
             updated_body = []
-            separators = ""
             for start, rest_of_body in symbol_map.items():
                 if len(rest_of_body) > 1:
                     original_symbol = head
@@ -390,11 +388,19 @@ class ContextFreeGrammar:
                     self.original_symbol[new_head] = original_symbol
                 else:
                     if start == EPSILON:
-                        updated_body.append([EPSILON])
+                        all_empty = True
+                        non_empty = []
+                        for symbol in rest_of_body:
+                            if symbol != EPSILON:
+                                all_empty = False
+                                non_empty.append(symbol)
+                        if all_empty:
+                            updated_body.append([EPSILON])
+                        else:
+                            updated_body.append(non_empty[0])
                     else:
-                        if (rest_of_body[0] == [EPSILON]):
+                        if rest_of_body[0] == [EPSILON]:
                             rest_of_body[0].pop()
-
                         rest_of_body[0].insert(0, start)
                         updated_body.append(rest_of_body[0])
             new_production_rules[head] = updated_body
