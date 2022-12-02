@@ -22,6 +22,7 @@ while:while
 in:in
 try:try
 except:except
+finally:finally
 None:None
 True:True
 False:False
@@ -49,6 +50,7 @@ scientific_notation: (e(\+|-)?digit+)
 
 comparator: (==|!=|\<|\>|\<=|\>=)
 operator: (\+|-|\*|/|//|\||\<\<|\>\>|\&)
+arrow: (\-\>)
 atr: =
 dot: \.
 comma: ,
@@ -62,10 +64,11 @@ close_curly_bracket: \}
 
 indent: ↳
 dedent: ↲
+newline: (( )*\n)+
 
 decorator: @(letter|_)(letter|digit|_)*
 string: (f?"(inside_string|')*")|(f?'(inside_string|")*')
-line_comment: #inside_comment*\n
+line_comment: #inside_comment*
 multiline_comment: (f?"""inside_multiline_comment*""")|(f?'''inside_multiline_comment*''')
 number: (sign?)(digit+)(decimal?)(scientific_notation?)
-id: (letter|_)(letter|digit|_)*
+id: (letter|_)(letter|digit|_|\.)*

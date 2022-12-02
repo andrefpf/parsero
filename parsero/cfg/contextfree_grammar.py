@@ -318,7 +318,7 @@ class ContextFreeGrammar:
         self.__sort_productions()
 
     def left_factor(self):
-        MAX_SYMBOLS = 2_000
+        MAX_SYMBOLS = 1_000
 
         self.__direct_factoring()
 

@@ -15,7 +15,7 @@ class Token:
         return hash(self) == hash(other)
 
     def __repr__(self):
-        return f"<{self.name}, {self.attribute}>"
+        return f"<{self.name}, {repr(self.attribute)}>"
 
 
 class TokenList(list):
