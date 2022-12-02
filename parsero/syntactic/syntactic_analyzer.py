@@ -1,9 +1,10 @@
 from parsero.cfg.contextfree_grammar import ContextFreeGrammar
 from parsero.lexical.token import Token
 from parsero.common.errors import SyntacticError
+from collections import defaultdict
 
 
-def first(head: str, cfg: ContextFreeGrammar) -> set:
+def _first_helper(head: str, cfg: ContextFreeGrammar) -> set:
     first_set = set()
     if head in cfg.non_terminal_symbols:
         for prod in cfg.production_rules[head]:
@@ -13,7 +14,7 @@ def first(head: str, cfg: ContextFreeGrammar) -> set:
                     first_set.add(prod[i])
                     break
                 else:
-                    first_non_terminal = list(first(prod[i], cfg))
+                    first_non_terminal = list(_first_helper(prod[i], cfg))
                     for symbol in first_non_terminal:
                         if symbol != "&":
                             first_set.add(symbol)
@@ -27,11 +28,8 @@ def first(head: str, cfg: ContextFreeGrammar) -> set:
         first_set.add(head)
     return first_set
 
-
-def follow(cfg: ContextFreeGrammar) -> dict:
-    follow_dict = dict()
-    for head in cfg.production_rules:
-        follow_dict[head] = set()
+def _follow_helper(cfg: ContextFreeGrammar, first_dict, follow_dict) -> dict:
+    modified = False
 
     follow_dict[cfg.initial_symbol].add("$")
 
@@ -43,38 +41,71 @@ def follow(cfg: ContextFreeGrammar) -> dict:
                         nullable = False
                         for j in range(i, len(body)):
                             if j != len(body) - 1:
-                                first_of_next = first(body[j + 1], cfg)
+                                if body[j + 1] in cfg.non_terminal_symbols:
+                                    first_of_next = first_dict[body[j + 1]]
+                                else:
+                                    first_of_next = {body[j + 1]}
+
 
                                 if "&" in first_of_next:
                                     first_of_next.remove("&")
                                     nullable = True
+                                    modified |= not follow_dict[body[i]].issuperset(first_of_next)
                                     follow_dict[body[i]].update(first_of_next)
                                 else:
+                                    modified |= not follow_dict[body[i]].issuperset(first_of_next)
                                     follow_dict[body[i]].update(first_of_next)
                                     nullable = False
                                     break
                             else:
                                 if nullable:
+                                    modified |= not follow_dict[body[i]].issuperset(follow_dict[head])
                                     follow_dict[body[i]].update(follow_dict[head])
                     else:
                         if body[i] in cfg.non_terminal_symbols:
+                            modified |= not follow_dict[body[i]].issuperset(follow_dict[head])
                             follow_dict[body[i]].update(follow_dict[head])
-    return follow_dict
+    return modified
+
+def calculate_first(cfg):
+    first_dict = dict()
+    for head in cfg.non_terminal_symbols:
+        first_dict[head] = _first_helper(head, cfg)
+    return first_dict
+
+def calculate_follow(cfg, first_dict=None):
+    if first_dict is None:
+        first_dict = calculate_first(cfg)
+
+    follow_dict = dict()
+    for head in cfg.production_rules:
+        follow_dict[head] = set()
+
+    while True:
+        modified = _follow_helper(cfg, first_dict, follow_dict)
+        if not modified:
+            break
+    return dict(follow_dict)    
 
 
 def create_table(cfg: ContextFreeGrammar) -> dict:
     table = dict()
-    follow_dict: dict = follow(cfg)
+    first_dict: dict = calculate_first(cfg)
+    follow_dict: dict = calculate_follow(cfg, first_dict)
 
     for head, prod in cfg.production_rules.items():
         for body in prod:
-            first_set = first(body[0], cfg)
+            if body[0] in cfg.non_terminal_symbols:
+                first_set = first_dict[body[0]]
+            else:
+                first_set = {body[0]}
+
             if "&" in first_set:
                 first_set.remove("&")
                 for symbol in follow_dict[head]:
                     table[(head, symbol)] = body
             for symbol in first_set:
-                table[(head, symbol)] = body
+                table[head, symbol] = body
 
     return table
 
@@ -82,13 +113,7 @@ def create_table(cfg: ContextFreeGrammar) -> dict:
 def ll1_parse(tokens: list, table: dict, cfg: ContextFreeGrammar) -> bool:
     stack = ["$", cfg.initial_symbol]
 
-    print()
-    # print(cfg)
-    print()
-
     for token in tokens:
-        print(stack)
-        print(token)
         symbol = token.name
         ready_for_next = False
         while not ready_for_next:

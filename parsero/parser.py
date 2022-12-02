@@ -55,7 +55,7 @@ class Parser:
     
     def adapt_grammar(self):
         self.cfg.left_factor()
-        print(self.cfg)
+        # print(self.cfg)
 
         self.cfg.refactor_left_recursion()
         # self.cfg.refactor_unitary_productions()
