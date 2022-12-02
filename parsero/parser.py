@@ -2,7 +2,7 @@ from parsero import syntactic
 from parsero.cfg.contextfree_grammar import ContextFreeGrammar
 from parsero.common.errors import SyntacticError
 from parsero.lexical import LexicalAnalyzer, Token
-from parsero.syntactic import ll1_parse, treat_identation, first, follow
+from parsero.syntactic import ll1_parse, treat_identation, calculate_first, calculate_follow
 
 
 class Parser:
@@ -30,13 +30,16 @@ class Parser:
             raise error
 
     def check_ll1(self) -> bool:
-        follow_table = follow(self.cfg)
+        first_dict = calculate_first(self.cfg)
+        follow_dict = calculate_follow(self.cfg, first_dict)
+
         for head, prod in self.cfg.production_rules.items():
             for body in prod:
                 if body[0] == "&":
-                    if (first(head, self.cfg).intersection(follow_table[head])):
+                    intersection = first_dict[head].intersection(follow_dict[head])
+                    if intersection:
                         print(head)
-                        print(first(head, self.cfg).intersection(follow_table[head]))
+                        print(intersection)
                         return False
         return True
 
@@ -66,8 +69,10 @@ class Parser:
     
     def adapt_grammar(self):
         self.cfg.left_factor()
-        # print(self.cfg)
-
         self.cfg.refactor_left_recursion()
-        # self.cfg.refactor_unitary_productions()
-        # self.cfg.remove_useless_symbols()
+
+        self.cfg.refactor_unitary_productions()
+        self.cfg.remove_useless_symbols()
+
+        assert self.check_ll1()
+

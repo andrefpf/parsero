@@ -41,14 +41,10 @@ def _follow_helper(cfg: ContextFreeGrammar, first_dict, follow_dict) -> dict:
                         nullable = False
                         for j in range(i, len(body)):
                             if j != len(body) - 1:
-                                if body[j + 1] in cfg.non_terminal_symbols:
-                                    first_of_next = first_dict[body[j + 1]]
-                                else:
-                                    first_of_next = {body[j + 1]}
-
+                                first_of_next = first_dict[body[j + 1]]
 
                                 if "&" in first_of_next:
-                                    first_of_next.remove("&")
+                                    first_of_next = first_of_next - {"&"}
                                     nullable = True
                                     modified |= not follow_dict[body[i]].issuperset(first_of_next)
                                     follow_dict[body[i]].update(first_of_next)
@@ -65,12 +61,15 @@ def _follow_helper(cfg: ContextFreeGrammar, first_dict, follow_dict) -> dict:
                         if body[i] in cfg.non_terminal_symbols:
                             modified |= not follow_dict[body[i]].issuperset(follow_dict[head])
                             follow_dict[body[i]].update(follow_dict[head])
-    return modified
+    return False
 
 def calculate_first(cfg):
     first_dict = dict()
-    for head in cfg.non_terminal_symbols:
-        first_dict[head] = _first_helper(head, cfg)
+    for symbol in cfg.terminal_symbols:
+        first_dict[symbol] = _first_helper(symbol, cfg)
+
+    for symbol in cfg.non_terminal_symbols:
+        first_dict[symbol] = _first_helper(symbol, cfg)
     return first_dict
 
 def calculate_follow(cfg, first_dict=None):
@@ -78,15 +77,14 @@ def calculate_follow(cfg, first_dict=None):
         first_dict = calculate_first(cfg)
 
     follow_dict = dict()
-    for head in cfg.production_rules:
-        follow_dict[head] = set()
+    for symbol in cfg.non_terminal_symbols:
+        follow_dict[symbol] = set()
 
     while True:
         modified = _follow_helper(cfg, first_dict, follow_dict)
         if not modified:
             break
-    return dict(follow_dict)    
-
+    return follow_dict
 
 def create_table(cfg: ContextFreeGrammar) -> dict:
     table = dict()
@@ -95,13 +93,10 @@ def create_table(cfg: ContextFreeGrammar) -> dict:
 
     for head, prod in cfg.production_rules.items():
         for body in prod:
-            if body[0] in cfg.non_terminal_symbols:
-                first_set = first_dict[body[0]]
-            else:
-                first_set = {body[0]}
+            first_set = first_dict[body[0]]
 
             if "&" in first_set:
-                first_set.remove("&")
+                first_set = first_set - {"&"}
                 for symbol in follow_dict[head]:
                     table[(head, symbol)] = body
             for symbol in first_set:

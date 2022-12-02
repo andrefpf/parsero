@@ -1,5 +1,4 @@
 from parsero.parser import Parser
-from parsero.lexical import *
 
 
 def test_python():
