@@ -11,8 +11,6 @@ class Test:
 # A
 
 
-
-
 def function():
     def _subfunction(x):
         for i in range(10):
@@ -34,8 +32,3 @@ def function():
         print("menor")
     else:
         print(igual)
-
-
-
-
-

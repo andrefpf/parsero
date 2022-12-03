@@ -1,9 +1,9 @@
-from parsero.cfg.contextfree_grammar import ContextFreeGrammar
-from parsero.lexical.token import Token
-from parsero import regex
-from parsero.common.errors import SyntacticError
 from collections import defaultdict
 
+from parsero import regex
+from parsero.cfg.contextfree_grammar import ContextFreeGrammar
+from parsero.common.errors import SyntacticError
+from parsero.lexical.token import Token
 
 IS_BLANK = regex.compiles("(( )|\n|\t|↳|↲)*")
 
@@ -32,6 +32,7 @@ def _first_helper(head: str, cfg: ContextFreeGrammar) -> set:
         first_set.add(head)
     return first_set
 
+
 def _follow_helper(cfg: ContextFreeGrammar, first_dict, follow_dict) -> dict:
     modified = False
 
@@ -59,13 +60,16 @@ def _follow_helper(cfg: ContextFreeGrammar, first_dict, follow_dict) -> dict:
                                     break
                             else:
                                 if nullable:
-                                    modified |= not follow_dict[body[i]].issuperset(follow_dict[head])
+                                    modified |= not follow_dict[body[i]].issuperset(
+                                        follow_dict[head]
+                                    )
                                     follow_dict[body[i]].update(follow_dict[head])
                     else:
                         if body[i] in cfg.non_terminal_symbols:
                             modified |= not follow_dict[body[i]].issuperset(follow_dict[head])
                             follow_dict[body[i]].update(follow_dict[head])
     return modified
+
 
 def calculate_first(cfg):
     first_dict = dict()
@@ -75,6 +79,7 @@ def calculate_first(cfg):
     for symbol in cfg.non_terminal_symbols:
         first_dict[symbol] = _first_helper(symbol, cfg)
     return first_dict
+
 
 def calculate_follow(cfg, first_dict=None):
     if first_dict is None:
@@ -89,6 +94,7 @@ def calculate_follow(cfg, first_dict=None):
         if not modified:
             break
     return follow_dict
+
 
 def create_table(cfg: ContextFreeGrammar) -> dict:
     table = dict()
@@ -129,7 +135,7 @@ def ll1_parse(tokens: list, table: dict, cfg: ContextFreeGrammar) -> bool:
                 if (current != "$") and blank_symbol:
                     stack.append(current)
                     break
-                
+
                 msg = f"Failed to parse token {token}. \nCurrent Stack: {stack}"
                 start = token.index
                 end = start + len(token.attribute)

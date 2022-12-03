@@ -20,7 +20,7 @@ class ContextFreeGrammar:
 
                 if not line:
                     continue
-                
+
                 if line[0] == "#":
                     continue
 
@@ -195,7 +195,9 @@ class ContextFreeGrammar:
 
                 i += 1
 
-        if self.initial_symbol in nullable_symbol and self.appears_on_production(self.initial_symbol):
+        if self.initial_symbol in nullable_symbol and self.appears_on_production(
+            self.initial_symbol
+        ):
             old_initial_symbol = self.initial_symbol
             original_symbol = self.initial_symbol
 
@@ -329,7 +331,7 @@ class ContextFreeGrammar:
             if old_productions == self.production_rules:
                 break
             elif len(self.non_terminal_symbols) >= MAX_SYMBOLS:
-                # Estudantes de computação refutam Turing 
+                # Estudantes de computação refutam Turing
                 # e resolvem o problema da parada
                 msg = f"A gramática o limite durante a fatoração, após {i} iterações."
                 raise SyntacticError(self.path_to_file, msg)

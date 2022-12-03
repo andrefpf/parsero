@@ -103,9 +103,9 @@ class LexicalAnalyzer:
                 tag = self.machine.states[state_index].tag
                 yield Token(tag, lexeme, i)
                 continue
-           
+
             if keyword:
-                consume(len(keyword)-1, iterator)
+                consume(len(keyword) - 1, iterator)
                 yield Token(keyword, keyword, i)
                 continue
 

@@ -10,7 +10,7 @@ class Token:
     def __hash__(self):
         pair = (self.name, self.attribute)
         return hash(pair)
-    
+
     def __eq__(self, other):
         return hash(self) == hash(other)
 

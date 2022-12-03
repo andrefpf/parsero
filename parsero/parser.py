@@ -2,7 +2,12 @@ from parsero import syntactic
 from parsero.cfg.contextfree_grammar import ContextFreeGrammar
 from parsero.common.errors import SyntacticError
 from parsero.lexical import LexicalAnalyzer, Token
-from parsero.syntactic import ll1_parse, treat_identation, calculate_first, calculate_follow
+from parsero.syntactic import (
+    calculate_first,
+    calculate_follow,
+    ll1_parse,
+    treat_identation,
+)
 
 
 class Parser:
@@ -22,7 +27,7 @@ class Parser:
     def parse(self, path: str):
         with open(path) as file:
             string = file.read()
-        
+
         try:
             return self.parse_string(string)
         except SyntacticError as error:
@@ -66,7 +71,7 @@ class Parser:
             return False
         else:
             return True
-    
+
     def adapt_grammar(self):
         self.cfg.left_factor()
         self.cfg.refactor_left_recursion()
@@ -75,4 +80,3 @@ class Parser:
         self.cfg.remove_useless_symbols()
 
         assert self.check_ll1()
-

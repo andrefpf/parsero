@@ -1,6 +1,5 @@
 from parsero import regex
 
-
 INDENT_FINDER = regex.compiles("(    )*")
 
 
@@ -24,13 +23,13 @@ def treat_identation(string):
             treated_lines.append(last_line + "↳" * diference)
             last_line = line
         elif diference < 0:
-            treated_lines.append(last_line +  "↲" * abs(diference))
+            treated_lines.append(last_line + "↲" * abs(diference))
             last_line = line
         else:
             treated_lines.append(last_line)
             last_line = line
 
         last_level = level
-    
+
     new_string = "\n".join(treated_lines)
     return new_string
