@@ -40,7 +40,7 @@ not:not
 digit: [0-9]
 letter: [a-zA-Z]
 acentuated: (á|à|â|ã|é|ê|í|ó|ô|ú|ü|ç|Á|À|Â|É|Ê|Í|Ó|Ô|Ú|Ü|Ç)
-symbols: (_| |!|\=|\&|@|#|$|%|\&|\||\+|-|\&|\*|/|\\|\"|\.|,|\[|\]|\(|\)|\{|\}|\<|\>|:|;|\?|\^|\Σ|\→|\↳|\↲)
+symbols: (_| |!|\=|\&|@|#|$|%|\&|\||\+|-|\&|\*|/|\\|\"|\.|,|\[|\]|\(|\)|\{|\}|\<|\>|:|;|\?|\^|\Σ|\→)
 inside_string: (\w|\d|acentuated|symbols)
 inside_comment: (inside_string|"|')
 inside_multiline_comment: (inside_comment|\s)
@@ -68,7 +68,9 @@ newline: (( )*\n)+
 
 decorator: @(letter|_)(letter|digit|_)*
 string: (f?"(inside_string|')*")|(f?'(inside_string|")*')
-line_comment: #inside_comment*
-multiline_comment: (f?"""inside_multiline_comment*""")|(f?'''inside_multiline_comment*''')
 number: (sign?)(digit+)(decimal?)(scientific_notation?)
 id: (letter|_)(letter|digit|_|\.)*
+
+line_comment: #inside_comment*
+multiline_comment: (f?"""inside_multiline_comment*""")|(f?'''inside_multiline_comment*''')
+comment: (line_comment)|(multiline_comment)

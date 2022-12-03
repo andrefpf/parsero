@@ -1,7 +1,11 @@
 from parsero.cfg.contextfree_grammar import ContextFreeGrammar
 from parsero.lexical.token import Token
+from parsero import regex
 from parsero.common.errors import SyntacticError
 from collections import defaultdict
+
+
+IS_BLANK = regex.compiles("(( )|\n|\t|↳|↲)*")
 
 
 def _first_helper(head: str, cfg: ContextFreeGrammar) -> set:
@@ -107,30 +111,26 @@ def create_table(cfg: ContextFreeGrammar) -> dict:
 
 def ll1_parse(tokens: list, table: dict, cfg: ContextFreeGrammar) -> bool:
     stack = ["$", cfg.initial_symbol]
-    
-    # print("TOKENS:")
-    # print(tokens)
-
-    # print()
-    # print(cfg)
-    # print()
 
     for token in tokens:
-        # print(stack)
-        # print(token)
-        # print()
+        if token.name == "comment":
+            continue
 
         symbol = token.name
-        ready_for_next = False
-        while not ready_for_next:
+        while True:
             current = stack.pop()
 
             if symbol == current:
-                ready_for_next = True
-                continue
+                break
 
             if not (current, symbol) in table:
-                msg = f"Failed to parse token <{token.name}>"
+                # Blank values can't cause error
+                blank_symbol = IS_BLANK.evaluate(token.attribute)
+                if (current != "$") and blank_symbol:
+                    stack.append(current)
+                    break
+                
+                msg = f"Failed to parse token {token}. \nCurrent Stack: {stack}"
                 start = token.index
                 end = start + len(token.attribute)
                 raise SyntacticError.from_data("", msg, index=start, index_end=end)
@@ -142,6 +142,6 @@ def ll1_parse(tokens: list, table: dict, cfg: ContextFreeGrammar) -> bool:
 
             if stack[-1] == symbol:
                 stack.pop()
-                ready_for_next = True
+                break
 
     return True

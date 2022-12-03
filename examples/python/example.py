@@ -8,10 +8,15 @@ class Test:
         pass
 
 
+# A
+
+
+
+
 def function():
     def _subfunction(x):
         for i in range(10):
-            print("ueepa")  
+            print("ueepa")  # teste
         a = 3
         return 2
 
@@ -29,3 +34,8 @@ def function():
         print("menor")
     else:
         print(igual)
+
+
+
+
+

@@ -1,5 +1,6 @@
 from parsero import regex
 from parsero.automata import FiniteAutomata, union
+from parsero.common.constants import BLANK
 from parsero.common.errors import LexicalError
 from parsero.common.utils import consume
 from parsero.lexical.symbol_table import SymbolTable
@@ -112,7 +113,7 @@ class LexicalAnalyzer:
             # languages like python need tokens for identation
             # so we cannot ignore spaces before checking
             # the regular definitions
-            if char in " \n\t↳↲":
+            if char in BLANK:
                 continue
 
             # it should stop before
