@@ -420,7 +420,10 @@ def syntactic_loop(cfg_list):
             case "0":
                 show_glc(cfg_list)
             case "1":
-                pass  # TODO
+                pos = select_single_cfg
+                cfg_list[pos].left_factor()
+                cfg_list[pos].refactor_left_recursion()
+                print(cfg_list[pos])
             case "2":
                 syntatic_parse(cfg_list)
             case "3":
