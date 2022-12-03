@@ -94,17 +94,18 @@ class LexicalAnalyzer:
         for i, char in iterator:
             remaining = string[i:]
 
-            special_word, _ = self.special_machine.match(remaining)
-            if special_word:
-                consume(len(special_word)-1, iterator)
-                yield Token(special_word, special_word, i)
-                continue
-
+            keyword, _ = self.special_machine.match(remaining)
             lexeme, state_index = self.machine.match(remaining)
-            if lexeme:
+
+            if lexeme > keyword:
                 consume(len(lexeme) - 1, iterator)
                 tag = self.machine.states[state_index].tag
                 yield Token(tag, lexeme, i)
+                continue
+           
+            if keyword:
+                consume(len(keyword)-1, iterator)
+                yield Token(keyword, keyword, i)
                 continue
 
             # it is a bit slow to ignore these chars this far, but
