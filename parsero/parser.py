@@ -1,6 +1,10 @@
+from itertools import cycle
+
+from termcolor import colored
+
 from parsero import syntactic
 from parsero.cfg.contextfree_grammar import ContextFreeGrammar
-from parsero.common.errors import SyntacticError
+from parsero.common.errors import LexicalError, SyntacticError
 from parsero.lexical import LexicalAnalyzer, Token
 from parsero.syntactic import (
     calculate_first,
@@ -10,7 +14,7 @@ from parsero.syntactic import (
 )
 
 
-class Parser:
+class Parsero:
     def __init__(self, regex_path, grammar_path, adapt=True):
         self.lexical = LexicalAnalyzer(regex_path)
         self.cfg = ContextFreeGrammar(grammar_path)
@@ -80,3 +84,62 @@ class Parser:
         self.cfg.remove_useless_symbols()
 
         assert self.check_ll1()
+
+    def define_colors(self):
+        colors = ["blue", "white", "red", "cyan", "yellow"]
+        token_dict = dict()
+
+        for ids in self.lexical.keywords:
+            token_dict[ids] = "magenta"
+
+        for ids, color in zip(self.lexical.token_ids, cycle(colors)):
+            if "bracket" in ids:
+                color = "blue"
+
+            if ids == "comment":
+                color = "green"
+
+            token_dict[ids] = color
+
+        return token_dict
+
+    def highlight(self, path):
+        separator = "\n" + (100 * "_") + "\n\n"
+        token_dict = self.define_colors()
+        last_error = None
+
+        with open(path) as file:
+            string = file.read()
+
+        string = treat_identation(string)
+        remaining = ""
+
+        try:
+            self.parse(path)
+        except LexicalError as error:
+            last_error = error
+            remaining = string[error.index :]
+            string = string[: error.index]
+        except SyntacticError as error:
+            last_error = error
+            remaining = string[error.index :]
+            string = string[: error.index]
+
+        output = []
+        last_index = 0
+        tokens = self.lexical.tokenize_string(string)
+        for token in tokens:
+            inter_tokens = string[last_index : token.index]
+            lexeme = colored(token.attribute, token_dict[token.name])
+            output.append(inter_tokens)
+            output.append(lexeme)
+            last_index += len(inter_tokens) + len(token.attribute)
+
+        if last_error is not None:
+            error_part = colored(remaining, "white", "on_red")
+            output.append(error_part)
+            output.append(separator)
+            output.append(colored(str(last_error), "red"))
+
+        reconstructed = "".join(output)
+        return reconstructed

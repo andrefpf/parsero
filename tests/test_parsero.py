@@ -1,4 +1,4 @@
-from parsero import Parser, __version__
+from parsero import Parsero, __version__
 from parsero.common.errors import LexicalError, SyntacticError
 
 
@@ -10,7 +10,7 @@ def test_version():
 
 
 def test_python():
-    parser = Parser(f"examples/python/python.regex", f"examples/python/python.ghm")
+    parser = Parsero(f"examples/python/python.regex", f"examples/python/python.ghm")
     parser.parse(f"examples/python/example.py")
 
     try:
@@ -25,7 +25,7 @@ def test_python():
 
 
 def test_c():
-    parser = Parser(f"examples/c/c.regex", f"examples/c/c.ghm")
+    parser = Parsero(f"examples/c/c.regex", f"examples/c/c.ghm")
     parser.parse(f"examples/c/example.c")
 
     try:
@@ -40,7 +40,7 @@ def test_c():
 
 
 def test_lisp():
-    parser = Parser(f"examples/lisp/lisp.regex", f"examples/lisp/lisp.ghm")
+    parser = Parsero(f"examples/lisp/lisp.regex", f"examples/lisp/lisp.ghm")
     parser.parse(f"examples/lisp/example.lisp")
 
     try:
@@ -55,7 +55,7 @@ def test_lisp():
 
 
 def test_json():
-    parser = Parser(f"examples/json/json.regex", f"examples/json/json.ghm")
+    parser = Parsero(f"examples/json/json.regex", f"examples/json/json.ghm")
     parser.parse(f"examples/json/example.json")
 
     try:
