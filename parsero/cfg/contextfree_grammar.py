@@ -1,7 +1,9 @@
 import copy
 from collections import defaultdict
+from itertools import count
 
 from parsero.common.constants import EPSILON
+from parsero.common.errors import SyntacticError
 
 
 class ContextFreeGrammar:
@@ -10,9 +12,18 @@ class ContextFreeGrammar:
         non_terminal_symbols = set()
         productions = list()
         initial_symbol = ""
+        self.path_to_file = path_to_file
 
         with open(path_to_file, "r") as file:
             while line := file.readline():
+                line = line.strip()
+
+                if not line:
+                    continue
+
+                if line[0] == "#":
+                    continue
+
                 production_pieces = line.split("->", 1)
                 production_head = production_pieces[0].strip()
                 non_terminal_symbols.add(production_head)
@@ -184,7 +195,9 @@ class ContextFreeGrammar:
 
                 i += 1
 
-        if self.initial_symbol in nullable and self.appears_on_production(self.initial_symbol):
+        if self.initial_symbol in nullable_symbol and self.appears_on_production(
+            self.initial_symbol
+        ):
             old_initial_symbol = self.initial_symbol
             original_symbol = self.initial_symbol
 
@@ -200,7 +213,7 @@ class ContextFreeGrammar:
             self.original_symbol[self.initial_symbol] = original_symbol
 
             new_production_rules[self.initial_symbol] = [["{}".format(old_initial_symbol)], ["&"]]
-        else:
+        elif self.initial_symbol in nullable_symbol:
             new_production_rules[self.initial_symbol].append(["&"])
 
         self.production_rules = new_production_rules
@@ -233,13 +246,10 @@ class ContextFreeGrammar:
         self.__sort_productions()
 
     def refactor_left_recursion(self):
-        symbols_to_check = list()
-        symbols_to_check.append(self.initial_symbol)
-
-        [
-            symbols_to_check.append(symbol)
-            for symbol in list(self.non_terminal_symbols - set(self.initial_symbol))
-        ]
+        symbols_to_check = list(self.non_terminal_symbols)
+        symbols_to_check.sort()
+        symbols_to_check.remove(self.initial_symbol)
+        symbols_to_check.insert(0, self.initial_symbol)
 
         for i in range(len(symbols_to_check)):
             head_symbol = symbols_to_check[i]
@@ -310,12 +320,21 @@ class ContextFreeGrammar:
         self.__sort_productions()
 
     def left_factor(self):
-        while True:
+        MAX_SYMBOLS = 1_000
+
+        self.__direct_factoring()
+
+        for i in count():
             old_productions = copy.deepcopy(self.production_rules)
             self.__indirect_factoring()
             self.__direct_factoring()
             if old_productions == self.production_rules:
                 break
+            elif len(self.non_terminal_symbols) >= MAX_SYMBOLS:
+                # Estudantes de computação refutam Turing
+                # e resolvem o problema da parada
+                msg = f"A gramática o limite durante a fatoração, após {i} iterações."
+                raise SyntacticError(self.path_to_file, msg)
 
         self.__sort_productions()
 
@@ -352,9 +371,7 @@ class ContextFreeGrammar:
                     else:
                         symbol_map[prod[0]].append([EPSILON])
                         self.terminal_symbols.add(EPSILON)
-
             updated_body = []
-            separators = ""
             for start, rest_of_body in symbol_map.items():
                 if len(rest_of_body) > 1:
                     original_symbol = head
@@ -373,8 +390,19 @@ class ContextFreeGrammar:
                     self.original_symbol[new_head] = original_symbol
                 else:
                     if start == EPSILON:
-                        updated_body.append([EPSILON])
+                        all_empty = True
+                        non_empty = []
+                        for symbol in rest_of_body:
+                            if symbol != EPSILON:
+                                all_empty = False
+                                non_empty.append(symbol)
+                        if all_empty:
+                            updated_body.append([EPSILON])
+                        else:
+                            updated_body.append(non_empty[0])
                     else:
+                        if rest_of_body[0] == [EPSILON]:
+                            rest_of_body[0].pop()
                         rest_of_body[0].insert(0, start)
                         updated_body.append(rest_of_body[0])
             new_production_rules[head] = updated_body

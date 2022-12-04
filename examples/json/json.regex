@@ -1,0 +1,18 @@
+symbols: (_| |!|\=|\&|@|#|$|%|\&|\||\+|-|\&|\*|'|/|\\|\.|,|\[|\]|\(|\)|\{|\}|\<|\>|:|;|\?|\^|\~|\Σ|\→)
+comment: ;(\w|\d|symbols)*\n
+inside_string: (\w|\d|symbols)
+string: "inside_string*"
+
+digit: [0-9]
+sign: (\+|-)
+decimal: (\.digit*)
+scientific_notation: (e(\+|-)?digit+)
+number: (sign?)(digit+)(decimal?)(scientific_notation?)
+
+open_square_bracket: \[
+close_square_bracket: \]
+open_curly_bracket: \{
+close_curly_bracket: \}
+
+comma: ,
+colon: :

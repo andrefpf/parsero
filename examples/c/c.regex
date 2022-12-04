@@ -2,31 +2,19 @@
 
 # Se o nome é igual a definição
 # então essa é uma palavra reservada
-as:as
-assert:assert
-break:break
-raise:raise
-yield:yield
-return:return
-class:class
-continue:continue
-pass:pass
-def:def
-del:del
-with:with
 if:if
-elif:elif
 else:else
-for:for
 while:while
-in:in
-try:try
-except:except
-None:None
-True:True
-False:False
+for:for
 int:int
+long:long
+short:short
 float:float
+bool:bool
+return:return
+break:break
+struct:struct
+char:char
 
 # Expressões auxiliares
 # estas expressões fazem parte das
@@ -35,22 +23,23 @@ float:float
 # para elas
 digit: [0-9]
 letter: [a-zA-Z]
-acentuated: (á|à|â|ã|é|ê|í|ó|ô|ú|ü|ç|Á|À|Â|É|Ê|Í|Ó|Ô|Ú|Ü|Ç)
 symbols: (_| |!|\=|\&|@|#|$|%|\&|\||\+|-|\&|\*|/|\\|\"|\.|,|\[|\]|\(|\)|\{|\}|\<|\>|:|;|\?|\^|\Σ|\→)
-inside_string: (\w|\d|acentuated|symbols)
-inside_comment: (inside_string|"|')
+inside_string: (\w|\d|symbols)
+inside_comment: (inside_string|")
 inside_multiline_comment: (inside_comment|\s)
 sign: (\+|-)
 decimal: (\.digit*)
 scientific_notation: (e(\+|-)?digit+)
 
 comparator: (==|!=|\<|\>|\<=|\>=)
-operator: (\+|-|\*|/|//|\||\<\<|\>\>|\&)
-atr: =
+operator: (\+|-|\*|/|\||\<\<|\>\>)
+increment: (\+\+|\-\-)
+atr: (=|\+=|\-=|\*=)
 dot: \.
 comma: ,
 colon: :
-indentation: (    )
+semicolon: ;
+backslash: \\
 open_bracket: \(
 close_bracket: \)
 open_square_bracket: \[
@@ -58,9 +47,11 @@ close_square_bracket: \]
 open_curly_bracket: \{
 close_curly_bracket: \}
 
-decorator: @(letter|_)(letter|digit|_)*
-string: (f?"(inside_string|')*")|(f?'(inside_string|")*')
-line_comment: #inside_comment*\n
-multiline_comment: (f?"""inside_multiline_comment*""")|(f?'''inside_multiline_comment*''')
+package: \<inside_string*\>
+macro: #letter(letter|digit|_)*
+string: "inside_string*"
+chars: 'inside_string'
+line_comment: //inside_comment*\n
+multiline_comment: /\*inside_multiline_comment*\*/
 number: (sign?)(digit+)(decimal?)(scientific_notation?)
-id: (letter|_)(letter|digit|_)*
+id: letter(letter|digit|_)*

@@ -1,0 +1,6 @@
+atoms -> atom atoms | &
+atom -> id | string | number | nil | list | operator | comment | lambda_exp | quote_exp
+lambda_exp -> lambda atom
+quote_exp -> quote atom
+list -> open_bracket atoms close_bracket
+nil -> open_bracket close_bracket

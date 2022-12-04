@@ -1,0 +1,37 @@
+START -> newline | newline STATEMENTS | STATEMENT
+STATEMENTS -> STATEMENT newline STATEMENTS | STATEMENT | STATEMENT newline
+STATEMENT -> SIMPLE_STMT | COMPOUND_STMT
+
+SIMPLE_STMT -> ASSIGNMENT | EXPRESSION | IMPORT_STMT | return EXPRESSION | assert EXPRESSION | raise EXPRESSION | pass | break continue
+COMPOUND_STMT -> FUNCTION_DEF | CLASS_DEF | WHILE_STMT | FOR_STMT | IF_STMT | ELSE_STMT | ELIF_STMT | TRY_STMT | EXCEPT_STMT | FINALLY_STMT | WITH_STMT
+
+IMPORT_STMT -> from id import IDS 
+ASSIGNMENT -> id atr EXPRESSION | id colon id atr EXPRESSION
+EXPRESSION -> VAL operator EXPRESSION | VAL comparator EXPRESSION | not EXPRESSION | VAL
+VAL -> id | number | string | True | False | LIST | LIST_ACCESS | TUPLE | FUNCTION_CALL | id
+IDS -> id | id comma IDS
+
+FOR_STMT -> for IDS in EXPRESSION colon SCOPE
+WHILE_STMT -> while EXPRESSION colon SCOPE
+IF_STMT -> if EXPRESSION colon SCOPE
+ELIF_STMT -> elif EXPRESSION colon SCOPE
+ELSE_STMT -> else colon SCOPE
+TRY_STMT -> try colon SCOPE | try EXPRESSION colon SCOPE
+EXCEPT_STMT -> except colon SCOPE | except id colon SCOPE | except id as id colon SCOPE
+FINALLY_STMT -> finally colon SCOPE 
+WITH_STMT -> with VAL as id colon SCOPE
+
+FUNCTION_CALL -> id TUPLE
+CLASS_DEF -> class id colon SCOPE
+FUNCTION_DEF -> def id open_bracket FUNCTION_ARGS close_bracket OPT_RETURN_TYPE colon SCOPE
+OPT_RETURN_TYPE -> & | arrow id
+FUNCTION_ARGS -> ARG comma FUNCTION_ARGS | ARG | &
+ARG -> id | id colon id | id atr EXPRESSION | id colon id atr EXPRESSION
+
+
+SCOPE -> indent newline STATEMENTS dedent | newline indent newline STATEMENTS dedent
+LIST -> open_square_bracket COMMA_SEPARATED close_square_bracket | open_square_bracket close_square_bracket
+LIST_ACCESS -> id open_square_bracket COMMA_SEPARATED close_square_bracket
+TUPLE -> open_bracket COMMA_SEPARATED close_bracket | open_bracket close_bracket
+COMMA_SEPARATED -> VAL comma COMMA_SEPARATED | VAL
+

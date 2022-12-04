@@ -1,0 +1,8 @@
+DICT -> open_curly_bracket DICT_CONTENT close_curly_bracket | open_curly_bracket close_curly_bracket
+DICT_CONTENT -> PAIR comma DICT_CONTENT | PAIR
+PAIR -> string colon VAL
+
+LIST -> open_square_bracket LIST_CONTENT close_square_bracket | open_square_bracket close_square_bracket
+LIST_CONTENT -> VAL comma LIST_CONTENT | VAL
+
+VAL -> number | string | LIST | DICT

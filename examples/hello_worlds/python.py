@@ -1,9 +1,6 @@
-def main():
-    """
-    This is the main function, and it prints a hello world!!!!
-    """
-    print("hello_world!!!!")
+var = 1 + 2 * (3 + 5) * "Hello" + test() + uepa[123, 3]
 
+function()
 
-if __name__ == "__main__":
-    main()  # calls the main function
+if a == 2:
+    print("IHAAA")
