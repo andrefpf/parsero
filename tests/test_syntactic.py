@@ -1,6 +1,11 @@
 from parsero.cfg.contextfree_grammar import ContextFreeGrammar
 from parsero.lexical import Token
-from parsero.syntactic import calculate_first, calculate_follow, create_table, ll1_parse
+from parsero.syntactic import (
+    calculate_first,
+    calculate_follow,
+    create_table,
+    ll1_parse,
+)
 
 
 def test_first_follow_example_1():
