@@ -124,7 +124,9 @@ def ll1_parse(tokens: list, table: dict, cfg: ContextFreeGrammar) -> bool:
 
         symbol = token.name
         while True:
+            print("Pilha: ", stack)
             current = stack.pop()
+            print("Desempilhado: ", current, " Simbolo: ", symbol)
 
             if symbol == current:
                 break
