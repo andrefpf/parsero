@@ -1,4 +1,4 @@
-from parsero import Parser
+from parsero import Parsero
 
 a = 123
 
