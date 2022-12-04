@@ -82,7 +82,11 @@ def lexical_loop(lexical_list):
                 files = select_files([("All Files", "*")])
                 for file in files:
                     try:
-                        print(lexical_list[selected].tokenize(file))
+                        result = lexical_list[selected].parse(file)
+                        print("Lista de Tokens: ")
+                        print(result[0])
+                        print("Tabela de Símbolos: ")
+                        print(result[1])
                         print("Sucesso!")
                     except LexicalError:
                         print("Essa palavra não pode ser gerada a partir da gramática")
