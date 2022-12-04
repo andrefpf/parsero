@@ -57,7 +57,7 @@ def select_analyser():
 
 def lexical_cli():
     print("Forneça as expressões regulares")
-    files = select_files()
+    files = select_files([("Expressões Regulares", ".regex")])
     lexical_list = load_lexical(files)
     if lexical_list:
         lexical_loop(lexical_list)
@@ -80,12 +80,12 @@ def lexical_loop(lexical_list):
             case "1":
                 selected = select_single_regex(lexical_list)
                 print("Forneça o arquivo a ser analisado")
-                files = select_files()
+                files = select_files([("All Files", "*")])
                 for file in files:
                     try:
                         print(lexical_list[selected].tokenize(file))
                     except LexicalError:
-                        print("Esta palavra não pertence à gramática" )
+                        print("Esta palavra não pertence à gramática")
             case "2":
                 break
             case _:
@@ -93,7 +93,7 @@ def lexical_loop(lexical_list):
 
 
 def cfg_cli():
-    files = select_files()
+    files = select_files([("Gramáticas Livres de Contexto", ".ghm .cfg")])
     cfg_list = load_cfgs(files)
     if cfg_list:
         cfg_loop(cfg_list)
@@ -286,7 +286,7 @@ def show_regex_list(built: list):
 
 
 def automata_file_select():
-    filenames = select_files()
+    filenames = select_files([("Automatos Finitos", ".ndfa .fa")])
     if filenames:
         built = build_automata(filenames)
         return built
@@ -338,10 +338,10 @@ def select_single_regex(built) -> int:
             return int(selected)
 
 
-def select_files():
+def select_files(file_types: list):
     print("Selecione os arquivos a serem carregados.")
     tkinter.Tk().withdraw()
-    filenames = askopenfilenames()
+    filenames = askopenfilenames(filetypes=file_types)
 
     while True:
         print("Você quer selecionar mais arquivos?")
@@ -381,7 +381,7 @@ def determinize_automata(built: list) -> list:
 
 
 def syntactic():
-    files = select_files()
+    files = select_files([("Gramáticas Livres de Contexto", ".ghm .cfg")])
     cfg_list = load_cfgs(files)
     if cfg_list:
         syntactic_loop(cfg_list)
