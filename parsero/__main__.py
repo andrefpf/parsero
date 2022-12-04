@@ -152,7 +152,8 @@ def cfg_loop(cfg_list):
         print("(5) Remover símbolos inúteis")
         print("(6) Remover recursão à esquerda")
         print("(7) Fatorar gramática")
-        print("(8) Voltar para o menu")
+        print("(8) Salvar gramática")
+        print("(9) Voltar para o menu")
 
         selected = number_input()
         match selected:
@@ -194,6 +195,8 @@ def cfg_loop(cfg_list):
                 cfg_list[int(selected)].left_factor()
                 print(cfg_list[int(selected)])
             case "8":
+                save_glc(cfg_list)
+            case "9":
                 break
             case _:
                 invalid_command()
@@ -239,6 +242,16 @@ def save_automata(built: list):
         pos = 0
     filename = input("Forneça o nome do arquivo. Ex: pasta/nome.fa: ")
     automata_to_file(built[pos], filename)
+    print("Arquivo salvo com sucesso!")
+
+
+def save_glc(built: list):
+    if len(built) > 1:
+        pos = select_single_cfg(built)
+    else:
+        pos = 0
+    filename = input("Forneça o nome do arquivo. Ex: pasta/nome.glc: ")
+    built[pos].to_file(filename)
     print("Arquivo salvo com sucesso!")
 
 
