@@ -1,52 +1,82 @@
 from parsero.cfg.contextfree_grammar import ContextFreeGrammar
-from parsero.syntactic import *
+from parsero.lexical import Token
+from parsero.syntactic import calculate_first, calculate_follow, create_table, ll1_parse
 
 
 def test_first_follow_example_1():
     path_to_file = "examples/first_follow_example_1.cfg"
     cfg = ContextFreeGrammar(path_to_file)
-    expected_first = {"d", "a", "b", "c"}
-    assert first("S", cfg) == expected_first
 
-    expected_follow_S = {"$"}
-    expected_follow_B = {"c"}
-    expected_follow_A = {"a", "b", "d", "c"}
+    expected_first_dict = {
+        "S": {"d", "a", "b", "c"},
+        "A": {"a", "&"},
+        "B": {"a", "b", "d", "&"},
+        "a": {"a"},
+        "b": {"b"},
+        "c": {"c"},
+        "d": {"d"},
+        "&": {"&"},
+    }
 
-    follow_result = syntactic_analyzer.follow(cfg)
-    assert follow_result["S"] == expected_follow_S
-    assert follow_result["B"] == expected_follow_B
-    assert follow_result["A"] == expected_follow_A
+    expected_follow_dict = {
+        "S": {"$"},
+        "A": {"a", "b", "d", "c"},
+        "B": {"c"},
+    }
+
+    first_dict = calculate_first(cfg)
+    follow_dict = calculate_follow(cfg)
+
+    assert len(first_dict) == len(expected_first_dict)
+    assert len(follow_dict) == len(expected_follow_dict)
+
+    for key, val in expected_first_dict.items():
+        assert first_dict[key] == val
+
+    for key, val in expected_follow_dict.items():
+        assert follow_dict[key] == val
 
 
 def test_first_follow_example_2():
     path_to_file = "examples/first_follow_example_2.cfg"
     cfg = ContextFreeGrammar(path_to_file)
-    expected_first_S = {"d", "a", "b", "c"}
-    expected_first_A = {"a", "&"}
-    expected_first_B = {"d", "a", "b", "c"}
-    expected_first_C = {"c", "&"}
 
-    assert syntactic_analyzer.first("S", cfg) == expected_first_S
-    assert syntactic_analyzer.first("A", cfg) == expected_first_A
-    assert syntactic_analyzer.first("B", cfg) == expected_first_B
-    assert syntactic_analyzer.first("C", cfg) == expected_first_C
+    expected_first_dict = {
+        "S": {"d", "a", "b", "c"},
+        "A": {"a", "&"},
+        "B": {"d", "a", "b", "c"},
+        "C": {"c", "&"},
+        "a": {"a"},
+        "b": {"b"},
+        "c": {"c"},
+        "d": {"d"},
+        "&": {"&"},
+    }
 
-    expected_follow_S = {"$"}
-    expected_follow_A = {"b", "a", "c", "d"}
-    expected_follow_B = {"c", "$"}
-    expected_follow_C = {"d", "$"}
+    expected_follow_dict = {
+        "S": {"$"},
+        "A": {"b", "a", "c", "d"},
+        "B": {"c", "$"},
+        "C": {"d", "$"},
+    }
 
-    follow_result = syntactic_analyzer.follow(cfg)
-    assert follow_result["S"] == expected_follow_S
-    assert follow_result["A"] == expected_follow_A
-    assert follow_result["B"] == expected_follow_B
-    assert follow_result["C"] == expected_follow_C
+    first_dict = calculate_first(cfg)
+    follow_dict = calculate_follow(cfg)
+
+    assert len(first_dict) == len(expected_first_dict)
+    assert len(follow_dict) == len(expected_follow_dict)
+
+    for key, val in expected_first_dict.items():
+        assert first_dict[key] == val
+
+    for key, val in expected_follow_dict.items():
+        assert follow_dict[key] == val
 
 
 def test_table_creation():
     path_to_file = "examples/ff_table_example.cfg"
     cfg = ContextFreeGrammar(path_to_file)
-    table: dict = syntactic_analyzer.create_table(cfg)
+    table: dict = create_table(cfg)
     t_not = ["F", "T0"]
     t_line_end = ["&"]
     assert table[("T", "¬")] == t_not  # Just some special cases, no need to test the whole thing
@@ -56,7 +86,7 @@ def test_table_creation():
 def test_ll1():
     path_to_file = "examples/ff_table_example.cfg"
     cfg = ContextFreeGrammar(path_to_file)
-    table: dict = syntactic_analyzer.create_table(cfg)
+    table: dict = create_table(cfg)
     word = ["id", "∨", "id", "∧", "id", "$"]
     tokens = [Token(i, i) for i in word]
-    assert syntactic_analyzer.ll1_parse(tokens, table, cfg) == True
+    assert ll1_parse(tokens, table, cfg) == True
