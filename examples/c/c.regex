@@ -50,7 +50,7 @@ close_curly_bracket: \}
 package: \<inside_string*\>
 macro: #letter(letter|digit|_)*
 string: "inside_string*"
-char: 'inside_string'
+chars: 'inside_string'
 line_comment: //inside_comment*\n
 multiline_comment: /\*inside_multiline_comment*\*/
 number: (sign?)(digit+)(decimal?)(scientific_notation?)

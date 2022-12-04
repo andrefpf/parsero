@@ -10,8 +10,9 @@ from parsero.lexical.token import Token, TokenList
 class LexicalAnalyzer:
     def __init__(self, regular_definitions_path):
         self.machine: FiniteAutomata
-        self.special_machine: FiniteAutomata
+        self.keyword_machine: FiniteAutomata
         self.keywords: list
+        self.token_ids: list
         self._generate_automata(regular_definitions_path)
 
     def parse(self, path: str) -> tuple[TokenList, SymbolTable]:
@@ -21,7 +22,12 @@ class LexicalAnalyzer:
 
         with open(path) as file:
             string = file.read()
-        return self.parse_string(string)
+
+        try:
+            return self.parse_string(string)
+        except LexicalError as error:
+            error.filename = path
+            raise error            
 
     def parse_string(self, string) -> tuple[TokenList, SymbolTable]:
         """
@@ -95,7 +101,7 @@ class LexicalAnalyzer:
         for i, char in iterator:
             remaining = string[i:]
 
-            keyword, _ = self.special_machine.match(remaining)
+            keyword, _ = self.keyword_machine.match(remaining)
             lexeme, state_index = self.machine.match(remaining)
 
             if lexeme > keyword:
@@ -109,8 +115,8 @@ class LexicalAnalyzer:
                 yield Token(keyword, keyword, i)
                 continue
 
-            # it is a bit slow to ignore these chars this far, but
-            # languages like python need tokens for identation
+            # it is a bit slow to ignore blank chars this far, but
+            # languages like python need tokens for identation or newlines
             # so we cannot ignore spaces before checking
             # the regular definitions
             if char in BLANK:
@@ -122,33 +128,44 @@ class LexicalAnalyzer:
 
     def _generate_automata(self, regular_definitions_path):
         with open(regular_definitions_path) as file:
-            machines, keywords = self._read_regular_definitions(file.read())
+            expressions, keywords = self._read_regular_definitions(file.read())
 
-        special_machines = []
+        self.keywords = keywords
+        self.token_ids = list(expressions.keys())
+
+        # make machines
+        machines = []
+        for _id, _exp in expressions.items():
+            machine = regex.compiles(_exp)
+            for state in machine.states:
+                if state.is_final:
+                    state.tag = _id
+            machines.append(machine)
+
+        keyword_machines = []
         for word in keywords:
             machine = regex.compiles(word)
             for state in machine.states:
                 if state.is_final:
                     state.tag = word
-            special_machines.append(machine)
+            keyword_machines.append(machine)
 
+        # determinize machines
         if machines:
             nd_automata = union(*machines)
             self.machine = nd_automata.determinize()
         else:
             self.machine = FiniteAutomata.empty()
 
-        if special_machines:
-            nd_special_automata = union(*special_machines)
-            self.special_machine = nd_special_automata.determinize()
+        if keyword_machines:
+            nd_keyword_automata = union(*keyword_machines)
+            self.keyword_machine = nd_keyword_automata.determinize()
         else:
-            self.special_machine = FiniteAutomata.empty()
+            self.keyword_machine = FiniteAutomata.empty()
 
-        self.keywords = keywords
 
     def _read_regular_definitions(self, definitions):
         expressions = dict()
-        machines = []
         keywords = []
 
         tmp_id = []
@@ -168,6 +185,7 @@ class LexicalAnalyzer:
             expression = expression.strip()
 
             if identifier == expression:
+                tmp_id.append(identifier)
                 keywords.append(expression)
                 continue
 
@@ -183,11 +201,4 @@ class LexicalAnalyzer:
         for _id in tmp_id:
             expressions.pop(_id, None)  # if not found ignore
 
-        for _id, _exp in expressions.items():
-            machine = regex.compiles(_exp)
-            for state in machine.states:
-                if state.is_final:
-                    state.tag = _id
-            machines.append(machine)
-
-        return machines, keywords
+        return expressions, keywords

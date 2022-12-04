@@ -25,7 +25,7 @@ RETURN_STMT -> return EXPRESSION
 
 COMMENT -> line_comment | multiline_comment
 TYPE -> int | long | char | short | float | id | bool
-VAL -> id | number | char | string | ENCLOSED_EXP
+VAL -> id | number | chars | string | ENCLOSED_EXP
 
 OPTIONAL_STMT -> SIMPLE_STMT | &
 WHILE_STMT -> while ENCLOSED_EXP SCOPE

@@ -94,4 +94,4 @@ def test_ll1():
     table: dict = create_table(cfg)
     word = ["id", "∨", "id", "∧", "id", "$"]
     tokens = [Token(i, i) for i in word]
-    assert ll1_parse(tokens, table, cfg) == True
+    ll1_parse(tokens, table, cfg)

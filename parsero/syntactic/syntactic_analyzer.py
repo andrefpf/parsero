@@ -117,6 +117,8 @@ def create_table(cfg: ContextFreeGrammar) -> dict:
 
 def ll1_parse(tokens: list, table: dict, cfg: ContextFreeGrammar) -> bool:
     stack = ["$", cfg.initial_symbol]
+    stacktrace = []
+    stack_text = "Pilha: {} \nDesempilhado: {} Símbolo: {}"
 
     for token in tokens:
         if token.name == "comment":
@@ -124,9 +126,9 @@ def ll1_parse(tokens: list, table: dict, cfg: ContextFreeGrammar) -> bool:
 
         symbol = token.name
         while True:
-            print("Pilha: ", stack)
+            before_pop = str(stack)
             current = stack.pop()
-            print("Desempilhado: ", current, " Simbolo: ", symbol)
+            stacktrace.append(stack_text.format(before_pop, current, symbol))
 
             if symbol == current:
                 break
@@ -152,4 +154,4 @@ def ll1_parse(tokens: list, table: dict, cfg: ContextFreeGrammar) -> bool:
                 stack.pop()
                 break
 
-    return True
+    return stacktrace
