@@ -418,14 +418,15 @@ def syntactic_loop(cfg_list):
         print("(1) Preparar GLC")
         print("(2) Parsear LL(1) por entrada")
         print("(3) Parsear LL(1) por arquivo")
-        print("(4) Voltar para o menu")
+        print("(4) Mostrar tabela de análise")
+        print("(5) Voltar para o menu")
 
         selected = number_input()
         match selected:
             case "0":
                 show_glc(cfg_list)
             case "1":
-                pos = select_single_cfg
+                pos = select_single_cfg(cfg_list)
                 cfg_list[pos].left_factor()
                 cfg_list[pos].refactor_left_recursion()
                 print(cfg_list[pos])
@@ -436,16 +437,45 @@ def syntactic_loop(cfg_list):
                     pos = select_glc(cfg_list)
                 else:
                     pos = 0
-                cfg = cfg_list[pos]
-                print("Terminais: ", cfg.terminal_symbols)
+                selected_cfg = cfg_list[pos]
+                print("Terminais: ", selected_cfg.terminal_symbols)
                 files = select_files([("All Files", "*")])
                 for filename in files:
                     with open(filename, "r") as file:
-                        table: dict = create_table(cfg)
+                        table: dict = create_table(selected_cfg)
                         word = file.read().split(" ")
                         word.append("$")
-                        print(ll1_parse(word, table, cfg))
+                        print(ll1_parse(word, table, selected_cfg))
             case "4":
+                pos = select_single_cfg(cfg_list)
+                selected_cfg = cfg_list[pos]
+                table: dict = create_table(selected_cfg)
+                order = list(selected_cfg.terminal_symbols)
+                flattened = dict()
+                non_terminals = list(selected_cfg.non_terminal_symbols)
+                for non_term in non_terminals:
+                    flat = []
+                    for i in range(len(order)):
+                        if (non_term, order[i]) in table:
+                            flat.append(table[(non_term, order[i])])
+                        else:
+                            flat.append("/")
+                    flattened[non_term] = flat
+                print(
+                    tabulate(
+                        [
+                            [
+                                k,
+                            ]
+                            + v
+                            for k, v in flattened.items()
+                        ],
+                        headers=order,
+                        tablefmt="fancy_grid",
+                    )
+                )
+
+            case "5":
                 break
             case _:
                 invalid_command()
