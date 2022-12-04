@@ -68,14 +68,15 @@ def lexical_cli():
 def lexical_loop(lexical_list):
     while True:
         print("Selecione uma operação:")
-        print("(0) Exibir expressão regular")
+        print("(0) Exibir automato gerado")
         print("(1) Parsear")
         print("(2) Voltar para o menu")
 
         selected = number_input()
         match selected:
             case "0":
-                pass
+                selected = select_single_regex(lexical_list)
+                print(lexical_list[selected].machine)
             case "1":
                 selected = select_single_regex(lexical_list)
                 print("Forneça o arquivo a ser analisado")
