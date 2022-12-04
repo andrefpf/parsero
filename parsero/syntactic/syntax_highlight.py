@@ -1,14 +1,16 @@
-from parsero import Parser
-from parsero.syntactic import treat_identation
-from parsero.common.errors import LexicalError, SyntacticError
-from termcolor import colored
 from itertools import cycle
+
+from termcolor import colored
+
+from parsero import Parser
+from parsero.common.errors import LexicalError, SyntacticError
+from parsero.syntactic import treat_identation
 
 
 def define_colors(parser):
     colors = ["blue", "white", "red", "cyan", "yellow"]
     token_dict = dict()
-    
+
     for ids in parser.lexical.keywords:
         token_dict[ids] = "magenta"
 
@@ -19,8 +21,8 @@ def define_colors(parser):
         if ids == "comment":
             color = "green"
 
-        token_dict[ids] = color    
-    
+        token_dict[ids] = color
+
     return token_dict
 
 
@@ -31,26 +33,26 @@ def highlight(parser, path):
 
     with open(path) as file:
         string = file.read()
-    
+
     string = treat_identation(string)
     remaining = ""
-    
+
     try:
         parser.parse(path)
     except LexicalError as error:
         last_error = error
-        remaining = string[error.index:]
-        string = string[:error.index]
+        remaining = string[error.index :]
+        string = string[: error.index]
     except SyntacticError as error:
         last_error = error
-        remaining = string[error.index:]
-        string = string[:error.index]
+        remaining = string[error.index :]
+        string = string[: error.index]
 
     output = []
     last_index = 0
     tokens = parser.lexical.tokenize_string(string)
     for token in tokens:
-        inter_tokens = string[last_index:token.index]
+        inter_tokens = string[last_index : token.index]
         lexeme = colored(token.attribute, token_dict[token.name])
         output.append(inter_tokens)
         output.append(lexeme)
@@ -62,7 +64,7 @@ def highlight(parser, path):
         output.append(separator)
         output.append(colored(str(last_error), "red"))
 
-    reconstructed = ''.join(output)
+    reconstructed = "".join(output)
     return reconstructed
 
 

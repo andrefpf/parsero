@@ -27,7 +27,7 @@ class LexicalAnalyzer:
             return self.parse_string(string)
         except LexicalError as error:
             error.filename = path
-            raise error            
+            raise error
 
     def parse_string(self, string) -> tuple[TokenList, SymbolTable]:
         """
@@ -162,7 +162,6 @@ class LexicalAnalyzer:
             self.keyword_machine = nd_keyword_automata.determinize()
         else:
             self.keyword_machine = FiniteAutomata.empty()
-
 
     def _read_regular_definitions(self, definitions):
         expressions = dict()
