@@ -67,7 +67,6 @@ def lexical_cli():
 
 def lexical_loop(lexical_list):
     while True:
-        show_regex_list(lexical_list)
         print("Selecione uma operação:")
         print("(0) Exibir expressão regular")
         print("(1) Parsear")
@@ -84,8 +83,9 @@ def lexical_loop(lexical_list):
                 for file in files:
                     try:
                         print(lexical_list[selected].tokenize(file))
+                        print("Sucesso!")
                     except LexicalError:
-                        print("Esta palavra não pertence à gramática")
+                        print("Essa palavra não pode ser gerada a partir da gramática")
             case "2":
                 break
             case _:
@@ -103,7 +103,6 @@ def cfg_cli():
 
 def cfg_loop(cfg_list):
     while True:
-        show_glc_list(cfg_list)
         print("Selecione uma operação:")
         print("(0) Exibir gramática")
         print("(1) Remover &-transições")
@@ -170,7 +169,6 @@ def start_automata():
 
 def automata_loop(built):
     while True:
-        show_automata_list(built)
         print("Selecione uma operação:")
         print("(0) Exibir automato")
         print("(1) Unir automatos")
@@ -341,7 +339,7 @@ def select_single_regex(built) -> int:
 def select_files(file_types: list):
     print("Selecione os arquivos a serem carregados.")
     tkinter.Tk().withdraw()
-    filenames = askopenfilenames(filetypes=file_types)
+    filenames = askopenfilenames(filetypes=file_types, initialdir="examples")
 
     while True:
         print("Você quer selecionar mais arquivos?")
@@ -415,12 +413,12 @@ def syntatic_parse(cfg_list):
 
 def syntactic_loop(cfg_list):
     while True:
-        show_glc_list(cfg_list)
         print("Selecione uma operação:")
         print("(0) Exibir GLC")
         print("(1) Preparar GLC")
-        print("(2) Parsear LL(1)")
-        print("(3) Voltar para o menu")
+        print("(2) Parsear LL(1) por entrada")
+        print("(3) Parsear LL(1) por arquivo")
+        print("(4) Voltar para o menu")
 
         selected = number_input()
         match selected:
@@ -434,6 +432,20 @@ def syntactic_loop(cfg_list):
             case "2":
                 syntatic_parse(cfg_list)
             case "3":
+                if len(cfg_list) > 1:
+                    pos = select_glc(cfg_list)
+                else:
+                    pos = 0
+                cfg = cfg_list[pos]
+                print("Terminais: ", cfg.terminal_symbols)
+                files = select_files([("All Files", "*")])
+                for filename in files:
+                    with open(filename, "r") as file:
+                        table: dict = create_table(cfg)
+                        word = file.read().split(" ")
+                        word.append("$")
+                        print(ll1_parse(word, table, cfg))
+            case "4":
                 break
             case _:
                 invalid_command()
