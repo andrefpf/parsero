@@ -8,6 +8,7 @@ import parsero
 from parsero import *
 from parsero.automata import *
 from parsero.cfg import ContextFreeGrammar
+from parsero.common import LexicalError
 from parsero.lexical import LexicalAnalyzer
 from parsero.syntactic import create_table, ll1_parse
 
@@ -17,37 +18,41 @@ def welcome_message():
 
 
 def select_analyser():
-    print("Selecione o analisador a ser usado:")
-    print("(0) Automatos Finitos")
-    print("(1) Expressões Regulares")
-    print("(2) Gramáticas Livres de Contexto")
-    print("(3) Analisador Léxico")
-    print("(4) Analisador Sintático")
-    selected = number_input()
-    match selected:
-        case "0":
-            start_automata()
-        case "1":
-            while True:
-                regex_exp = input("Forneça a expressão regular: ")
+    while True:
+        print("Selecione o analisador a ser usado:")
+        print("(0) Automatos Finitos")
+        print("(1) Expressões Regulares")
+        print("(2) Gramáticas Livres de Contexto")
+        print("(3) Analisador Léxico")
+        print("(4) Analisador Sintático")
+        print("(5) Encerrar Execução")
+        selected = number_input()
+        match selected:
+            case "0":
+                start_automata()
+            case "1":
                 while True:
-                    word = input("Forneça a palavra: ")
-                    automata = regex.compiles(regex_exp)
-                    print(automata.evaluate(word))
-                    print("Continuar com a mesma expressão regular? s/n")
+                    regex_exp = input("Forneça a expressão regular: ")
+                    while True:
+                        word = input("Forneça a palavra: ")
+                        automata = regex.compiles(regex_exp)
+                        print(automata.evaluate(word))
+                        print("Continuar com a mesma expressão regular?")
+                        if not boolean_select():
+                            break
+                    print("Escrever outra expressão regular?")
                     if not boolean_select():
                         break
-                print("Escrever outra expressão regular? s/n")
-                if not boolean_select():
-                    break
-        case "2":
-            cfg_cli()
-        case "3":
-            lexical_cli()
-        case "4":
-            syntactic()
-        case _:
-            invalid_command()
+            case "2":
+                cfg_cli()
+            case "3":
+                lexical_cli()
+            case "4":
+                syntactic()
+            case "5":
+                break
+            case _:
+                invalid_command()
 
 
 def lexical_cli():
@@ -77,7 +82,10 @@ def lexical_loop(lexical_list):
                 print("Forneça o arquivo a ser analisado")
                 files = select_files()
                 for file in files:
-                    print(lexical_list[selected].analyze(file))
+                    try:
+                        print(lexical_list[selected].tokenize(file))
+                    except LexicalError:
+                        print("Esta palavra não pertence à gramática" )
             case "2":
                 break
             case _:
@@ -192,7 +200,7 @@ def save_automata(built: list):
     else:
         pos = 0
     filename = input("Forneça o nome do arquivo. Ex: pasta/nome.fa: ")
-    built[pos].to_file(filename)
+    automata_to_file(built[pos], filename)
     print("Arquivo salvo com sucesso!")
 
 
@@ -237,8 +245,7 @@ def unite_all(built: list):
 
 
 def show_automata(built: list):
-    show_automata_list(built)
-    selected = number_input()
+    selected = select_single_automata(built)
     print(built[int(selected)])
 
 
@@ -250,9 +257,9 @@ def show_glc(built: list):
 
 def show_automata_list(built: list):
     match len(built):
-        case "0":
+        case 0:
             file_not_valid()
-        case "1":
+        case 1:
             print("Automato finito carregado [0]")
         case _:
             print("Automatos finitos carregados [0, ..., {}]".format(len(built) - 1))
@@ -260,9 +267,9 @@ def show_automata_list(built: list):
 
 def show_glc_list(built: list):
     match len(built):
-        case "0":
+        case 0:
             file_not_valid()
-        case "1":
+        case 1:
             print("Gramática Livre de Contexto carregada [0]")
         case _:
             print("Gramáticas Livres de Contexto carregadas [0, ..., {}]".format(len(built) - 1))
@@ -270,9 +277,9 @@ def show_glc_list(built: list):
 
 def show_regex_list(built: list):
     match len(built):
-        case "0":
+        case 0:
             file_not_valid()
-        case "1":
+        case 1:
             print("Expressão regular carregada [0]")
         case _:
             print("Expressões regulares carregadas [0, ..., {}]".format(len(built) - 1))
@@ -469,7 +476,7 @@ def wait_user():
 
 
 def number_input() -> str:
-    return input("Formato de entrada: 0, 1, 2, 3: ")
+    return input("Formato de entrada: 0, 1, ... n: ")
 
 
 os.system("cls||clear")
