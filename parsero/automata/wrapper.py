@@ -1,6 +1,8 @@
+from pathlib import Path
+
 from parsero.automata import FiniteAutomata, NDFiniteAutomata
 from parsero.automata.state import State
-from pathlib import Path
+
 
 def file_to_automata(path_to_file):
     """
@@ -87,7 +89,7 @@ def automata_to_file(automata, path_to_file):
         transition_str = ",".join([origin, symbol, target])
 
         transitions.append(transition_str)
-    
+
     # Creates the folder if it does not exist
     path = Path(path_to_file)
     path.parent.mkdir(parents=True, exist_ok=True)
