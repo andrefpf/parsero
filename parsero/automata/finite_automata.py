@@ -12,8 +12,9 @@ DEAD_STATE_INDEX = -1
 class FiniteAutomata:
     def __init__(self, states, transitions, alphabet, initial_state=0):
         self.states = states
-        self.initial_state = initial_state
+        self.transitions = transitions
         self.alphabet = alphabet
+        self.initial_state = initial_state
         self.transition_map = self._create_transition_map(transitions)
 
     @classmethod
