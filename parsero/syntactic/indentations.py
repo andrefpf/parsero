@@ -15,7 +15,7 @@ def treat_identation(string):
             last_line = line
             continue
 
-        matched, _ = INDENT_FINDER.match(line)
+        matched = INDENT_FINDER.match(line).substring
         level = len(matched) // 4
         diference = level - last_level
 

@@ -58,6 +58,9 @@ def compiles(expression: str) -> FiniteAutomata:
     """
     Converts a regular expression into equivalent Finite Automata.
     """
+
+    from .regex_automata import RegexAutomata
+
     expression = _simplify_regex(expression)
     tree = regex_tree.create_regex_tree(expression)
 
@@ -79,8 +82,11 @@ def compiles(expression: str) -> FiniteAutomata:
         symbol_tags=symbol_tags,
     )
 
-    return FiniteAutomata(
-        states=states, transitions=transitions, alphabet=alphabet, initial_state=0
+    return RegexAutomata(
+        states=states,
+        transitions=transitions,
+        alphabet=alphabet,
+        initial_state=0,
     )
 
 
@@ -110,7 +116,7 @@ def compile_regular_definitions(definitions: str) -> dict[str, FiniteAutomata]:
             col = line.index(":") + 1
             raise SyntacticError.from_data(definitions, msg, line=i, col=col)
 
-        recognized, _ = is_identifier.match(identifier)
+        recognized = is_identifier.match(identifier).substring
         col = len(recognized)
         if col < len(identifier):
             msg = "Invalid identifier."

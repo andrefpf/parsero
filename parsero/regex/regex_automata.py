@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 @dataclass
 class RegexMatch:
-    match_found: str
+    substring: str
     state_index: int
     state: State
 
@@ -27,7 +27,7 @@ class RegexAutomata(FiniteAutomata):
                 found_state = state
 
         return RegexMatch(
-            match_found=string[:length],
+            substring=string[:length],
             state_index=found_state_index,
             state=found_state,
         )
