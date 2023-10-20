@@ -5,7 +5,8 @@ from tabulate import tabulate
 from parsero import automata
 from parsero.automata.state import State
 
-DEAD_STATE = -1
+
+DEAD_STATE_INDEX = -1
 
 
 class FiniteAutomata:
@@ -25,13 +26,13 @@ class FiniteAutomata:
         """
         current_state = self.initial_state
         yield current_state
-        if current_state is DEAD_STATE:
+        if current_state is DEAD_STATE_INDEX:
             return
 
         for symbol in string:
             current_state = self.compute(current_state, symbol)
             yield current_state
-            if current_state is DEAD_STATE:
+            if current_state is DEAD_STATE_INDEX:
                 break
 
     def evaluate(self, string):
@@ -42,7 +43,7 @@ class FiniteAutomata:
         for state in self.iterate(string):
             last_state = state
 
-        if last_state == DEAD_STATE:
+        if last_state == DEAD_STATE_INDEX:
             return False
         else:
             return self.is_state_final(last_state)
@@ -61,10 +62,10 @@ class FiniteAutomata:
         """
 
         length = 0
-        found_state = DEAD_STATE
+        found_state = DEAD_STATE_INDEX
 
         for i, state in enumerate(self.iterate(string)):
-            if state == DEAD_STATE:
+            if state == DEAD_STATE_INDEX:
                 break
             if self.is_state_final(state):
                 length = i
@@ -84,7 +85,7 @@ class FiniteAutomata:
         else:
             transition = (origin, symbol)
 
-        return self.transition_map.get(transition, DEAD_STATE)
+        return self.transition_map.get(transition, DEAD_STATE_INDEX)
 
     def union(self, other):
         return automata.union(self, other)
