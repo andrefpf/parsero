@@ -1,7 +1,7 @@
 from collections import defaultdict
 
 from parsero import regex
-from parsero.cfg.contextfree_grammar import ContextFreeGrammar
+from parsero.context_free_grammar.contextfree_grammar import ContextFreeGrammar
 from parsero.common.errors import SyntacticError
 from parsero.lexical.token import Token
 

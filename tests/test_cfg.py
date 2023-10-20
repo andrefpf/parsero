@@ -1,4 +1,4 @@
-from parsero.cfg.contextfree_grammar import ContextFreeGrammar
+from parsero.context_free_grammar.contextfree_grammar import ContextFreeGrammar
 
 
 def test_import():

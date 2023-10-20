@@ -7,7 +7,7 @@ from termcolor import colored
 import parsero
 from parsero import *
 from parsero.automata import *
-from parsero.cfg import ContextFreeGrammar
+from parsero.context_free_grammar import ContextFreeGrammar
 from parsero.common import LexicalError
 from parsero.lexical import LexicalAnalyzer
 from parsero.syntactic import (

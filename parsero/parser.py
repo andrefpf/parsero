@@ -3,7 +3,7 @@ from itertools import cycle
 from termcolor import colored
 
 from parsero import syntactic
-from parsero.cfg.contextfree_grammar import ContextFreeGrammar
+from parsero.context_free_grammar.contextfree_grammar import ContextFreeGrammar
 from parsero.common.errors import LexicalError, SyntacticError
 from parsero.lexical import LexicalAnalyzer, Token
 from parsero.syntactic import (
